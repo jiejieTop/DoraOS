@@ -13,8 +13,7 @@
 
 
 
-
-
+     
 struct DOS_TaskCB
 {
   dos_void                        *StackPoint;             /**< Task stack point          */
@@ -29,9 +28,10 @@ struct DOS_TaskCB
   dos_void                        *TaskMux;                  /**< Task-held mutex             */
   dos_void                        *Parameter;                      /**< Parameter                   */
   dos_char                        *TaskName;                /**< Task name                   */
-  DOS_DList_t                     TaskList;
-  
-  
+  Dos_TaskList_t                  ReadyList;
+//  dos_void                        *TCB_Addr;
+
+  Dos_TaskList_t                  PendList;
   //    LOS_DL_LIST                 stPendList;
 //    LOS_DL_LIST                 stTimerList;
     dos_uint32                      uwIdxRollNum;

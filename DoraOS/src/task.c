@@ -2,12 +2,21 @@
 #include <task.h>
 #include "include.h"
 
-#ifndef DOS_MAX_PRIORITY
-#define DOS_MAX_PRIORITY		32
-#endif 
+#ifndef     DOS_MAX_PRIORITY_NUM
+#define     DOS_MAX_PRIORITY_NUM        32U
+#endif
 
+#if DOS_MAX_PRIORITY_NUM > 32
+#define   DOS_PRIORITY_TAB  (((DOS_MAX_PRIORITY_NUM -1 )/32) + 1)
+
+#define   DOS_PRIORITY_TAB_INDEX(PRI)  (((PRI -1 )/32))
+
+static dos_uint32 Dos_Task_Priority[DOS_PRIORITY_TAB];
+#else
 static dos_uint32 Dos_Task_Priority;
-DOS_DList_t Dos_TaskPriority_List[DOS_MAX_PRIORITY];
+#endif
+
+Dos_TaskList_t Dos_TaskPriority_List[DOS_MAX_PRIORITY_NUM];
 
 
 
@@ -15,24 +24,80 @@ DOS_TaskCB_t volatile Dos_CurrentTCB = NULL;
 
 dos_uint32 Dos_TickCount = 0U;
 
+const dos_uint8 Dos_BitMap[] =
+{
+  0, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,    /* 00 */
+  4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,    /* 10 */
+  5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,    /* 20 */
+  4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,    /* 30 */
+  6, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,    /* 40 */ 
+  4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,    /* 50 */
+  5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,    /* 60 */
+  4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,    /* 70 */
+  7, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,    /* 80 */ 
+  4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,    /* 90 */
+  5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,    /* A0 */
+  4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,    /* B0 */
+  6, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,    /* C0 */
+  4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,    /* D0 */
+  5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,    /* E0 */ 
+  4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0     /* F0 */
+};
+
 static void Dos_Create_IdleTask(void);
+
+dos_uint32 Dos_Get_Highest_Priority(dos_uint32 pri)
+{
+    if (pri == 0) return 0;
+
+    if (pri & 0xff)
+        return Dos_BitMap[pri & 0xff] + 1;
+
+    if (pri & 0xff00)
+        return Dos_BitMap[(pri & 0xff00) >> 8] + 9;
+
+    if (pri & 0xff0000)
+        return Dos_BitMap[(pri & 0xff0000) >> 16] + 17;
+
+    return Dos_BitMap[(pri & 0xff000000) >> 24] + 25;
+}
+
+
+
+
+
+
 
 
 static void Dos_TaskPriority_List_Init(void)
 {
   dos_uint8 i;
+#if DOS_MAX_PRIORITY_NUM > 32
+  for(i = 0; i < DOS_PRIORITY_TAB; i++)
+    Dos_Task_Priority[i] = 0;
+#else
   Dos_Task_Priority = 0;
-  for(i=0; i<DOS_MAX_PRIORITY; i++)
+#endif
+  for(i  =0; i < DOS_MAX_PRIORITY_NUM; i++)
   {
-    Dos_DListInit(&Dos_TaskPriority_List[i]); 
+    Dos_TaskList_Init(&Dos_TaskPriority_List[i]); 
   }
 }
 
 static void Dos_Inser_TaskPriority_List(DOS_TaskCB_t dos_taskcb)
 {
+  /* update priority  */
+#if DOS_MAX_PRIORITY_NUM > 32
+  Dos_Task_Priority[DOS_PRIORITY_TAB_INDEX(dos_taskcb->Priority)] |= (0x01 << (dos_taskcb->Priority % 32));
+#else
   Dos_Task_Priority |= (0x01 << dos_taskcb->Priority);
-  printf("Dos_Task_Priority = %#x\n",Dos_Task_Priority);
-  Dos_DListInser(&Dos_TaskPriority_List[dos_taskcb->Priority],&dos_taskcb->TaskList);
+  DOS_PRINT_DEBUG("Dos_Task_Priority = %#x",Dos_Task_Priority);
+#endif
+  /* init task list,the list will pend in readylist or pendlist  */
+  Dos_TaskList_Init(&(dos_taskcb->ReadyList));
+  /* inser priority list */
+  Dos_DListInser(&Dos_TaskPriority_List[dos_taskcb->Priority].TaskDList,&dos_taskcb->ReadyList.TaskDList);
+  Dos_TaskPriority_List[dos_taskcb->Priority].TCB_Addr = (dos_void*)dos_taskcb;
 }
 
 
@@ -99,7 +164,6 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
   dos_taskcb = (DOS_TaskCB_t)Dos_MemAlloc(sizeof(struct DOS_TaskCB));
   if(dos_taskcb != DOS_NULL)
   {
-    
     dos_stack = (dos_void *)Dos_MemAlloc(dos_stack_size);
     if(DOS_NULL == dos_stack)
     {
@@ -107,6 +171,7 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
       /* 此处应释放申请到的内存 */
       return DOS_NULL;
     }
+//    dos_taskcb->ReadyList.TCB_Addr = (dos_void *)dos_taskcb;
     dos_taskcb->StackAddr = dos_stack;
     dos_taskcb->StackSize = dos_stack_size;
   }
@@ -118,9 +183,6 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
 
   prvInitialiseNewTask(dos_taskcb);       
   
-  /* init task list,the list will pend in readylist or pendlist  */
-  Dos_DListInit(&(dos_taskcb->TaskList));
-
   Dos_Inser_TaskPriority_List(dos_taskcb);
   
   return dos_taskcb;
@@ -139,28 +201,41 @@ static void Dos_Create_IdleTask(void)
   Dos_TaskCreate( "IdleTask",
                   &IdleTask,
                   DOS_NULL,
-                  IDLE_TASK_SIZE,
-                  IDLE_TASK_PRIORITY);
+                  DOS_IDLE_TASK_SIZE,
+                  DOS_IDLE_TASK_PRIORITY);
 
 }
 
+//#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
 
+//#define rt_container_of(ptr, type, member) \
+//    ((type *)((char *)(ptr) - (unsigned long)(&((type *)0)->member)))
+
+//#define GET_TCB_ADDR(ptr) rt_container_of(ptr,DOS_TaskCB_t,TCB_Addr)
+        
 extern DOS_TaskCB_t task;
 extern DOS_TaskCB_t task1;
 void Dos_Start( void )
 {
-    /* 手动指定第一个运行的任务 */
-    Dos_CurrentTCB = task;
-    Dos_TickCount = 0U;
-    /* 启动调度器 */
-    if( Dos_StartScheduler() != 0 )
-    {
-        /* 调度器启动成功，则不会返回，即不会来到这里 */
-    }
+  dos_uint32 pri;
+  /* 手动指定第一个运行的任务 */
+  pri = Dos_Get_Highest_Priority(Dos_Task_Priority);
+  
+  Dos_CurrentTCB = (DOS_TaskCB_t)Dos_TaskPriority_List[pri].TCB_Addr;
+  
+  Dos_TickCount = 0U;
+  /* 启动调度器 */
+  if( Dos_StartScheduler() != 0 )
+  {
+      /* 调度器启动成功，则不会返回，即不会来到这里 */
+  }
 }
 
 void vTaskSwitchContext( void )
 {    
+  
+//Dos_Get_Highest_Priority(Dos_Task_Priority);
+  
     /* 两个任务轮流切换 */
     if( Dos_CurrentTCB == task )
     {
@@ -170,6 +245,11 @@ void vTaskSwitchContext( void )
     {
         Dos_CurrentTCB = task;
     }
+  
+  
+  
+  
+  
 }
 
 

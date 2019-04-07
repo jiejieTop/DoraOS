@@ -17,6 +17,7 @@
   ******************************************************************
   */ 
 
+
 DOS_TaskCB_t task = DOS_NULL;
 DOS_TaskCB_t task1 = DOS_NULL;
 /**
@@ -32,9 +33,9 @@ void test_task(void *Parameter)
   while(1)
   {
     Dos_Interrupt_Disable();
-//    printf("abc\n");
+    printf("abc\n");
     Dos_Interrupt_Enable(0);
-//    Delay_ms(1000);
+    Delay_ms(1000);
 //    taskYIELD();
   }
 }
@@ -43,9 +44,9 @@ void test1_task(void *Parameter)
   while(1)
   {
     Dos_Interrupt_Disable();
-//    printf("123\n");
+    printf("123\n");
     Dos_Interrupt_Enable(0);
-//    Delay_ms(1000);
+    Delay_ms(1000);
 //    taskYIELD();
   }
 }

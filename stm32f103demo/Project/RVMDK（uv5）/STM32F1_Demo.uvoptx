@@ -162,9 +162,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>64</LineNumber>
+          <LineNumber>79</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134222174</Address>
+          <Address>134222192</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -173,23 +173,39 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>F:\jiejieTop\DoraOS\stm32f103demo\Project\User\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\STM32_Demo\../../User/main.c\64</Expression>
+          <Expression>\\STM32_Demo\../../User/main.c\79</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>144</LineNumber>
+          <LineNumber>188</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134222480</Address>
+          <Address>134224226</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>F:\jiejieTop\DoraOS\stm32f103demo\Project\User\bsp\exti\stm32f10x_it.c</Filename>
+          <Filename>F:\jiejieTop\DoraOS\stm32f103demo\DoraOS\src\task.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\STM32_Demo\../../User/bsp/exti/stm32f10x_it.c\144</Expression>
+          <Expression>\\STM32_Demo\../../../DoraOS/src/task.c\188</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>164</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134224152</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>F:\jiejieTop\DoraOS\stm32f103demo\DoraOS\src\task.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\STM32_Demo\../../../DoraOS/src/task.c\164</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -197,6 +213,26 @@
           <count>0</count>
           <WinNumber>1</WinNumber>
           <ItemText>task</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>Dos_TaskPriority_List[1]</ItemText>
+        </Ww>
+        <Ww>
+          <count>2</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>Dos_CurrentTCB</ItemText>
+        </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>&amp;(task-&gt;StackPoint)</ItemText>
+        </Ww>
+        <Ww>
+          <count>4</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>dos_taskcb</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
@@ -245,12 +281,17 @@
           <WinNumber>2</WinNumber>
           <ItemText>memheap_addr + 1024</ItemText>
         </Ww>
+        <Ww>
+          <count>9</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>task1</ItemText>
+        </Ww>
       </WatchWindow2>
       <MemoryWindow1>
         <Mm>
           <WinNumber>1</WinNumber>
           <SubType>0</SubType>
-          <ItemText>0x20000148</ItemText>
+          <ItemText>0x20000060</ItemText>
           <AccSizeX>0</AccSizeX>
         </Mm>
       </MemoryWindow1>
