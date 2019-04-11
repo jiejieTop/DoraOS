@@ -14,7 +14,6 @@ typedef struct DOS_DList
 typedef struct Dos_TaskList
 {
   DOS_DList_t   TaskDList;
-  dos_uint32 Item;
   dos_void   *TCB_Addr;
 }Dos_TaskList_t;
 

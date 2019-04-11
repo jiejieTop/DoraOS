@@ -51,27 +51,22 @@ dos_uint32 Dos_Get_Highest_Priority(dos_uint32 pri)
     if (pri == 0) return 0;
 
     if (pri & 0xff)
-        return Dos_BitMap[pri & 0xff] + 1;
+        return Dos_BitMap[pri & 0xff];
 
     if (pri & 0xff00)
-        return Dos_BitMap[(pri & 0xff00) >> 8] + 9;
+        return Dos_BitMap[(pri & 0xff00) >> 8] + 8;
 
     if (pri & 0xff0000)
-        return Dos_BitMap[(pri & 0xff0000) >> 16] + 17;
+        return Dos_BitMap[(pri & 0xff0000) >> 16] + 16;
 
-    return Dos_BitMap[(pri & 0xff000000) >> 24] + 25;
+    return Dos_BitMap[(pri & 0xff000000) >> 24] + 24;
 }
-
-
-
-
-
 
 
 
 static void Dos_TaskPriority_List_Init(void)
 {
-  dos_uint8 i;
+  dos_uint32 i;
 #if DOS_MAX_PRIORITY_NUM > 32
   for(i = 0; i < DOS_PRIORITY_TAB; i++)
     Dos_Task_Priority[i] = 0;
@@ -206,12 +201,6 @@ static void Dos_Create_IdleTask(void)
 
 }
 
-//#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
-
-//#define rt_container_of(ptr, type, member) \
-//    ((type *)((char *)(ptr) - (unsigned long)(&((type *)0)->member)))
-
-//#define GET_TCB_ADDR(ptr) rt_container_of(ptr,DOS_TaskCB_t,TCB_Addr)
         
 extern DOS_TaskCB_t task;
 extern DOS_TaskCB_t task1;
@@ -219,7 +208,18 @@ void Dos_Start( void )
 {
   dos_uint32 pri;
   /* 手动指定第一个运行的任务 */
+#if DOS_MAX_PRIORITY_NUM > 32
+  dos_uint32 i;
+  for(i = 0; i < DOS_PRIORITY_TAB; i++)
+  {
+    if(Dos_Task_Priority[i] & 0xFFFFFFFF)
+      break;
+  }
+  pri = Dos_Get_Highest_Priority(Dos_Task_Priority[i]) + 32 * i;
+#else
   pri = Dos_Get_Highest_Priority(Dos_Task_Priority);
+#endif
+  DOS_PRINT_DEBUG("PRI = %d \n",pri);
   
   Dos_CurrentTCB = (DOS_TaskCB_t)Dos_TaskPriority_List[pri].TCB_Addr;
   
@@ -234,7 +234,17 @@ void Dos_Start( void )
 void vTaskSwitchContext( void )
 {    
   
-//Dos_Get_Highest_Priority(Dos_Task_Priority);
+#if DOS_MAX_PRIORITY_NUM > 32
+  dos_uint32 i;
+  for(i = 0; i < DOS_PRIORITY_TAB; i++)
+  {
+    if(Dos_Task_Priority[i] & 0xFFFFFFFF)
+      break;
+  }
+  Dos_Get_Highest_Priority(Dos_Task_Priority[i]) + 32 * i;
+#else
+  Dos_Get_Highest_Priority(Dos_Task_Priority);
+#endif
   
     /* 两个任务轮流切换 */
     if( Dos_CurrentTCB == task )

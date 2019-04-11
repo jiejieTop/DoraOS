@@ -33,10 +33,9 @@ void test_task(void *Parameter)
   while(1)
   {
     Dos_Interrupt_Disable();
-    printf("abc\n");
+    LED1_TOGGLE;
     Dos_Interrupt_Enable(0);
     Delay_ms(1000);
-//    taskYIELD();
   }
 }
 void test1_task(void *Parameter)
@@ -44,10 +43,9 @@ void test1_task(void *Parameter)
   while(1)
   {
     Dos_Interrupt_Disable();
-    printf("123\n");
+    DOS_PRINT_DEBUG("123\n");
     Dos_Interrupt_Enable(0);
     Delay_ms(1000);
-//    taskYIELD();
   }
 }
 /**
@@ -55,7 +53,7 @@ void test1_task(void *Parameter)
   * @brief   Ö÷º¯Êý
   * @author  jiejie
   * @version V1.0
-  * @date    2018-xx-xx
+  * @date    2019-xx-xx
   ******************************************************************
   */ 
 int main(void)

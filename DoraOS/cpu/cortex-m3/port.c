@@ -1,39 +1,5 @@
 #include <port.h>
 
-#define portINITIAL_XPSR			        ( 0x01000000 )
-#define portSTART_ADDRESS_MASK				( ( StackType_t ) 0xfffffffeUL )
-
-
-#define PENDSV_INTERRUPT_PRIORITY 		0xFF   /* 高四位有效，即等于0xff，或者是15 */
-#define SYSTICK_INTERRUPT_PRIORITY 	  0xB0   /* 高四位有效，即等于0xb0，或者是11 */
-
-#define SYSPRI2_REG				( * ( ( volatile dos_uint32 * ) 0xe000ed20 ) )
- 
-#define PENDSV_PRI				( ( ( dos_uint32 ) PENDSV_INTERRUPT_PRIORITY ) << 16UL )
-#define SYSTICK_PRI				( ( ( dos_uint32 ) SYSTICK_INTERRUPT_PRIORITY ) << 24UL )
-
-
-#define INT_CTRL_REG		( * ( ( volatile dos_uint32 * ) 0xe000ed04 ) )
-#define PENDSVSET_BIT		( 1UL << 28UL )
-
-
-
-#ifndef SYSTICK_CLOCK_HZ
-	#define SYSTICK_CLOCK_HZ      1000
-#endif
-
-#define SYSTICK_CTRL_REG			      ( * ( ( volatile dos_uint32 * ) 0xe000e010 ) )
-#define SYSTICK_LOAD_REG			      ( * ( ( volatile dos_uint32 * ) 0xe000e014 ) )
-#define SYSTICK_VAL_REG	            ( * ( ( volatile dos_uint32 * ) 0xe000e018 ) )
-#define SYSPRI2_REG				          ( * ( ( volatile dos_uint32 * ) 0xe000ed20 ) )
-  
-#define SYSTICK_ENABLE_BIT			    ( 1UL << 0UL )
-#define SYSTICK_INT_BIT			        ( 1UL << 1UL )
-#define SYSTICK_CLK_BIT	            ( 1UL << 2UL )
-#define SYSTICK_COUNT_FLAG_BIT		  ( 1UL << 16UL )
-
-#define PENDSVCLEAR_BIT 			      ( 1UL << 27UL )
-#define PEND_SYSTICK_CLEAR_BIT		  ( 1UL << 25UL )
 
 
 static void Dos_TaskExit( void )

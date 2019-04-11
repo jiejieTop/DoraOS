@@ -9,9 +9,6 @@
 #include <port.h>
 #include <dos_config.h>
 
-#define taskYIELD()			portYIELD()
-
-
 
      
 struct DOS_TaskCB

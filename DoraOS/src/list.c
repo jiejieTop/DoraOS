@@ -33,10 +33,7 @@ void Dos_DListDel(DOS_DList_t *dos_dlist)
 void Dos_TaskList_Init(Dos_TaskList_t *dos_tasklist)
 {
   Dos_DListInit(&(dos_tasklist->TaskDList));
-  
-  dos_tasklist->Item = 0;
   dos_tasklist->TCB_Addr = DOS_NULL;
-  
 }
 
 
