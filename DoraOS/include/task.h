@@ -27,7 +27,7 @@ struct DOS_TaskCB
   dos_char                        *TaskName;                /**< Task name                   */
   Dos_TaskList_t                  ReadyList;
 //  dos_void                        *TCB_Addr;
-
+  Dos_TaskList_t                  SleepList;
   Dos_TaskList_t                  PendList;
   //    LOS_DL_LIST                 stPendList;
 //    LOS_DL_LIST                 stTimerList;
@@ -39,6 +39,7 @@ struct DOS_TaskCB
 };
 
 typedef struct DOS_TaskCB * DOS_TaskCB_t;
+
 
 
 void Dos_SystemInit(void);

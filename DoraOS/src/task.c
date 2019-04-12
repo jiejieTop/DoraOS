@@ -18,10 +18,12 @@ static dos_uint32 Dos_Task_Priority;
 
 Dos_TaskList_t Dos_TaskPriority_List[DOS_MAX_PRIORITY_NUM];
 
+Dos_TaskList_t Dos_TaskSleep_List;
 
+DOS_TaskCB_t volatile Dos_CurrentTCB = DOS_NULL;
 
-DOS_TaskCB_t volatile Dos_CurrentTCB = NULL;
-
+DOS_TaskCB_t volatile Dos_IdleTCB = DOS_NULL;
+  
 dos_uint32 Dos_TickCount = 0U;
 
 const dos_uint8 Dos_BitMap[] =
@@ -183,6 +185,25 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
   return dos_taskcb;
 }
 
+
+void Dos_TaskSleep(dos_uint32 dos_sleep_tick)
+{
+  if(Dos_IdleTCB == Dos_CurrentTCB)
+  {
+    DOS_PRINT_ERR("Idle tasks are not allowed to sleep!\n");
+    return;
+  }
+  if(0 == dos_sleep_tick)
+  {
+    DOS_TASK_YIELD();
+  }
+  Dos_DListDel(&(Dos_CurrentTCB->ReadyList.TaskDList));
+  Dos_DListInser(&Dos_TaskSleep_List.TaskDList, &(Dos_CurrentTCB->SleepList.TaskDList));
+
+}
+
+
+
 void _Dos_IdleTask(void *Parameter)
 {
   while(1)
@@ -193,17 +214,18 @@ void _Dos_IdleTask(void *Parameter)
 
 static void _Dos_Create_IdleTask(void)
 {
-  Dos_TaskCreate( "IdleTask",
-                  &_Dos_IdleTask,
-                  DOS_NULL,
-                  DOS_IDLE_TASK_SIZE,
-                  DOS_IDLE_TASK_PRIORITY);
-
+ Dos_IdleTCB = Dos_TaskCreate( "IdleTask",
+                                &_Dos_IdleTask,
+                                DOS_NULL,
+                                DOS_IDLE_TASK_SIZE,
+                                DOS_IDLE_TASK_PRIORITY);
+  if(DOS_NULL == Dos_IdleTCB)
+  {
+    DOS_PRINT_ERR("Dos_IdleTCB is NULL!\n");
+  }
 }
+ 
 
-        
-extern DOS_TaskCB_t task;
-extern DOS_TaskCB_t task1;
 void Dos_Start( void )
 {
   dos_uint32 pri;
@@ -233,7 +255,7 @@ void Dos_Start( void )
 
 void Dos_SwitchTask( void )
 {    
-  
+  dos_uint32 pri;
 #if DOS_MAX_PRIORITY_NUM > 32
   dos_uint32 i;
   for(i = 0; i < DOS_PRIORITY_TAB; i++)
@@ -241,22 +263,22 @@ void Dos_SwitchTask( void )
     if(Dos_Task_Priority[i] & 0xFFFFFFFF)
       break;
   }
-  Dos_Get_Highest_Priority(Dos_Task_Priority[i]) + 32 * i;
+  pri = Dos_Get_Highest_Priority(Dos_Task_Priority[i]) + 32 * i;
 #else
-  Dos_Get_Highest_Priority(Dos_Task_Priority);
+  pri = Dos_Get_Highest_Priority(Dos_Task_Priority);
 #endif
   
-    /* 两个任务轮流切换 */
-    if( Dos_CurrentTCB == task )
-    {
-        Dos_CurrentTCB = task1;
-    }
-    else
-    {
-        Dos_CurrentTCB = task;
-    }
+  Dos_CurrentTCB = (DOS_TaskCB_t)Dos_TaskPriority_List[pri].TCB_Addr;
   
-  
+//    /* 两个任务轮流切换 */
+//    if( Dos_CurrentTCB == task )
+//    {
+//        Dos_CurrentTCB = task1;
+//    }
+//    else
+//    {
+//        Dos_CurrentTCB = task;
+//    }
   
   
   
