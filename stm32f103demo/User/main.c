@@ -87,7 +87,6 @@ int main(void)
   DOS_PRINT_DEBUG(" p = %x",(dos_uint32)p3);
   DOS_PRINT_DEBUG(" p = %x",(dos_uint32)p1);
   
-
   Dos_Start();
   
   while(1)                            

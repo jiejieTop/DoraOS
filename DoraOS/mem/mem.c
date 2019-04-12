@@ -10,10 +10,10 @@
 #define MEM_HEAP_SIZE   1024*10
 #endif 
 
-static dos_uint8 *Align_MemHeap_Begin = DOS_NULL;
-static dos_uint8 *Align_MemHeap_End = DOS_NULL;
+static dos_uint8 *_Align_MemHeap_Begin = DOS_NULL;
+static dos_uint8 *_Align_MemHeap_End = DOS_NULL;
 
-static dos_uint8 MemHeap[MEM_HEAP_SIZE];
+static dos_uint8 _MemHeap[MEM_HEAP_SIZE];
 
 static DOS_MemHeap_Node_t* _Dos_Get_NextNode(DOS_MemHeap_Node_t* node);
 
@@ -38,7 +38,7 @@ void* Dos_MemAlloc(dos_uint32 size)
   void* result;
   
   /* 此处需要锁定调度器 */
-  memheap_info = (DOS_MemHeap_Info_t *)Align_MemHeap_Begin;
+  memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;
   if(!memheap_info)
   {
     return DOS_NULL;
@@ -119,27 +119,27 @@ dos_bool Dos_MemHeap_Init(void)
   dos_uint32 align_memheap_size;
  
   /* Get the begin and end addresses of the memory heap */
-  dos_uint32 memheap_addr = (dos_uint32) MemHeap;
-  Align_MemHeap_Begin = (dos_uint8 *) DOS_ALIGN(memheap_addr,DOS_ALIGN_SIZE);
+  dos_uint32 memheap_addr = (dos_uint32) _MemHeap;
+  _Align_MemHeap_Begin = (dos_uint8 *) DOS_ALIGN(memheap_addr,DOS_ALIGN_SIZE);
   
-  Align_MemHeap_End = (dos_uint8 *)memheap_addr + MEM_HEAP_SIZE;
-  Align_MemHeap_End = (dos_uint8 *) DOS_ALIGN_DOWN((dos_uint32)Align_MemHeap_End,DOS_ALIGN_SIZE);
+  _Align_MemHeap_End = (dos_uint8 *)memheap_addr + MEM_HEAP_SIZE;
+  _Align_MemHeap_End = (dos_uint8 *) DOS_ALIGN_DOWN((dos_uint32)_Align_MemHeap_End,DOS_ALIGN_SIZE);
   
   /* Get the actual size of the memory heap */
-  align_memheap_size = (dos_uint32)(Align_MemHeap_End - Align_MemHeap_Begin);
+  align_memheap_size = (dos_uint32)(_Align_MemHeap_End - _Align_MemHeap_Begin);
   
   /* Memory heap management information control block */
-  memheap_info = (DOS_MemHeap_Info_t *)Align_MemHeap_Begin;
+  memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;
   
   if((!memheap_info)||(align_memheap_size <= (MEM_INFO_SIZE + MEM_NODE_SIZE)))
     return DOS_FALSE;
 
-  memset(Align_MemHeap_Begin, 0, align_memheap_size);
+  memset(_Align_MemHeap_Begin, 0, align_memheap_size);
   
   /* Init  */
-  memheap_info->MemHeap_Addr = Align_MemHeap_Begin;
+  memheap_info->MemHeap_Addr = _Align_MemHeap_Begin;
   memheap_info->MemHeap_Size = align_memheap_size;
-  memheap_info->MemHead = (DOS_MemHeap_Node_t *)(Align_MemHeap_Begin + MEM_INFO_SIZE);
+  memheap_info->MemHead = (DOS_MemHeap_Node_t *)(_Align_MemHeap_Begin + MEM_INFO_SIZE);
   memheap_node = memheap_info->MemHead;
   memheap_info->MemTail = memheap_node;
   
@@ -154,7 +154,7 @@ dos_bool Dos_MemHeap_Init(void)
 
 static DOS_MemHeap_Node_t* _Dos_Get_NextNode(DOS_MemHeap_Node_t* node)
 {
-  DOS_MemHeap_Info_t *memheap_info = (DOS_MemHeap_Info_t *)Align_MemHeap_Begin;
+  DOS_MemHeap_Info_t *memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;
 
   if(memheap_info->MemTail == node) 
     return DOS_NULL;

@@ -44,7 +44,7 @@ const dos_uint8 Dos_BitMap[] =
   4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0     /* F0 */
 };
 
-static void Dos_Create_IdleTask(void);
+static void _Dos_Create_IdleTask(void);
 
 dos_uint32 Dos_Get_Highest_Priority(dos_uint32 pri)
 {
@@ -64,7 +64,7 @@ dos_uint32 Dos_Get_Highest_Priority(dos_uint32 pri)
 
 
 
-static void Dos_TaskPriority_List_Init(void)
+static void _Dos_TaskPriority_List_Init(void)
 {
   dos_uint32 i;
 #if DOS_MAX_PRIORITY_NUM > 32
@@ -79,7 +79,7 @@ static void Dos_TaskPriority_List_Init(void)
   }
 }
 
-static void Dos_Inser_TaskPriority_List(DOS_TaskCB_t dos_taskcb)
+static void _Dos_Inser_TaskPriority_List(DOS_TaskCB_t dos_taskcb)
 {
   /* update priority  */
 #if DOS_MAX_PRIORITY_NUM > 32
@@ -113,14 +113,14 @@ void Dos_SystemInit(void)
   Dos_MemHeap_Init();
   
   /* init task priority list */
-  Dos_TaskPriority_List_Init();
+  _Dos_TaskPriority_List_Init();
   
-  Dos_Create_IdleTask();
+  _Dos_Create_IdleTask();
 
 }
 
 
-void prvInitialiseNewTask(DOS_TaskCB_t dos_taskcb)
+static void _Dos_InitTask(DOS_TaskCB_t dos_taskcb)
 {
 	/* »ñÈ¡Õ»¶¥µØÖ· */
 	dos_taskcb->TopOfStack = (dos_void *)((dos_uint32)dos_taskcb->StackAddr + (dos_uint32)(dos_taskcb->StackSize - 1));
@@ -176,14 +176,14 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
   dos_taskcb->Priority = dos_priority;
   dos_taskcb->TaskName = (dos_char *)dos_name;
 
-  prvInitialiseNewTask(dos_taskcb);       
+  _Dos_InitTask(dos_taskcb);       
   
-  Dos_Inser_TaskPriority_List(dos_taskcb);
+  _Dos_Inser_TaskPriority_List(dos_taskcb);
   
   return dos_taskcb;
 }
 
-void IdleTask(void *Parameter)
+void _Dos_IdleTask(void *Parameter)
 {
   while(1)
   {
@@ -191,10 +191,10 @@ void IdleTask(void *Parameter)
   }
 }
 
-static void Dos_Create_IdleTask(void)
+static void _Dos_Create_IdleTask(void)
 {
   Dos_TaskCreate( "IdleTask",
-                  &IdleTask,
+                  &_Dos_IdleTask,
                   DOS_NULL,
                   DOS_IDLE_TASK_SIZE,
                   DOS_IDLE_TASK_PRIORITY);
@@ -231,7 +231,7 @@ void Dos_Start( void )
   }
 }
 
-void vTaskSwitchContext( void )
+void Dos_SwitchTask( void )
 {    
   
 #if DOS_MAX_PRIORITY_NUM > 32
