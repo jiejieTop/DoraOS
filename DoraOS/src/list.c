@@ -34,6 +34,7 @@ void Dos_TaskList_Init(Dos_TaskList_t *dos_tasklist)
 {
   Dos_DListInit(&(dos_tasklist->TaskDList));
   dos_tasklist->TCB_Addr = DOS_NULL;
+  dos_tasklist->Task_Item_Value = 0;
 }
 
 

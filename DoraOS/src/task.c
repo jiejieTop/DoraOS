@@ -80,6 +80,18 @@ static void _Dos_TaskPriority_List_Init(void)
     Dos_TaskList_Init(&Dos_TaskPriority_List[i]); 
   }
 }
+static void _Dos_TaskSleep_List_Init(void)
+{
+  Dos_TaskList_Init(&Dos_TaskSleep_List);
+}
+
+
+static void _Dos_Task_List_Init(void)
+{
+  _Dos_TaskPriority_List_Init();
+  
+  _Dos_TaskSleep_List_Init();
+}
 
 static void _Dos_Inser_TaskPriority_List(DOS_TaskCB_t dos_taskcb)
 {
@@ -91,10 +103,24 @@ static void _Dos_Inser_TaskPriority_List(DOS_TaskCB_t dos_taskcb)
   DOS_PRINT_DEBUG("Dos_Task_Priority = %#x",Dos_Task_Priority);
 #endif
   /* init task list,the list will pend in readylist or pendlist  */
-  Dos_TaskList_Init(&(dos_taskcb->ReadyList));
+  Dos_TaskList_Init(&(dos_taskcb->StateList));
   /* inser priority list */
-  Dos_DListInser(&Dos_TaskPriority_List[dos_taskcb->Priority].TaskDList,&dos_taskcb->ReadyList.TaskDList);
+  Dos_DListInser(&Dos_TaskPriority_List[dos_taskcb->Priority].TaskDList,&dos_taskcb->StateList.TaskDList);
   Dos_TaskPriority_List[dos_taskcb->Priority].TCB_Addr = (dos_void*)dos_taskcb;
+}
+
+void _Dos_Inser_TaskSleep_List(DOS_TaskCB_t dos_taskcb)
+{
+  dos_uint8 i;
+  
+  const DOS_DList_t *dos_plist = &(dos_taskcb->StateList.TaskDList);
+  while(dos_plist->Next != &(dos_taskcb->StateList.TaskDList))
+  {
+    dos_plist = dos_plist->Next;
+    i++;
+  }
+
+  Dos_DListInser(&Dos_TaskSleep_List.TaskDList, &(dos_taskcb->StateList.TaskDList));
 }
 
 
@@ -114,9 +140,9 @@ void Dos_SystemInit(void)
   /* system memheap init */
   Dos_MemHeap_Init();
   
-  /* init task priority list */
-  _Dos_TaskPriority_List_Init();
-  
+  /* init task list */
+  _Dos_Task_List_Init();
+
   _Dos_Create_IdleTask();
 
 }
@@ -197,8 +223,7 @@ void Dos_TaskSleep(dos_uint32 dos_sleep_tick)
   {
     DOS_TASK_YIELD();
   }
-  Dos_DListDel(&(Dos_CurrentTCB->ReadyList.TaskDList));
-  Dos_DListInser(&Dos_TaskSleep_List.TaskDList, &(Dos_CurrentTCB->SleepList.TaskDList));
+  Dos_DListDel(&(Dos_CurrentTCB->StateList.TaskDList));
 
 }
 

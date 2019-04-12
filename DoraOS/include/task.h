@@ -25,9 +25,9 @@ struct DOS_TaskCB
   dos_void                        *TaskMux;                  /**< Task-held mutex             */
   dos_void                        *Parameter;                      /**< Parameter                   */
   dos_char                        *TaskName;                /**< Task name                   */
-  Dos_TaskList_t                  ReadyList;
+  Dos_TaskList_t                  StateList;
 //  dos_void                        *TCB_Addr;
-  Dos_TaskList_t                  SleepList;
+//  Dos_TaskList_t                  SleepList;
   Dos_TaskList_t                  PendList;
   //    LOS_DL_LIST                 stPendList;
 //    LOS_DL_LIST                 stTimerList;
