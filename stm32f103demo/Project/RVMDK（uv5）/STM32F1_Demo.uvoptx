@@ -162,25 +162,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>79</LineNumber>
+          <LineNumber>273</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134222206</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>F:\jiejieTop\DoraOS\stm32f103demo\Project\User\main.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\STM32_Demo\../../User/main.c\79</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>188</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134224158</Address>
+          <Address>134224588</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -189,7 +173,7 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>F:\jiejieTop\DoraOS\stm32f103demo\DoraOS\src\task.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\STM32_Demo\../../../DoraOS/src/task.c\188</Expression>
+          <Expression>\\STM32_Demo\../../../DoraOS/src/task.c\273</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -216,7 +200,12 @@
         <Ww>
           <count>4</count>
           <WinNumber>1</WinNumber>
-          <ItemText>dos_taskcb</ItemText>
+          <ItemText>&amp;task-&gt;StateList</ItemText>
+        </Ww>
+        <Ww>
+          <count>5</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>Dos_TaskPriority_List[1]</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>

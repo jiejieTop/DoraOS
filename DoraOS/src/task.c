@@ -6,6 +6,8 @@
 #define     DOS_MAX_PRIORITY_NUM        32U
 #endif
 
+
+
 #if DOS_MAX_PRIORITY_NUM > 32
 #define   DOS_PRIORITY_TAB  (((DOS_MAX_PRIORITY_NUM -1 )/32) + 1)
 
@@ -15,6 +17,8 @@ static dos_uint32 Dos_Task_Priority[DOS_PRIORITY_TAB];
 #else
 static dos_uint32 Dos_Task_Priority;
 #endif
+
+static dos_uint32 Dos_TicksCount;
 
 Dos_TaskList_t Dos_TaskPriority_List[DOS_MAX_PRIORITY_NUM];
 
@@ -45,6 +49,8 @@ const dos_uint8 Dos_BitMap[] =
   5, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,    /* E0 */ 
   4, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0     /* F0 */
 };
+
+
 
 static void _Dos_Create_IdleTask(void);
 
@@ -105,20 +111,28 @@ static void _Dos_Inser_TaskPriority_List(DOS_TaskCB_t dos_taskcb)
   /* init task list,the list will pend in readylist or pendlist  */
   Dos_TaskList_Init(&(dos_taskcb->StateList));
   /* inser priority list */
-  Dos_DListInser(&Dos_TaskPriority_List[dos_taskcb->Priority].TaskDList,&dos_taskcb->StateList.TaskDList);
-  Dos_TaskPriority_List[dos_taskcb->Priority].TCB_Addr = (dos_void*)dos_taskcb;
+  Dos_TaskItem_Inser(&Dos_TaskPriority_List[dos_taskcb->Priority],&dos_taskcb->StateItem);
+//  Dos_TaskPriority_List[dos_taskcb->Priority]. = (dos_void*)dos_taskcb;
 }
 
-void _Dos_Inser_TaskSleep_List(DOS_TaskCB_t dos_taskcb)
+static dos_uint32 _Dos_Get_ListLen(const DOS_DList_t *dos_list)
 {
-  dos_uint8 i;
-  
-  const DOS_DList_t *dos_plist = &(dos_taskcb->StateList.TaskDList);
-  while(dos_plist->Next != &(dos_taskcb->StateList.TaskDList))
+  dos_uint32 dos_len;
+  const DOS_DList_t *dos_plist = dos_list;
+  while(dos_plist->Next != dos_list)
   {
     dos_plist = dos_plist->Next;
-    i++;
+    dos_len++;
   }
+  DOS_PRINT_DEBUG("_Dos_Get_ListLen len = %d",dos_len);
+  return dos_len;
+}
+
+static void _Dos_Inser_TaskSleep_List(DOS_TaskCB_t dos_taskcb)
+{
+  dos_uint32 i, dos_len;
+  DOS_DList_t *dos_plist = &Dos_TaskSleep_List.TaskDList;
+  
 
   Dos_DListInser(&Dos_TaskSleep_List.TaskDList, &(dos_taskcb->StateList.TaskDList));
 }
@@ -224,10 +238,23 @@ void Dos_TaskSleep(dos_uint32 dos_sleep_tick)
     DOS_TASK_YIELD();
   }
   Dos_DListDel(&(Dos_CurrentTCB->StateList.TaskDList));
-
+//  Dos_CurrentTCB->StateList.Task_Item_Value = dos_sleep_tick + Dos_Get_Tick();
+  
+  _Dos_Inser_TaskSleep_List(Dos_CurrentTCB);
 }
 
+dos_uint32 Dos_Get_Tick(void)
+{
+  dos_uint32 dos_cur_tick;
 
+  Dos_Interrupt_Disable();
+  
+  dos_cur_tick = Dos_TicksCount;
+  
+  Dos_Interrupt_Enable(0);
+  
+  return dos_cur_tick;
+}
 
 void _Dos_IdleTask(void *Parameter)
 {
@@ -267,6 +294,10 @@ void Dos_Start( void )
   pri = Dos_Get_Highest_Priority(Dos_Task_Priority);
 #endif
   DOS_PRINT_DEBUG("PRI = %d \n",pri);
+  
+//  Dos_CurrentTCB = DOS_GET_TCB(&Dos_TaskPriority_List[pri]);
+  
+  
   
   Dos_CurrentTCB = (DOS_TaskCB_t)Dos_TaskPriority_List[pri].TCB_Addr;
   

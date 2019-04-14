@@ -4,24 +4,29 @@
 #include <dos_def.h>
 
 
-typedef struct DOS_DList
+struct Dos_TaskItem
 {
-  struct DOS_DList *Prev;      /**< Current node's pointer to the previous node*/
-  struct DOS_DList *Next;      /**< Current node's pointer to the next node*/
-} DOS_DList_t;
+  struct Dos_TaskItem *Prev;      /**< Current node's pointer to the previous node*/
+  struct Dos_TaskItem *Next;      /**< Current node's pointer to the next node*/
+  dos_uint32 Dos_TaskValue;
+  dos_void *Dos_TCB;
+  dos_void *Dos_TaskList;
+};
+typedef struct Dos_TaskItem Dos_TaskItem_t;
 
+typedef struct Dos_TaskEndItem Dos_TaskEndItem_t;
 
-typedef struct Dos_TaskList
+struct Dos_TaskList
 {
-  DOS_DList_t   TaskDList;
-  dos_void   *TCB_Addr;
-  dos_uint32 Task_Item_Value;
-}Dos_TaskList_t;
+  Dos_TaskItem_t *Dos_TaskItem;
+  dos_uint32 Task_ItemValue;
+  Dos_TaskItem_t Task_EndItem;
+};
+typedef struct Dos_TaskList Dos_TaskList_t;
 
-
-void Dos_DListInit(DOS_DList_t *dos_dlist);
-void Dos_DListInser(DOS_DList_t *dos_dlist , DOS_DList_t *new_dlist);
-void Dos_DListDel(DOS_DList_t *dos_dlist);
+void Dos_TaskItem_Init(Dos_TaskItem_t *dos_item);
+void Dos_TaskItem_Inser(Dos_TaskList_t *dos_list , Dos_TaskItem_t *new_item);
+void Dos_TaskItem_Del(Dos_TaskItem_t *dos_item);
 void Dos_TaskList_Init(Dos_TaskList_t *dos_tasklist);
 
 #endif /* __REDEF_H */

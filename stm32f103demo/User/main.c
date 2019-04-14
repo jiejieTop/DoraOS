@@ -11,6 +11,7 @@
 #include "task.h"
 
 
+
 /**
   ******************************************************************
 													   ±äÁ¿ÉùÃ÷
@@ -19,6 +20,7 @@
 
 
 DOS_TaskCB_t task = DOS_NULL;
+DOS_TaskCB_t task2 = DOS_NULL;
 DOS_TaskCB_t task1 = DOS_NULL;
 /**
   ******************************************************************
@@ -73,6 +75,14 @@ int main(void)
                   DOS_NULL,
                   512,
                   1);
+  DOS_PRINT_DEBUG("&task = %#x",(dos_uint32)task);
+  DOS_PRINT_DEBUG("&task->StateList = %#x",(dos_uint32)&(task->StateList));
+  
+  task2 = DOS_GET_TCB(&(task->StateList));
+  
+//  task2 = rt_container_of(&(task->StateList),struct DOS_TaskCB,StateList);
+//  
+  DOS_PRINT_DEBUG("&task2 = %#x",(dos_uint32)task2);
   
   task1 = Dos_TaskCreate( "task1",
                 &test1_task,
