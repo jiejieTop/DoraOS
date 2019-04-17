@@ -11,6 +11,7 @@
 #include "task.h"
 
 
+
 /**
   ******************************************************************
 													   ±äÁ¿ÉùÃ÷
@@ -19,6 +20,7 @@
 
 
 DOS_TaskCB_t task = DOS_NULL;
+DOS_TaskCB_t task2 = DOS_NULL;
 DOS_TaskCB_t task1 = DOS_NULL;
 /**
   ******************************************************************
@@ -35,7 +37,8 @@ void test_task(void *Parameter)
     Dos_Interrupt_Disable();
     LED1_TOGGLE;
     Dos_Interrupt_Enable(0);
-    Delay_ms(1000);
+//    Delay_ms(1000);
+    Dos_TaskSleep(1000);
   }
 }
 void test1_task(void *Parameter)
@@ -46,6 +49,7 @@ void test1_task(void *Parameter)
     DOS_PRINT_DEBUG("123\n");
     Dos_Interrupt_Enable(0);
     Delay_ms(1000);
+//    Dos_TaskSleep(1000);
   }
 }
 /**
@@ -72,13 +76,21 @@ int main(void)
                   &test_task,
                   DOS_NULL,
                   512,
-                  1);
+                  0);
+  DOS_PRINT_DEBUG("&task = %#x",(dos_uint32)task);
+  DOS_PRINT_DEBUG("&task->StateItem = %#x",(dos_uint32)&(task->StateItem));
+  
+  task2 = DOS_GET_TCB(&(task->StateItem));
+  
+//  task2 = rt_container_of(&(task->StateList),struct DOS_TaskCB,StateList);
+//  
+  DOS_PRINT_DEBUG("&task2 = %#x",(dos_uint32)task2);
   
   task1 = Dos_TaskCreate( "task1",
                 &test1_task,
                 DOS_NULL,
                 512,
-                2);
+                1);
   
   p3 = Dos_MemAlloc(512);
   p1 = Dos_MemAlloc(16);  
@@ -87,7 +99,6 @@ int main(void)
   DOS_PRINT_DEBUG(" p = %x",(dos_uint32)p3);
   DOS_PRINT_DEBUG(" p = %x",(dos_uint32)p1);
   
-
   Dos_Start();
   
   while(1)                            

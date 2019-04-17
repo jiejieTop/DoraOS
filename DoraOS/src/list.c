@@ -1,39 +1,74 @@
 #include <list.h>
 
 /* double list init */
-void Dos_DListInit(DOS_DList_t *dos_dlist)
+void Dos_TaskItem_Init(Dos_TaskItem_t *dos_item)
 {
-  dos_dlist->Next = dos_dlist;
-  dos_dlist->Prev = dos_dlist;
+  dos_item->Next = DOS_NULL;
+  dos_item->Prev = DOS_NULL;
+  dos_item->Dos_TaskValue = 0;
+  dos_item->Dos_TCB = DOS_NULL;
+  dos_item->Dos_TaskList = DOS_NULL;
 }
 
 
 
 /* inser a new node in double list */
-void Dos_DListInser(DOS_DList_t *dos_dlist , DOS_DList_t *new_dlist)
+void Dos_TaskItem_Inser(Dos_TaskList_t *dos_list , Dos_TaskItem_t *new_item)
 {
-  new_dlist->Next = dos_dlist->Next;
-  new_dlist->Prev = dos_dlist;
-  dos_dlist->Next->Prev = new_dlist;
-  dos_dlist->Next = new_dlist;
+  Dos_TaskItem_t *item;
+  dos_uint32 value = new_item->Dos_TaskValue;
+  
+  for(item = (Dos_TaskItem_t*)&(dos_list->Task_EndItem);
+      item->Next->Dos_TaskValue <= value;
+      item = item->Next);
+  
+  new_item->Next = item->Next;
+  new_item->Next->Prev = new_item;
+  new_item->Prev = item;
+  item->Next = new_item;
+  
+  new_item->Dos_TaskList = (dos_void*)dos_list;
+  
+  dos_list->Task_ItemValue++;
 }
 
 /* delete a node in double list */
-void Dos_DListDel(DOS_DList_t *dos_dlist)
+dos_uint32 Dos_TaskItem_Del(Dos_TaskItem_t *dos_item)
 {
-    dos_dlist->Next->Prev = dos_dlist->Prev;
-    dos_dlist->Prev->Next = dos_dlist->Next;
-    dos_dlist->Next = (DOS_DList_t *)dos_dlist;
-    dos_dlist->Prev = (DOS_DList_t *)dos_dlist;
+  Dos_TaskList_t *dos_list = dos_item->Dos_TaskList;
+  
+  dos_item->Prev->Next = dos_item->Next;
+  dos_item->Next->Prev = dos_item->Prev;
+  
+  dos_item->Dos_TaskList = DOS_NULL;
+  
+  if(dos_list->Dos_TaskItem == dos_item)
+  {
+    dos_list->Dos_TaskItem = dos_item->Prev;
+  }
+  
+  dos_list->Task_ItemValue--;
+  
+  return dos_list->Task_ItemValue;
 }
 
+dos_bool Dos_TaskList_IsEmpty(Dos_TaskList_t *dos_tasklist)
+{
+  return (dos_tasklist->Task_ItemValue == 0) ? DOS_TRUE : DOS_FALSE; 
+}
 
 
 /* double list init */
 void Dos_TaskList_Init(Dos_TaskList_t *dos_tasklist)
 {
-  Dos_DListInit(&(dos_tasklist->TaskDList));
-  dos_tasklist->TCB_Addr = DOS_NULL;
+  dos_tasklist->Dos_TaskItem = (Dos_TaskItem_t *)&(dos_tasklist->Task_EndItem);
+    
+  dos_tasklist->Task_ItemValue = 0;
+  
+  dos_tasklist->Task_EndItem.Dos_TaskValue = 0xFFFFFFFF;
+  dos_tasklist->Task_EndItem.Next = (Dos_TaskItem_t *)&(dos_tasklist->Task_EndItem);
+  dos_tasklist->Task_EndItem.Prev = (Dos_TaskItem_t *)&(dos_tasklist->Task_EndItem);
+  dos_tasklist->Task_EndItem.Dos_TaskList = dos_tasklist;
 }
 
 

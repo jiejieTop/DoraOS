@@ -32,9 +32,9 @@ __asm void SVC_Handler( void )
   
   PRESERVE8
 
-	ldr	r3, =Dos_CurrentTCB	/* 加载pxCurrentTCB的地址到r3 */
-	ldr r1, [r3]			/* 加载pxCurrentTCB到r1 */
-	ldr r0, [r1]			/* 加载pxCurrentTCB指向的值到r0，目前r0的值等于第一个任务堆栈的栈顶 */
+	ldr	r3, =Dos_CurrentTCB	/* 加载Dos_CurrentTCB的地址到r3 */
+	ldr r1, [r3]			/* 加载Dos_CurrentTCB到r1 */
+	ldr r0, [r1]			/* 加载Dos_CurrentTCB指向的值到r0，目前r0的值等于第一个任务堆栈的栈顶 */
 	ldmia r0!, {r4-r11}		/* 以r0为基地址，将栈里面的内容加载到r4~r11寄存器，同时r0会递增 */
 	msr psp, r0				/* 将r0的值，即任务的栈指针更新到psp */
 	isb
@@ -70,7 +70,7 @@ __asm void Interrupt_Enable(dos_uint32 pri)
 __asm void PendSV_Handler( void )
 {
 	extern Dos_CurrentTCB;
-	extern vTaskSwitchContext;
+	extern Dos_SwitchTask;
 
 	PRESERVE8
 
@@ -81,20 +81,20 @@ __asm void PendSV_Handler( void )
 	mrs r0, psp
 	isb
 
-	ldr	r3, =Dos_CurrentTCB		/* 加载pxCurrentTCB的地址到r3 */
-	ldr	r2, [r3]                /* 加载pxCurrentTCB到r2 */
+	ldr	r3, =Dos_CurrentTCB		/* 加载Dos_CurrentTCB的地址到r3 */
+	ldr	r2, [r3]                /* 加载Dos_CurrentTCB到r2 */
 
 	stmdb r0!, {r4-r11}			/* 将CPU寄存器r4~r11的值存储到r0指向的地址 */
 	str r0, [r2]                /* 将任务栈的新的栈顶指针存储到当前任务TCB的第一个成员，即栈顶指针 */				
                                
 
-	stmdb sp!, {r3, r14}        /* 将R3和R14临时压入堆栈，因为即将调用函数vTaskSwitchContext,
+	stmdb sp!, {r3, r14}        /* 将R3和R14临时压入堆栈，因为即将调用函数Dos_SwitchTask,
                                   调用函数时,返回地址自动保存到R14中,所以一旦调用发生,R14的值会被覆盖,因此需要入栈保护;
-                                  R3保存的当前激活的任务TCB指针(pxCurrentTCB)地址,函数调用后会用到,因此也要入栈保护 */
+                                  R3保存的当前激活的任务TCB指针(Dos_CurrentTCB)地址,函数调用后会用到,因此也要入栈保护 */
   bl Interrupt_Disable
 	dsb
 	isb
-	bl vTaskSwitchContext       /* 调用函数vTaskSwitchContext，寻找新的任务运行,通过使变量pxCurrentTCB指向新的任务来实现任务切换 */ 
+	bl Dos_SwitchTask       /* 调用函数Dos_SwitchTask，寻找新的任务运行,通过使变量Dos_CurrentTCB指向新的任务来实现任务切换 */ 
   
   bl Interrupt_Enable
 	ldmia sp!, {r3, r14}        /* 恢复r3和r14 */
@@ -160,14 +160,5 @@ dos_uint32 Dos_StartScheduler( void )
 }
 
 
-void SysTick_Handler(void)
-{
-  dos_uint32 pri; 
-  pri = Interrupt_Disable();
-  
-  
-  INT_CTRL_REG = PENDSVSET_BIT;
-  
-  Interrupt_Enable(pri);
-}
+
 
