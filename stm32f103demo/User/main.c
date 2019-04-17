@@ -37,7 +37,8 @@ void test_task(void *Parameter)
     Dos_Interrupt_Disable();
     LED1_TOGGLE;
     Dos_Interrupt_Enable(0);
-    Delay_ms(1000);
+//    Delay_ms(1000);
+    Dos_TaskSleep(1000);
   }
 }
 void test1_task(void *Parameter)
@@ -48,6 +49,7 @@ void test1_task(void *Parameter)
     DOS_PRINT_DEBUG("123\n");
     Dos_Interrupt_Enable(0);
     Delay_ms(1000);
+//    Dos_TaskSleep(1000);
   }
 }
 /**
@@ -74,11 +76,11 @@ int main(void)
                   &test_task,
                   DOS_NULL,
                   512,
-                  1);
+                  0);
   DOS_PRINT_DEBUG("&task = %#x",(dos_uint32)task);
-  DOS_PRINT_DEBUG("&task->StateList = %#x",(dos_uint32)&(task->StateList));
+  DOS_PRINT_DEBUG("&task->StateItem = %#x",(dos_uint32)&(task->StateItem));
   
-  task2 = DOS_GET_TCB(&(task->StateList));
+  task2 = DOS_GET_TCB(&(task->StateItem));
   
 //  task2 = rt_container_of(&(task->StateList),struct DOS_TaskCB,StateList);
 //  
@@ -88,7 +90,7 @@ int main(void)
                 &test1_task,
                 DOS_NULL,
                 512,
-                2);
+                1);
   
   p3 = Dos_MemAlloc(512);
   p1 = Dos_MemAlloc(16);  

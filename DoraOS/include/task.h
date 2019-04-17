@@ -19,7 +19,8 @@ struct DOS_TaskCB
   dos_uint16                      Priority;
   dos_uint32                      StackSize;                /**< Task stack size             */
   dos_void                        *TopOfStack;               /**< Task stack top              */
-  dos_uint32                      uwTaskID;                   /**< Task ID                     */
+  dos_uint32                      TaskTick;                   /**< TaskTick                    */
+  dos_uint32                      TaskInitTick;              /**< TaskInitTick                     */ 
   dos_void                        *TaskEntry;               /**< Task entrance function      */
   dos_void                        *TaskSem;                  /**< Task-held semaphore         */
   dos_void                        *TaskMux;                  /**< Task-held mutex             */
@@ -44,7 +45,7 @@ typedef struct DOS_TaskCB * DOS_TaskCB_t;
 
 #define DOS_GET_STRUCT(ptr, type, member)   ((type *)((char *)(ptr) - (unsigned long)(&((type *)0)->member)))
           
-#define DOS_GET_TCB(node)    DOS_GET_STRUCT(node, struct DOS_TaskCB, StateList)
+#define DOS_GET_TCB(node)    DOS_GET_STRUCT(node, struct DOS_TaskCB, StateItem)
   
 //#define rt_container_of(ptr, type, member) \ 
 //        ((type *)((char *)(ptr) - (unsigned long)(&((type *)0)->member)))
@@ -62,7 +63,7 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
                             
 dos_uint32 Dos_Get_Tick(void);         
 void Dos_Start( void );
-
+void Dos_TaskSleep(dos_uint32 dos_sleep_tick);
                             
                             
 #endif

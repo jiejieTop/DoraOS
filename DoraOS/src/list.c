@@ -33,7 +33,7 @@ void Dos_TaskItem_Inser(Dos_TaskList_t *dos_list , Dos_TaskItem_t *new_item)
 }
 
 /* delete a node in double list */
-void Dos_TaskItem_Del(Dos_TaskItem_t *dos_item)
+dos_uint32 Dos_TaskItem_Del(Dos_TaskItem_t *dos_item)
 {
   Dos_TaskList_t *dos_list = dos_item->Dos_TaskList;
   
@@ -48,8 +48,14 @@ void Dos_TaskItem_Del(Dos_TaskItem_t *dos_item)
   }
   
   dos_list->Task_ItemValue--;
+  
+  return dos_list->Task_ItemValue;
 }
 
+dos_bool Dos_TaskList_IsEmpty(Dos_TaskList_t *dos_tasklist)
+{
+  return (dos_tasklist->Task_ItemValue == 0) ? DOS_TRUE : DOS_FALSE; 
+}
 
 
 /* double list init */

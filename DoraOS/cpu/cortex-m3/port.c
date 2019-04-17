@@ -160,14 +160,5 @@ dos_uint32 Dos_StartScheduler( void )
 }
 
 
-void SysTick_Handler(void)
-{
-  dos_uint32 pri; 
-  pri = Interrupt_Disable();
-  
-  
-  INT_CTRL_REG = PENDSVSET_BIT;
-  
-  Interrupt_Enable(pri);
-}
+
 
