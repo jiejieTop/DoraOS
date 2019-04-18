@@ -49,7 +49,7 @@ void test1_task(void *Parameter)
     DOS_PRINT_DEBUG("123\n");
     Dos_Interrupt_Enable(0);
 //    Delay_ms(1000);
-    Dos_TaskSleep(500);
+    Dos_TaskSleep(200);
   }
 }
 /**
