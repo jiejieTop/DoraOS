@@ -35,7 +35,7 @@ void test_task(void *Parameter)
   while(1)
   {
     Dos_Interrupt_Disable();
-    LED1_TOGGLE;
+    DOS_PRINT_DEBUG("ABC\n");
     Dos_Interrupt_Enable(0);
 //    Delay_ms(1000);
     Dos_TaskSleep(1000);
@@ -48,8 +48,8 @@ void test1_task(void *Parameter)
     Dos_Interrupt_Disable();
     DOS_PRINT_DEBUG("123\n");
     Dos_Interrupt_Enable(0);
-    Delay_ms(1000);
-//    Dos_TaskSleep(1000);
+//    Delay_ms(1000);
+    Dos_TaskSleep(200);
   }
 }
 /**
@@ -76,7 +76,7 @@ int main(void)
                   &test_task,
                   DOS_NULL,
                   512,
-                  0);
+                  2);
   DOS_PRINT_DEBUG("&task = %#x",(dos_uint32)task);
   DOS_PRINT_DEBUG("&task->StateItem = %#x",(dos_uint32)&(task->StateItem));
   
@@ -148,22 +148,6 @@ static void BSP_Init(void)
 
 
 /********************************END OF FILE***************************************/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
