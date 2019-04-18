@@ -22,7 +22,13 @@ static dos_uint32 Dos_TicksCount;
 
 Dos_TaskList_t Dos_TaskPriority_List[DOS_MAX_PRIORITY_NUM];
 
-Dos_TaskList_t Dos_TaskSleep_List;
+static Dos_TaskList_t _Dos_Sleep_List1;
+static Dos_TaskList_t _Dos_Sleep_List2;
+
+static Dos_TaskList_t *_Dos_TaskSleep_List;
+static Dos_TaskList_t *_Dos_TaskSleep_OverFlow_List;
+
+static dos_uint32 Dos_NextWake_Tick = DOS_UINT32_MAX;
 
 DOS_TaskCB_t volatile Dos_CurrentTCB = DOS_NULL;
 
@@ -91,7 +97,11 @@ static void _Dos_TaskPriority_List_Init(void)
 }
 static void _Dos_TaskSleep_List_Init(void)
 {
-  Dos_TaskList_Init(&Dos_TaskSleep_List);
+  _Dos_TaskSleep_List = &_Dos_Sleep_List1;
+  _Dos_TaskSleep_OverFlow_List = &_Dos_Sleep_List2;
+  
+  Dos_TaskList_Init(_Dos_TaskSleep_List);
+  Dos_TaskList_Init(_Dos_TaskSleep_OverFlow_List);
 }
 
 
@@ -114,7 +124,6 @@ static void _Dos_Inser_TaskPriority_List(DOS_TaskCB_t dos_taskcb)
   /* init task list,the list will pend in readylist or pendlist  */
   /* inser priority list */
   Dos_TaskItem_Inser(&Dos_TaskPriority_List[dos_taskcb->Priority],&dos_taskcb->StateItem);
-//  Dos_TaskPriority_List[dos_taskcb->Priority]. = (dos_void*)dos_taskcb;
 }
 
 //static dos_uint32 _Dos_Get_ListLen(const DOS_DList_t *dos_list)
@@ -140,26 +149,30 @@ static void _Dos_Inser_TaskSleep_List(dos_uint32 dos_sleep_tick)
     return;
   }
   
-//  dos_uint32 i = Dos_TaskItem_Del(&(cur_task->StateItem));
-//  printf("i = %d\n",i);
-  
-  
   if(Dos_TaskItem_Del(&(cur_task->StateItem)) == 0)
   {
-    DOS_PRINT_DEBUG("Dos_TaskItem_Del = 0");
-    Dos_Task_Priority &= ~(0x01 << cur_task->Priority); 
-    DOS_PRINT_DEBUG("Dos_Task_Priority = %#x",Dos_Task_Priority);
+    if(Dos_TaskList_IsEmpty(&Dos_TaskPriority_List[cur_task->Priority]) == DOS_TRUE)
+    {
+      Dos_Task_Priority &= ~(0x01 << cur_task->Priority); 
+      
+      INT_CTRL_REG = PENDSVSET_BIT;
+    }
   }
   
-  if(Dos_TaskList_IsEmpty(&Dos_TaskPriority_List[3]) == DOS_TRUE)
+  cur_task->StateItem.Dos_TaskValue = Dos_TickCount + dos_sleep_tick;
+  
+  if(cur_task->StateItem.Dos_TaskValue < Dos_TickCount)   //overflow
   {
-    DOS_PRINT_DEBUG("Dos_TaskList_IsEmpty\n");
+    Dos_TaskItem_Inser(_Dos_TaskSleep_OverFlow_List, &(cur_task->StateItem));
   }
-  
-  cur_task->StateItem.Dos_TaskValue = dos_sleep_tick;
-  
-  Dos_TaskItem_Inser(&Dos_TaskSleep_List, &(cur_task->StateItem));
-  
+  else
+  {
+    Dos_TaskItem_Inser(_Dos_TaskSleep_List, &(cur_task->StateItem));
+    if(Dos_NextWake_Tick >= cur_task->StateItem.Dos_TaskValue)
+    {
+      Dos_NextWake_Tick = cur_task->StateItem.Dos_TaskValue;
+    } 
+  }
 }
 
 
@@ -349,7 +362,6 @@ dos_bool Dos_CheekTaskTick(Dos_TaskList_t *list)
       
     }
   }
-
   return DOS_FALSE;
 }
 
@@ -386,6 +398,29 @@ void Dos_Start( void )
   }
 }
 
+static void _Dos_Switch_SleepList(void)
+{
+  Dos_TaskList_t *dos_list;
+  DOS_TaskCB_t dos_task;
+  if(Dos_TaskList_IsEmpty(_Dos_TaskSleep_List) == DOS_TRUE)
+  {
+    dos_list = _Dos_TaskSleep_List;
+    _Dos_TaskSleep_List = _Dos_TaskSleep_OverFlow_List;
+    _Dos_TaskSleep_OverFlow_List = dos_list;
+    if(Dos_TaskList_IsEmpty(_Dos_TaskSleep_List) == DOS_TRUE)
+    {
+      Dos_NextWake_Tick = DOS_UINT32_MAX;
+    }
+    else
+    {
+      dos_task = Dos_GetTCB(_Dos_TaskSleep_List);
+      Dos_NextWake_Tick = dos_task->StateItem.Dos_TaskValue;
+    }
+  }
+  else
+    DOS_PRINT_ERR("Task sleep list is not empty!\n");
+}
+
 void Dos_SwitchTask( void )
 {    
   _Dos_Cheek_TaskPriority();
@@ -394,20 +429,60 @@ void Dos_SwitchTask( void )
 
 void Dos_Updata_Tick(void)
 {
+  DOS_TaskCB_t dos_task;
+  dos_uint32 dos_tick;
+  
   Dos_TickCount++;
+  
+  if(Dos_TickCount ==0)   //overflow
+  {
+    _Dos_Switch_SleepList();
+  }
+  
+  if(Dos_TickCount >= Dos_NextWake_Tick)
+  {
+    for(;;)
+    {
+      if(Dos_TaskList_IsEmpty(_Dos_TaskSleep_List) == DOS_TRUE)
+      {
+        Dos_NextWake_Tick = DOS_UINT32_MAX;
+        break;
+      }
+      else
+      {
+        dos_task = Dos_GetTCB(_Dos_TaskSleep_List);
+        dos_tick = dos_task->StateItem.Dos_TaskValue;
+        if(dos_tick > Dos_NextWake_Tick)
+        {
+          Dos_NextWake_Tick = dos_tick;
+          break;
+        }
+        
+        Dos_TaskItem_Del(&dos_task->StateItem);
+
+        Dos_TaskItem_Inser(&Dos_TaskPriority_List[dos_task->Priority], &dos_task->StateItem);
+        Dos_Task_Priority |= (0x01 << dos_task->Priority);
+        
+        if(dos_task->Priority < Dos_CurrentTCB->Priority)
+        {
+          INT_CTRL_REG = PENDSVSET_BIT;
+        }
+      }
+    } 
+  }
 }
 
 void SysTick_Handler(void)
 {
-  dos_uint32 pri; 
-  pri = Interrupt_Disable();
-  
+//  dos_uint32 pri; 
+//  pri = Interrupt_Disable();
   Dos_Updata_Tick();
+//  Interrupt_Enable(pri);
   
-  if(_Dos_Scheduler() == DOS_TRUE)
-  {
-    INT_CTRL_REG = PENDSVSET_BIT;   //如果当前优先级列表下有任务并且时间片到达了，或者有更高优先级的任务就绪了，那么需要切换任务
-  }
-  Interrupt_Enable(pri);
+//  if(_Dos_Scheduler() == DOS_TRUE)
+//  {
+//    INT_CTRL_REG = PENDSVSET_BIT;   //如果当前优先级列表下有任务并且时间片到达了，或者有更高优先级的任务就绪了，那么需要切换任务
+//  }
+  
 }
 

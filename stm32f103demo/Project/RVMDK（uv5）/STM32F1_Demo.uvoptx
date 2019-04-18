@@ -162,9 +162,9 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>143</LineNumber>
+          <LineNumber>444</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134224292</Address>
+          <Address>134225058</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -173,23 +173,7 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>H:\jiejieTop\DoraOS\stm32f103demo\DoraOS\src\task.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\STM32_Demo\../../../DoraOS/src/task.c\143</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>152</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134224384</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>H:\jiejieTop\DoraOS\stm32f103demo\DoraOS\src\task.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\STM32_Demo\../../../DoraOS/src/task.c\152</Expression>
+          <Expression>\\STM32_Demo\../../../DoraOS/src/task.c\444</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -227,6 +211,11 @@
           <count>6</count>
           <WinNumber>1</WinNumber>
           <ItemText>dos_item</ItemText>
+        </Ww>
+        <Ww>
+          <count>7</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>cur_task</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>
