@@ -328,7 +328,7 @@ static dos_bool _Dos_Cheek_TaskPriority(void)
 #endif
 //  printf("Dos_Task_Priority = %d",Dos_CurPriority)
   
-  if(Dos_CurPriority > Dos_CurrentTCB->Priority)
+  if(Dos_CurPriority < Dos_CurrentTCB->Priority)
     return DOS_TRUE;
   else
     return DOS_FALSE;
@@ -373,10 +373,10 @@ dos_bool _Dos_Scheduler(void)
   {
     return DOS_TRUE;
   }
-  if(Dos_CheekTaskTick(&Dos_TaskPriority_List[Dos_CurPriority]) != dos_res)
-  {
-    return DOS_TRUE;
-  }
+//  if(Dos_CheekTaskTick(&Dos_TaskPriority_List[Dos_CurPriority]) != dos_res)
+//  {
+//    return DOS_TRUE;
+//  }
   return DOS_FALSE;
 }
 
@@ -479,10 +479,10 @@ void SysTick_Handler(void)
   Dos_Updata_Tick();
 //  Interrupt_Enable(pri);
   
-//  if(_Dos_Scheduler() == DOS_TRUE)
-//  {
-//    INT_CTRL_REG = PENDSVSET_BIT;   //如果当前优先级列表下有任务并且时间片到达了，或者有更高优先级的任务就绪了，那么需要切换任务
-//  }
+  if(_Dos_Scheduler() == DOS_TRUE)
+  {
+    INT_CTRL_REG = PENDSVSET_BIT;   //如果当前优先级列表下有任务并且时间片到达了，或者有更高优先级的任务就绪了，那么需要切换任务
+  }
   
 }
 
