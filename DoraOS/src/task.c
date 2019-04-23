@@ -373,10 +373,6 @@ dos_bool _Dos_Scheduler(void)
   {
     return DOS_TRUE;
   }
-//  if(Dos_CheekTaskTick(&Dos_TaskPriority_List[Dos_CurPriority]) != dos_res)
-//  {
-//    return DOS_TRUE;
-//  }
   return DOS_FALSE;
 }
 
@@ -474,15 +470,16 @@ void Dos_Updata_Tick(void)
 
 void SysTick_Handler(void)
 {
-//  dos_uint32 pri; 
-//  pri = Interrupt_Disable();
+  dos_uint32 pri; 
+  pri = Interrupt_Disable();
+  
   Dos_Updata_Tick();
-//  Interrupt_Enable(pri);
   
   if(_Dos_Scheduler() == DOS_TRUE)
   {
     INT_CTRL_REG = PENDSVSET_BIT;   //如果当前优先级列表下有任务并且时间片到达了，或者有更高优先级的任务就绪了，那么需要切换任务
   }
   
+  Interrupt_Enable(pri);
 }
 

@@ -99,6 +99,38 @@ FIND_BEST_MEM:
   return result;  
 }
 
+/**
+ * @brief       NULL  
+ * @param[in]   NULL
+ * @param[out]  NULL
+ * @return      NULL
+ * @author      jiejie
+ * @github      https://github.com/jiejieTop
+ * @date        2018-xx-xx
+ * @version     v1.0
+ * @note        free mem , reference from LiteOS
+ */
+
+void Dos_MemFree(void *dos_mem)
+{  
+  DOS_MemHeap_Info_t *memheap_info = (DOS_MemHeap_Info_t *)DOS_NULL;
+  DOS_MemHeap_Node_t *mem_node = (DOS_MemHeap_Node_t *)DOS_NULL;
+  DOS_MemHeap_Node_t *best_node = (DOS_MemHeap_Node_t *)DOS_NULL;
+  DOS_MemHeap_Node_t *node = (DOS_MemHeap_Node_t *)DOS_NULL;
+  
+  if(dos_mem == DOS_NULL)
+    return;
+  
+  memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;
+  if(!memheap_info)
+  {
+    return ;
+  }  
+  
+  
+  
+}
+
 
 /**
  * @brief       _Dos_MemHeap_Init  

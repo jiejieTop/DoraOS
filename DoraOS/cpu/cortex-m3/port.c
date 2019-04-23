@@ -17,10 +17,23 @@ dos_uint32 *Dos_StackInit(dos_uint32 *top_of_stack ,
 	*top_of_stack = ((dos_uint32)dos_task_entry)&0xfffffffeUL;	/* PC */
 	top_of_stack--;
 	*top_of_stack = (dos_uint32)Dos_TaskExit;	/* LR */
-	top_of_stack -= 5;	/* R12, R3, R2 and R1. */
+	/* R12, R3, R2 and R1. */
+  top_of_stack --;	
+  top_of_stack --;	
+  top_of_stack --;	
+  top_of_stack --;	
+  top_of_stack --;	
 	*top_of_stack = ( dos_uint32 ) parameter;	/* R0 */
-	top_of_stack -= 8;	/* R11, R10, R9, R8, R7, R6, R5 and R4. */
-
+  /* R11, R10, R9, R8, R7, R6, R5 and R4. */
+	top_of_stack --;	
+  top_of_stack --;
+  top_of_stack --;
+  top_of_stack --;
+  top_of_stack --;
+  top_of_stack --;
+  top_of_stack --;
+  top_of_stack --;
+  
   return top_of_stack;
 }
 
@@ -32,11 +45,11 @@ __asm void SVC_Handler( void )
   
   PRESERVE8
 
-	ldr	r3, =Dos_CurrentTCB	/* 加载Dos_CurrentTCB的地址到r3 */
-	ldr r1, [r3]			/* 加载Dos_CurrentTCB到r1 */
-	ldr r0, [r1]			/* 加载Dos_CurrentTCB指向的值到r0，目前r0的值等于第一个任务堆栈的栈顶 */
-	ldmia r0!, {r4-r11}		/* 以r0为基地址，将栈里面的内容加载到r4~r11寄存器，同时r0会递增 */
-	msr psp, r0				/* 将r0的值，即任务的栈指针更新到psp */
+	ldr	r3, =Dos_CurrentTCB	  /* 加载Dos_CurrentTCB的地址到r3 */
+	ldr r1, [r3]			        /* 加载Dos_CurrentTCB到r1 */
+	ldr r0, [r1]			        /* 加载Dos_CurrentTCB指向的值到r0，目前r0的值等于第一个任务堆栈的栈顶 */
+	ldmia r0!, {r4-r11}		    /* 以r0为基地址，将栈里面的内容加载到r4~r11寄存器，同时r0会递增 */
+	msr psp, r0				        /* 将r0的值，即任务的栈指针更新到psp */
 	isb
 	mov r0, #0              /* 设置r0的值为0 */
 	msr	basepri, r0         /* 设置basepri寄存器的值为0，即所有的中断都没有被屏蔽 */
@@ -100,14 +113,11 @@ __asm void PendSV_Handler( void )
 	ldmia sp!, {r3, r14}        /* 恢复r3和r14 */
 
 	ldr r1, [r3]
-	ldr r0, [r1] 				/* 当前激活的任务TCB第一项保存了任务堆栈的栈顶,现在栈顶值存入R0*/
+	ldr r0, [r1] 				    /* 当前激活的任务TCB第一项保存了任务堆栈的栈顶,现在栈顶值存入R0*/
 	ldmia r0!, {r4-r11}			/* 出栈 */
 	msr psp, r0
 	isb
-	bx r14                          /* 异常发生时,R14中保存异常返回标志,包括返回后进入线程模式还是处理器模式、
-                                   使用PSP堆栈指针还是MSP堆栈指针，当调用 bx r14指令后，硬件会知道要从异常返回，
-                                   然后出栈，这个时候堆栈指针PSP已经指向了新任务堆栈的正确位置，
-                                   当新任务的运行地址被出栈到PC寄存器后，新的任务也会被执行。*/
+	bx r14                        
 	nop
   nop
   nop
@@ -155,7 +165,6 @@ dos_uint32 Dos_StartScheduler( void )
 	/* 启动第一个任务，不再返回 */
 	Dos_StartFirstTask();
 
-	/* 不应该运行到这里 */
 	return 0;
 }
 

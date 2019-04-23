@@ -13,30 +13,21 @@
 
 struct DOS_TaskCB
 {
-  dos_void                        *StackPoint;             /**< Task stack point          */
-  dos_void                        *StackAddr;             /**< Task stack point          */
+  dos_void                        *StackPoint;              /**< Task stack point            */
+  dos_void                        *StackAddr;               /**< Task stack point            */
   dos_uint16                      TaskStatus;
   dos_uint16                      Priority;
   dos_uint32                      StackSize;                /**< Task stack size             */
-  dos_void                        *TopOfStack;               /**< Task stack top              */
-  dos_uint32                      TaskTick;                   /**< TaskTick                    */
-  dos_uint32                      TaskInitTick;              /**< TaskInitTick                     */ 
+  dos_void                        *TopOfStack;              /**< Task stack top              */
+  dos_uint32                      TaskTick;                 /**< TaskTick                    */
+  dos_uint32                      TaskInitTick;             /**< TaskInitTick                */ 
   dos_void                        *TaskEntry;               /**< Task entrance function      */
-  dos_void                        *TaskSem;                  /**< Task-held semaphore         */
-  dos_void                        *TaskMux;                  /**< Task-held mutex             */
-  dos_void                        *Parameter;                      /**< Parameter                   */
+  dos_void                        *TaskSem;                 /**< Task-held semaphore         */
+  dos_void                        *TaskMux;                 /**< Task-held mutex             */
+  dos_void                        *Parameter;               /**< Parameter                   */
   dos_char                        *TaskName;                /**< Task name                   */
   Dos_TaskItem_t                  StateItem;
-//  dos_void                        *TCB_Addr;
-//  Dos_TaskList_t                  SleepList;
   Dos_TaskItem_t                  PendItem;
-  //    LOS_DL_LIST                 stPendList;
-//    LOS_DL_LIST                 stTimerList;
-    dos_uint32                      uwIdxRollNum;
-//    EVENT_CB_S                  uwEvent;
-    dos_uint32                      uwEventMask;                /**< Event mask                  */
-    dos_uint32                      uwEventMode;                /**< Event mode                  */
-    dos_void                        *puwMsg;                    /**< Memory allocated to queues  */
 };
 
 typedef struct DOS_TaskCB * DOS_TaskCB_t;
