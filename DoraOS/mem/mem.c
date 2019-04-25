@@ -101,7 +101,7 @@ FIND_BEST_MEM:
 
 /**
  * @brief       NULL  
- * @param[in]   NULL
+ * @param[in]   dos_mem
  * @param[out]  NULL
  * @return      NULL
  * @author      jiejie
