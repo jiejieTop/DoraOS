@@ -70,7 +70,6 @@ tags
 *.tag
 html
 debug.txt
-/【固件库】STM32F10x_StdPeriph_Lib_V3.5.0
 keilkill.bat
 settings
 
