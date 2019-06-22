@@ -38,7 +38,7 @@ void test_task(void *Parameter)
     DOS_PRINT_DEBUG("ABC\n");
     Dos_Interrupt_Enable(0);
 //    Delay_ms(1000);
-    Dos_TaskSleep(1000);
+    Dos_TaskSleep(8000);
   }
 }
 void test1_task(void *Parameter)
@@ -46,7 +46,7 @@ void test1_task(void *Parameter)
   while(1)
   {
     Dos_Interrupt_Disable();
-    DOS_PRINT_DEBUG("123\n");
+//    DOS_PRINT_DEBUG("123\n");
     Dos_Interrupt_Enable(0);
 //    Delay_ms(1000);
     Dos_TaskSleep(200);
@@ -91,14 +91,41 @@ int main(void)
                 DOS_NULL,
                 512,
                 1);
-  
-  p3 = Dos_MemAlloc(512);
+                
   p1 = Dos_MemAlloc(16);  
+  p3 = Dos_MemAlloc(512);
   DOS_PRINT_DEBUG(" p = %x",(dos_uint32)p);
-  DOS_PRINT_DEBUG(" p = %x",(dos_uint32)p2);
-  DOS_PRINT_DEBUG(" p = %x",(dos_uint32)p3);
-  DOS_PRINT_DEBUG(" p = %x",(dos_uint32)p1);
+  DOS_PRINT_DEBUG(" p2 = %x",(dos_uint32)p2);
+  DOS_PRINT_DEBUG(" p1 = %x",(dos_uint32)p1);
+  DOS_PRINT_DEBUG(" p3 = %x",(dos_uint32)p3);
+
   
+  Dos_MemFree(p1);
+  p1=DOS_NULL;
+
+  DOS_PRINT_DEBUG("----");
+  
+  Dos_MemFree(p3);
+  p3=DOS_NULL; 
+//  Dos_MemFree(p1);
+//  Dos_MemFree(p2);
+//  Dos_MemFree(p3);
+
+
+  p1 = Dos_MemAlloc(16);
+  p3 = Dos_MemAlloc(512);
+//  p3 = Dos_MemAlloc(512);
+//  p1 = Dos_MemAlloc(16);  
+  DOS_PRINT_DEBUG(" p1 = %x",(dos_uint32)p1);
+  DOS_PRINT_DEBUG(" p3 = %x",(dos_uint32)p3);
+//  DOS_PRINT_DEBUG(" p = %x",(dos_uint32)p3);
+//  DOS_PRINT_DEBUG(" p = %x",(dos_uint32)p1);
+//  
+//  Dos_MemFree(p);
+//  Dos_MemFree(p1);
+//  Dos_MemFree(p2);
+//  Dos_MemFree(p3);
+//  
   Dos_Start();
   
   while(1)                            

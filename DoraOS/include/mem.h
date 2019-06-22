@@ -12,7 +12,7 @@ typedef struct MemHeapNode
   struct MemHeapNode* Prev;   
   dos_uint32 MemNode_Size : 30 ;  /* mem node size */
   dos_uint32 MemUsed : 1;         /* used or no */
-  dos_uint32 MemAlign : 1;        /* align or no */
+  dos_uint32 MemAlign : 1;        /* align or no, reserved */
   dos_uint8  UserMem[];
 }DOS_MemHeap_Node_t;
 
@@ -36,7 +36,7 @@ typedef struct MemHeapInfo
 
 dos_bool Dos_MemHeap_Init(void);
 void* Dos_MemAlloc(dos_uint32 size);
-
+dos_err Dos_MemFree(void *dos_mem);
 
 
 #endif /* __REDEF_H */

@@ -37,7 +37,7 @@ void* Dos_MemAlloc(dos_uint32 size)
   
   void* result;
   
-  /* 此处需要锁定调度器 */
+  /* Scheduler lock */
   Dos_Scheduler_Lock();
   
   memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;
@@ -67,7 +67,7 @@ void* Dos_MemAlloc(dos_uint32 size)
   {
     DOS_PRINT_ERR("there's not enough whole to alloc %x Bytes!\n",size);
     
-    /* 此处需要解锁调度器 */
+    /* Scheduler unlock */
     Dos_Scheduler_Unlock();
     
     return DOS_NULL;
@@ -94,11 +94,13 @@ void* Dos_MemAlloc(dos_uint32 size)
   
 FIND_BEST_MEM:
   best_node->MemAlign = 0;
-  best_node->MemNode_Size = 1;
+  best_node->MemUsed = 1;
+  best_node->MemNode_Size = size;
   result = best_node->UserMem;
   
-    /* 此处需要解锁调度器 */
-  
+  /* Scheduler unlock */
+  Dos_Scheduler_Unlock();
+
   return result;  
 }
 
@@ -114,24 +116,51 @@ FIND_BEST_MEM:
  * @note        free mem , reference from LiteOS
  */
 
-void Dos_MemFree(void *dos_mem)
+dos_err Dos_MemFree(void *dos_mem)
 {  
   DOS_MemHeap_Info_t *memheap_info = (DOS_MemHeap_Info_t *)DOS_NULL;
-  DOS_MemHeap_Node_t *mem_node = (DOS_MemHeap_Node_t *)DOS_NULL;
-  DOS_MemHeap_Node_t *best_node = (DOS_MemHeap_Node_t *)DOS_NULL;
+  DOS_MemHeap_Node_t *free_node = (DOS_MemHeap_Node_t *)DOS_NULL;
   DOS_MemHeap_Node_t *node = (DOS_MemHeap_Node_t *)DOS_NULL;
-  
+
   if(dos_mem == DOS_NULL)
-    return;
-  
-  memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;
-  if(!memheap_info)
   {
-    return ;
+    DOS_PRINT_ERR("mem is null!\n");
+    return DOS_NOK;
+  }
+    
+  memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;
+  if(DOS_NULL == memheap_info)
+  {
+    DOS_PRINT_ERR("mem info struct is null!\n");
+    return DOS_NOK;
   }  
   
+  /** Find the real address of the memory node by offset */
+  free_node = (DOS_MemHeap_Node_t *)((dos_uint32)dos_mem - MEM_NODE_SIZE);
+
+  if(0 == free_node->MemUsed)
+  {
+    DOS_PRINT_ERR("mem is unused\n");
+    return DOS_NOK;
+  }
+
+  free_node->MemUsed = 0;
+
+  while((DOS_NULL != free_node->Prev) && (0 == free_node->Prev->MemUsed))
+  {
+    free_node = free_node->Prev;
+  }
+  while(((node = (DOS_MemHeap_Node_t *)_Dos_Get_NextNode(free_node)) != DOS_NULL) && (0 == node->MemUsed))
+  {
+    free_node->MemNode_Size += MEM_NODE_SIZE + node->MemNode_Size;
+    if(node == memheap_info->MemTail)
+      memheap_info->MemTail = free_node;
+  }
+
+  if((node = (DOS_MemHeap_Node_t *)_Dos_Get_NextNode(free_node)) != DOS_NULL)
+    node->Prev = free_node;
   
-  
+  return DOS_OK;
 }
 
 
@@ -194,6 +223,6 @@ static DOS_MemHeap_Node_t* _Dos_Get_NextNode(DOS_MemHeap_Node_t* node)
   if(memheap_info->MemTail == node) 
     return DOS_NULL;
   else
-    return (DOS_MemHeap_Node_t*)(node->MemUsed + node->MemNode_Size);
+    return (DOS_MemHeap_Node_t*)(node->UserMem + node->MemNode_Size);
 }
 
