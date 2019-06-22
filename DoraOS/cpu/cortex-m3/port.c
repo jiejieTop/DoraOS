@@ -1,11 +1,8 @@
 #include <port.h>
 
-//static void Dos_TaskExit( void )
-//{
-//  DOS_PRINT_DEBUG("asdasd");
-//	while(1);
-//}
+
 extern void Dos_TaskExit(void);
+
 dos_uint32 *Dos_StackInit(dos_uint32 *top_of_stack , 
                           void *dos_task_entry,
                           dos_void *parameter)
