@@ -41,26 +41,27 @@ void* Dos_MemAlloc(dos_uint32 size)
   Dos_Scheduler_Lock();
   
   memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;
-  if(!memheap_info)
+  if(DOS_NULL == memheap_info)
   {
     return DOS_NULL;
   }  
   
   size = DOS_ALIGN(size,DOS_ALIGN_SIZE);  /* align */
   
-  mem_node = memheap_info->MemTail;
+  mem_node = memheap_info->MemTail;   /** get mem node */
   
-  while(mem_node)
+  while(mem_node)   /** When a memory node exists */
   {
+    /**If current memory is not in use and the memory node MemNode_Size > size, and best memory node  MemNode_Size > current memory node MemNode_Size */
     if((!mem_node->MemUsed) && (mem_node->MemNode_Size > size) && (!best_node || best_node->MemNode_Size > mem_node->MemNode_Size))
     {
-      best_node = mem_node;
+      best_node = mem_node;       /** best memory node is current memory node */
       if(best_node->MemNode_Size == size)
       {
-        goto FIND_BEST_MEM;
+        goto FIND_BEST_MEM;     /** The best memory node is exactly equal to the memory block size the user needs */
       }
     }
-    mem_node = mem_node->Prev;
+    mem_node = mem_node->Prev;  /** traversing the memory list */
   }
 
   if (!best_node) /*alloc failed*/
@@ -73,29 +74,29 @@ void* Dos_MemAlloc(dos_uint32 size)
     return DOS_NULL;
   }
   
-  /* Can cut the memory heap */
+  /* Can cut the memory node */
   if(best_node->MemNode_Size - size > MEM_NODE_SIZE)  
   {
-    mem_node = (DOS_MemHeap_Node_t *)(best_node->UserMem + size);
+    mem_node = (DOS_MemHeap_Node_t *)(best_node->UserMem + size);   /** get a new free memory node address */
     
-    mem_node->MemUsed = 0;
-    mem_node->MemNode_Size = best_node->MemNode_Size - size - MEM_NODE_SIZE;
-    mem_node->Prev = best_node;
+    mem_node->MemUsed = 0;    /** free memory node MemUsed flag is set to 0 */
+    mem_node->MemNode_Size = best_node->MemNode_Size - size - MEM_NODE_SIZE;  /** calculate the free memory node size MemNode_Size  */
+    mem_node->Prev = best_node;   /** insert free memory block list */
     
-    if(best_node != memheap_info->MemTail)
+    if(best_node != memheap_info->MemTail) 
     {
-      if(DOS_NULL != (node = _Dos_Get_NextNode(mem_node)))
-        node->Prev = mem_node;
+      if(DOS_NULL != (node = _Dos_Get_NextNode(mem_node)))  /** get memory list next node */
+        node->Prev = mem_node;    /** insert free memory block list */
     }
     else 
-      memheap_info->MemTail = mem_node;
+      memheap_info->MemTail = mem_node;   /** set memory heap struct info MemTail pointer pointing new free memory node*/
   }
   
   
-FIND_BEST_MEM:
-  best_node->MemAlign = 0;
-  best_node->MemUsed = 1;
-  best_node->MemNode_Size = size;
+FIND_BEST_MEM:              /** find best memory node */
+  best_node->MemAlign = 0;  /** reserved */
+  best_node->MemUsed = 1;   /** memory node is already in use */
+  best_node->MemNode_Size = size;   /** set memory node info */
   result = best_node->UserMem;
   
   /* Scheduler unlock */
