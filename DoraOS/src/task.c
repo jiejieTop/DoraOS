@@ -33,7 +33,8 @@ static dos_uint32 Dos_NextWake_Tick = DOS_UINT32_MAX;
 DOS_TaskCB_t volatile Dos_CurrentTCB = DOS_NULL;
 
 DOS_TaskCB_t volatile Dos_IdleTCB = DOS_NULL;
-  
+
+dos_uint8 Dos_IsRun = DOS_NO;
 dos_uint32 Dos_SchedulerLock = 0;
 dos_uint32 Dos_TickCount = 0U;
 dos_uint32 Dos_CurPriority = 0;
@@ -369,7 +370,7 @@ dos_bool _Dos_Scheduler(void)
 {
   dos_bool dos_res = DOS_FALSE;
   
-  if(_Dos_Cheek_TaskPriority() != dos_res)
+  if((_Dos_Cheek_TaskPriority() != dos_res) && (DOS_YES == Dos_IsRun))
   {
     return DOS_TRUE;
   }
@@ -394,6 +395,7 @@ void Dos_Start( void )
   DOS_PRINT_DEBUG("TaskPriority = %d",Dos_CurPriority);
   
   Dos_TickCount = 0U;
+  Dos_IsRun = DOS_YES;
   /* 启动调度器 */
   if( Dos_StartScheduler() != 0 )
   {
