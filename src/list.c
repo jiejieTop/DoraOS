@@ -12,8 +12,8 @@ void Dos_TaskItem_Init(Dos_TaskItem_t *dos_item)
 
 
 
-/* inser a new node in double list */
-void Dos_TaskItem_Inser(Dos_TaskList_t *dos_list , Dos_TaskItem_t *new_item)
+/* insert a new node in double list */
+void Dos_TaskItem_insert(Dos_TaskList_t *dos_list , Dos_TaskItem_t *new_item)
 {
   Dos_TaskItem_t *item;
   dos_uint32 value = new_item->Dos_TaskValue;
