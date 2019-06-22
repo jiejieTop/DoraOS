@@ -15,7 +15,20 @@ static dos_uint8 *_Align_MemHeap_End = DOS_NULL;
 
 static dos_uint8 _MemHeap[MEM_HEAP_SIZE];
 
-static DOS_MemHeap_Node_t* _Dos_Get_NextNode(DOS_MemHeap_Node_t* node);
+
+/**
+ * get memory list next memory node 
+ */
+static DOS_MemHeap_Node_t* _Dos_Get_NextNode(DOS_MemHeap_Node_t* node)
+{
+  DOS_MemHeap_Info_t *memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;
+
+  if(memheap_info->MemTail == node) 
+    return DOS_NULL;
+  else
+    return (DOS_MemHeap_Node_t*)(node->UserMem + node->MemNode_Size);
+}
+
 
 /**
  * @brief       NULL  
@@ -129,7 +142,7 @@ dos_err Dos_MemFree(void *dos_mem)
     return DOS_NOK;
   }
     
-  memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;
+  memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;    /** get the memory management structure from the memory heap start address */
   if(DOS_NULL == memheap_info)
   {
     DOS_PRINT_ERR("mem info struct is null!\n");
@@ -139,27 +152,29 @@ dos_err Dos_MemFree(void *dos_mem)
   /** Find the real address of the memory node by offset */
   free_node = (DOS_MemHeap_Node_t *)((dos_uint32)dos_mem - MEM_NODE_SIZE);
 
-  if(0 == free_node->MemUsed)
+  if(0 == free_node->MemUsed)   /** determine if the memory node is already in use */
   {
     DOS_PRINT_ERR("mem is unused\n");
     return DOS_NOK;
   }
 
-  free_node->MemUsed = 0;
+  free_node->MemUsed = 0;   /** can free memory node , MemUsed flag is set to 0 */
 
   while((DOS_NULL != free_node->Prev) && (0 == free_node->Prev->MemUsed))
   {
-    free_node = free_node->Prev;
+    free_node = free_node->Prev;    /** if current memory node Prev is not null, and the node is free, can merging */
   }
+
   while(((node = (DOS_MemHeap_Node_t *)_Dos_Get_NextNode(free_node)) != DOS_NULL) && (0 == node->MemUsed))
   {
-    free_node->MemNode_Size += MEM_NODE_SIZE + node->MemNode_Size;
-    if(node == memheap_info->MemTail)
-      memheap_info->MemTail = free_node;
+    free_node->MemNode_Size += MEM_NODE_SIZE + node->MemNode_Size;  /** reset the MemNode_Size of the new memory node */
+
+    if(node == memheap_info->MemTail)   
+      memheap_info->MemTail = free_node;    /** set MemTail pointer to the memory management information structure */
   }
 
   if((node = (DOS_MemHeap_Node_t *)_Dos_Get_NextNode(free_node)) != DOS_NULL)
-    node->Prev = free_node;
+    node->Prev = free_node;   /** insert free memory block list */
   
   return DOS_OK;
 }
@@ -217,13 +232,4 @@ dos_bool Dos_MemHeap_Init(void)
 }
 
 
-static DOS_MemHeap_Node_t* _Dos_Get_NextNode(DOS_MemHeap_Node_t* node)
-{
-  DOS_MemHeap_Info_t *memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;
-
-  if(memheap_info->MemTail == node) 
-    return DOS_NULL;
-  else
-    return (DOS_MemHeap_Node_t*)(node->UserMem + node->MemNode_Size);
-}
 
