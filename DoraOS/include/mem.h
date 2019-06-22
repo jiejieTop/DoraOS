@@ -3,6 +3,9 @@
 #include <dos_def.h>
 #include <list.h>
 
+extern void Dos_Scheduler_Lock(void);
+extern void Dos_Scheduler_Unlock(void);
+
 /* Memory node information control block */
 typedef struct MemHeapNode
 {
@@ -33,7 +36,9 @@ typedef struct MemHeapInfo
 
 dos_bool Dos_MemHeap_Init(void);
 void* Dos_MemAlloc(dos_uint32 size);
-  
+
+
+
 #endif /* __REDEF_H */
 
 

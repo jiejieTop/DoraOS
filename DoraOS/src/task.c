@@ -34,8 +34,8 @@ DOS_TaskCB_t volatile Dos_CurrentTCB = DOS_NULL;
 
 DOS_TaskCB_t volatile Dos_IdleTCB = DOS_NULL;
   
+dos_uint32 Dos_SchedulerLock = 0;
 dos_uint32 Dos_TickCount = 0U;
-
 dos_uint32 Dos_CurPriority = 0;
 
 const dos_uint8 Dos_BitMap[] =
@@ -202,10 +202,10 @@ void Dos_SystemInit(void)
 
 static void _Dos_InitTask(DOS_TaskCB_t dos_taskcb)
 {
-	/* »ñÈ¡Õ»¶¥µØÖ· */
+	/* è·å–æ ˆé¡¶åœ°å€ */
 	dos_taskcb->TopOfStack = (dos_void *)((dos_uint32)dos_taskcb->StackAddr + (dos_uint32)(dos_taskcb->StackSize - 1));
 	
-  /* ÏòÏÂ×ö8×Ö½Ú¶ÔÆë */
+  /* å‘ä¸‹åš8å­—èŠ‚å¯¹é½ */
 	dos_taskcb->TopOfStack = (dos_void *)((( uint32_t)dos_taskcb->TopOfStack) & (~((dos_uint32 )0x0007)));	
   
   dos_taskcb->StackPoint = Dos_StackInit( dos_taskcb->TopOfStack,
@@ -243,7 +243,7 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
     if(DOS_NULL == dos_stack)
     {
       DOS_PRINT_ERR("system mem DOS_NULL");
-      /* ´Ë´¦Ó¦ÊÍ·ÅÉêÇëµ½µÄÄÚ´æ */
+      /* æ­¤å¤„åº”é‡Šæ”¾ç”³è¯·åˆ°çš„å†…å­˜ */
       return DOS_NULL;
     }
     Dos_TaskItem_Init(&dos_taskcb->StateItem);
@@ -349,7 +349,7 @@ dos_bool Dos_CheekTaskTick(Dos_TaskList_t *list)
 {
   DOS_TaskCB_t taskcb = (DOS_TaskCB_t)&(list->Dos_TaskItem->Dos_TCB);
   
-  if(taskcb->TaskTick >= Dos_TickCount)   //Ê±¼äÆ¬µ½ÁË
+  if(taskcb->TaskTick >= Dos_TickCount)   //æ—¶é—´ç‰‡åˆ°äº†
   {
     taskcb->TaskTick += taskcb->TaskInitTick; 
     return DOS_TRUE;
@@ -357,7 +357,7 @@ dos_bool Dos_CheekTaskTick(Dos_TaskList_t *list)
   else
   {
     taskcb->TaskTick++;
-    if(taskcb->TaskTick == 0)   //Òç³ö´¦Àí
+    if(taskcb->TaskTick == 0)   //æº¢å‡ºå¤„ç†
     {
       
     }
@@ -376,6 +376,13 @@ dos_bool _Dos_Scheduler(void)
   return DOS_FALSE;
 }
 
+void Dos_Scheduler(void)
+{
+  if(_Dos_Scheduler() == DOS_TRUE)
+  {
+    INT_CTRL_REG = PENDSVSET_BIT;   //å¦‚æœå½“å‰ä¼˜å…ˆçº§åˆ—è¡¨ä¸‹æœ‰ä»»åŠ¡å¹¶ä¸”æ—¶é—´ç‰‡åˆ°è¾¾äº†ï¼Œæˆ–è€…æœ‰æ›´é«˜ä¼˜å…ˆçº§çš„ä»»åŠ¡å°±ç»ªäº†ï¼Œé‚£ä¹ˆéœ€è¦åˆ‡æ¢ä»»åŠ¡
+  }
+}
 
 void Dos_Start( void )
 {
@@ -387,10 +394,10 @@ void Dos_Start( void )
   DOS_PRINT_DEBUG("TaskPriority = %d",Dos_CurPriority);
   
   Dos_TickCount = 0U;
-  /* Æô¶¯µ÷¶ÈÆ÷ */
+  /* å¯åŠ¨è°ƒåº¦å™¨ */
   if( Dos_StartScheduler() != 0 )
   {
-      /* µ÷¶ÈÆ÷Æô¶¯³É¹¦£¬Ôò²»»á·µ»Ø£¬¼´²»»áÀ´µ½ÕâÀï */
+      /* è°ƒåº¦å™¨å¯åŠ¨æˆåŠŸï¼Œåˆ™ä¸ä¼šè¿”å›ï¼Œå³ä¸ä¼šæ¥åˆ°è¿™é‡Œ */
   }
 }
 
@@ -422,6 +429,47 @@ void Dos_SwitchTask( void )
   _Dos_Cheek_TaskPriority();
   Dos_CurrentTCB = Dos_GetTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
 }
+
+
+/**
+ * Scheduler lock
+ */
+void Dos_Scheduler_Lock(void)
+{
+  dos_uint32 pri;
+
+  pri = Dos_Interrupt_Disable();
+
+  Dos_SchedulerLock ++ ;
+
+  Dos_Interrupt_Enable(pri);
+}
+
+/**
+ * Scheduler unlock
+ */
+void Dos_Scheduler_Unlock(void)
+{
+  dos_uint32 pri;
+
+  pri = Dos_Interrupt_Disable();
+
+  if(Dos_SchedulerLock > 0)
+  {
+    Dos_SchedulerLock -- ;
+    if(0 == Dos_SchedulerLock)
+    {
+       Dos_Interrupt_Enable(pri);
+       Dos_Scheduler();
+       return;
+    }
+  }
+
+  Dos_Interrupt_Enable(pri);
+}
+
+
+
 
 void Dos_Updata_Tick(void)
 {
@@ -475,10 +523,7 @@ void SysTick_Handler(void)
   
   Dos_Updata_Tick();
   
-  if(_Dos_Scheduler() == DOS_TRUE)
-  {
-    INT_CTRL_REG = PENDSVSET_BIT;   //Èç¹ûµ±Ç°ÓÅÏÈ¼¶ÁĞ±íÏÂÓĞÈÎÎñ²¢ÇÒÊ±¼äÆ¬µ½´ïÁË£¬»òÕßÓĞ¸ü¸ßÓÅÏÈ¼¶µÄÈÎÎñ¾ÍĞ÷ÁË£¬ÄÇÃ´ĞèÒªÇĞ»»ÈÎÎñ
-  }
+  Dos_Scheduler();
   
   Interrupt_Enable(pri);
 }

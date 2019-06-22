@@ -38,6 +38,8 @@ void* Dos_MemAlloc(dos_uint32 size)
   void* result;
   
   /* 此处需要锁定调度器 */
+  Dos_Scheduler_Lock();
+  
   memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;
   if(!memheap_info)
   {
@@ -66,6 +68,7 @@ void* Dos_MemAlloc(dos_uint32 size)
     DOS_PRINT_ERR("there's not enough whole to alloc %x Bytes!\n",size);
     
     /* 此处需要解锁调度器 */
+    Dos_Scheduler_Unlock();
     
     return DOS_NULL;
   }
