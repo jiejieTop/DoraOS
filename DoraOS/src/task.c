@@ -2,15 +2,8 @@
 #include <task.h>
 #include "include.h"
 
-#ifndef     DOS_MAX_PRIORITY_NUM
-#define     DOS_MAX_PRIORITY_NUM        32U
-#endif
-
-
-
 #if DOS_MAX_PRIORITY_NUM > 32
 #define   DOS_PRIORITY_TAB  (((DOS_MAX_PRIORITY_NUM -1 )/32) + 1)
-
 #define   DOS_PRIORITY_TAB_INDEX(PRI)  (((PRI -1 )/32))
 
 static dos_uint32 Dos_Task_Priority[DOS_PRIORITY_TAB];
@@ -18,27 +11,38 @@ static dos_uint32 Dos_Task_Priority[DOS_PRIORITY_TAB];
 static dos_uint32 Dos_Task_Priority;
 #endif
 
-static dos_uint32 Dos_TicksCount;
-
+/**
+ * task priority list
+ */
 Dos_TaskList_t Dos_TaskPriority_List[DOS_MAX_PRIORITY_NUM];
 
+/**
+ * Time dependent list
+ */
 static Dos_TaskList_t _Dos_Sleep_List1;
 static Dos_TaskList_t _Dos_Sleep_List2;
-
 static Dos_TaskList_t *_Dos_TaskSleep_List;
 static Dos_TaskList_t *_Dos_TaskSleep_OverFlow_List;
 
 static dos_uint32 Dos_NextWake_Tick = DOS_UINT32_MAX;
 
+/**
+ * task TCB
+ */
 DOS_TaskCB_t volatile Dos_CurrentTCB = DOS_NULL;
-
 DOS_TaskCB_t volatile Dos_IdleTCB = DOS_NULL;
 
-dos_uint8 Dos_IsRun = DOS_NO;
-dos_uint32 Dos_SchedulerLock = 0;
-dos_uint32 Dos_TickCount = 0U;
-dos_uint32 Dos_CurPriority = 0;
+/**
+ * global variable
+ */
+dos_uint8 Dos_IsRun = DOS_NO;       /** system run flag */
+dos_uint32 Dos_SchedulerLock = 0;   /** scheduler lock number of times*/
+dos_uint32 Dos_TickCount = 0U;      /** system time (tick) */
+dos_uint32 Dos_CurPriority = 0;     /** the highest priority the system is currently in the ready state */
 
+/**
+ * bit map
+ */
 const dos_uint8 Dos_BitMap[] =
 {
   0, 0, 1, 0, 2, 0, 1, 0, 3, 0, 1, 0, 2, 0, 1, 0,    /* 00 */
@@ -60,7 +64,9 @@ const dos_uint8 Dos_BitMap[] =
 };
 
 
-
+/**
+ * Function declaration
+ */
 static void _Dos_Create_IdleTask(void);
 static dos_bool _Dos_Cheek_TaskPriority(void);
 
@@ -290,7 +296,7 @@ dos_uint32 Dos_Get_Tick(void)
 
   Dos_Interrupt_Disable();
   
-  dos_cur_tick = Dos_TicksCount;
+  dos_cur_tick = Dos_TickCount;
   
   Dos_Interrupt_Enable(0);
   
@@ -341,7 +347,6 @@ static dos_bool _Dos_Cheek_TaskPriority(void)
 #else
   Dos_CurPriority = Dos_Get_Highest_Priority(Dos_Task_Priority);
 #endif
-//  printf("Dos_Task_Priority = %d",Dos_CurPriority)
   
   if(Dos_CurPriority < Dos_CurrentTCB->Priority)
     return DOS_TRUE;

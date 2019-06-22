@@ -10,7 +10,6 @@
 #include <dos_config.h>
 
 
-
 struct DOS_TaskCB
 {
   dos_void                        *StackPoint;              /**< Task stack point            */
@@ -33,16 +32,13 @@ struct DOS_TaskCB
 typedef struct DOS_TaskCB * DOS_TaskCB_t;
 
 
+#ifndef     DOS_MAX_PRIORITY_NUM
+#define     DOS_MAX_PRIORITY_NUM        32U
+#endif
 
 #define DOS_GET_STRUCT(ptr, type, member)   ((type *)((char *)(ptr) - (unsigned long)(&((type *)0)->member)))
-          
+
 #define DOS_GET_TCB(node)    DOS_GET_STRUCT(node, struct DOS_TaskCB, StateItem)
-  
-//#define rt_container_of(ptr, type, member) \ 
-//        ((type *)((char *)(ptr) - (unsigned long)(&((type *)0)->member)))
-//          
-//#define rt_list_entry(node, type, member) \ 
-//        rt_container_of(node, type, member)
         
 void Dos_SystemInit(void);
 
