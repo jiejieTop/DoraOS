@@ -243,7 +243,7 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
     dos_stack = (dos_void *)Dos_MemAlloc(dos_stack_size);
     if(DOS_NULL == dos_stack)
     {
-      DOS_PRINT_ERR("system mem DOS_NULL");
+      DOS_PRINT_DEBUG("system mem DOS_NULL");
       /* 此处应释放申请到的内存 */
       return DOS_NULL;
     }
@@ -252,6 +252,11 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
     dos_taskcb->StackAddr = dos_stack;
     dos_taskcb->StackSize = dos_stack_size;
   }
+  else
+  {
+    return DOS_NULL;
+  }
+  
 
   dos_taskcb->TaskEntry = (void *)dos_task_entry;
   dos_taskcb->Parameter = dos_param;
@@ -292,13 +297,22 @@ dos_uint32 Dos_Get_Tick(void)
   return dos_cur_tick;
 }
 
-void _Dos_IdleTask(void *Parameter)
+static void _Dos_IdleTask(void *Parameter)
 {
   while(1)
   {
     ;
   }
 }
+
+
+void Dos_TaskExit(void)
+{
+  DOS_ASSERT(0);
+  while(1);
+}
+
+
 
 static void _Dos_Create_IdleTask(void)
 {

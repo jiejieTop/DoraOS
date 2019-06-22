@@ -14,7 +14,7 @@
 
 /**
   ******************************************************************
-													   ±äÁ¿ÉùÃ÷
+													   å˜é‡å£°æ˜
   ******************************************************************
   */ 
 
@@ -24,7 +24,7 @@ DOS_TaskCB_t task2 = DOS_NULL;
 DOS_TaskCB_t task1 = DOS_NULL;
 /**
   ******************************************************************
-														º¯ÊıÉùÃ÷
+														å‡½æ•°å£°æ˜
   ******************************************************************
   */ 
   
@@ -38,7 +38,7 @@ void test_task(void *Parameter)
     DOS_PRINT_DEBUG("ABC\n");
     Dos_Interrupt_Enable(0);
 //    Delay_ms(1000);
-    Dos_TaskSleep(8000);
+    Dos_TaskSleep(2000);
   }
 }
 void test1_task(void *Parameter)
@@ -46,15 +46,16 @@ void test1_task(void *Parameter)
   while(1)
   {
     Dos_Interrupt_Disable();
-//    DOS_PRINT_DEBUG("123\n");
+    DOS_PRINT_DEBUG("123\n");
     Dos_Interrupt_Enable(0);
 //    Delay_ms(1000);
     Dos_TaskSleep(200);
+    return;
   }
 }
 /**
   ******************************************************************
-  * @brief   Ö÷º¯Êı
+  * @brief   ä¸»å‡½æ•°
   * @author  jiejie
   * @version V1.0
   * @date    2019-xx-xx
@@ -139,7 +140,7 @@ int main(void)
 
 /**
   ******************************************************************
-  * @brief   BSP_Init£¬ÓÃÓÚËùÓĞ°å¼¶³õÊ¼»¯
+  * @brief   BSP_Initï¼Œç”¨äºæ‰€æœ‰æ¿çº§åˆå§‹åŒ–
   * @author  jiejie
   * @version V1.0
   * @date    2018-xx-xx
@@ -147,28 +148,28 @@ int main(void)
   */ 
 static void BSP_Init(void)
 {
-	/* LED ³õÊ¼»¯ */
+	/* LED åˆå§‹åŒ– */
 	LED_GPIO_Config();
 	
 #if USE_DWT_DELAY
-	/* ÄÚºË¾«È·¶¨Ê±Æ÷³õÊ¼»¯ */
+	/* å†…æ ¸ç²¾ç¡®å®šæ—¶å™¨åˆå§‹åŒ– */
 	CPU_TS_TmrInit();
 #else
-	/* µÎ´ğ¶¨Ê±Æ÷³õÊ¼»¯ */
+	/* æ»´ç­”å®šæ—¶å™¨åˆå§‹åŒ– */
 	SysTick_Init();
 #endif
 	
-	/* ´®¿Ú³õÊ¼»¯ */
+	/* ä¸²å£åˆå§‹åŒ– */
 	USART_Config();
   
-	/* °´¼ü³õÊ¼»¯ */
+	/* æŒ‰é”®åˆå§‹åŒ– */
   Key_GPIO_Config();
   
-//	/* Íâ²¿ÖĞ¶Ï³õÊ¼»¯ */
+//	/* å¤–éƒ¨ä¸­æ–­åˆå§‹åŒ– */
 //	EXTI_Key_Config(); 
 	
 	
-	/* ´òÓ¡ĞÅÏ¢ */
+	/* æ‰“å°ä¿¡æ¯ */
 	DOS_PRINT_INFO("welcome to learn jiejie stm32 library!\n");
 	
 }

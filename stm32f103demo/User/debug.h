@@ -44,8 +44,8 @@
 #endif
 
 /* 断言 Assert */
-#define AssertCalled(char,int) 	printf("\nError:%s,%d\r\n",char,int)
-#define ASSERT(x)   if((x)==0)  AssertCalled(__FILE__,__LINE__)
+#define Dos_AssertCalled(char,int) 	printf("\nError:%s,%d\r\n",char,int)
+#define DOS_ASSERT(x)   if((x)==0)  Dos_AssertCalled(__FILE__,__LINE__)
   
 typedef enum 
 {
