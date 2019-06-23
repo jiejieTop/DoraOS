@@ -51,6 +51,7 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
 dos_uint32 Dos_Get_Tick(void);         
 void Dos_Start( void );
 void Dos_TaskSleep(dos_uint32 dos_sleep_tick);
+void Dos_Scheduler(void);
 void Dos_Scheduler_Lock(void);
 void Dos_Scheduler_Unlock(void);
                             

@@ -282,24 +282,31 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
 
 void Dos_TaskSleep(dos_uint32 dos_sleep_tick)
 {
+  dos_uint32 pri;
+
   if(0 == dos_sleep_tick)
   {
     DOS_TASK_YIELD();
   }
-  Dos_Interrupt_Disable();
+  pri = Dos_Interrupt_Disable();
+
   _Dos_insert_TaskSleep_List(dos_sleep_tick);
-  Dos_Interrupt_Enable(0);
+
+  Dos_Scheduler();
+
+  Dos_Interrupt_Enable(pri);
 }
 
 dos_uint32 Dos_Get_Tick(void)
 {
   dos_uint32 dos_cur_tick;
+  dos_uint32 pri;
 
-  Dos_Interrupt_Disable();
+  pri = Dos_Interrupt_Disable();
   
   dos_cur_tick = Dos_TickCount;
   
-  Dos_Interrupt_Enable(0);
+  Dos_Interrupt_Enable(pri);
   
   return dos_cur_tick;
 }
@@ -349,7 +356,7 @@ static dos_bool _Dos_Cheek_TaskPriority(void)
   Dos_CurPriority = Dos_Get_Highest_Priority(Dos_Task_Priority);
 #endif
   
-  if(Dos_CurPriority < Dos_CurrentTCB->Priority)
+  if(Dos_CurPriority <= Dos_CurrentTCB->Priority)
     return DOS_TRUE;
   else
     return DOS_FALSE;
