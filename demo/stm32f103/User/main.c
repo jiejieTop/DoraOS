@@ -32,6 +32,9 @@ static void BSP_Init(void);
 
 void test_task(void *Parameter)
 {
+  Dos_TaskSleep(1000);
+  printf("delete task2");
+  Dos_TaskDelete(task1);
   while(1)
   {
     Dos_Interrupt_Disable();
@@ -39,6 +42,7 @@ void test_task(void *Parameter)
     Dos_Interrupt_Enable(0);
 //    Delay_ms(1000);
     Dos_TaskSleep(1000);
+    
   }
 }
 void test1_task(void *Parameter)
@@ -90,7 +94,7 @@ int main(void)
                 &test1_task,
                 DOS_NULL,
                 512,
-                2);
+                1);
                 
   p1 = Dos_MemAlloc(16);  
   p3 = Dos_MemAlloc(512);

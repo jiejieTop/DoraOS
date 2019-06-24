@@ -142,6 +142,7 @@ static void _Dos_insert_TaskPriority_List(DOS_TaskCB_t dos_taskcb)
   Dos_Task_Priority |= (0x01 << dos_taskcb->Priority);
   DOS_PRINT_DEBUG("Dos_Task_Priority = %#x",Dos_Task_Priority);
 #endif
+  dos_taskcb->TaskStatus = DOS_TASK_STATUS_READY;
   /* init task list,the list will pend in readylist or pendlist  */
   /* insert priority list */
   Dos_TaskItem_insert(&Dos_TaskPriority_List[dos_taskcb->Priority],&dos_taskcb->StateItem);
@@ -162,8 +163,7 @@ static void _Dos_insert_TaskSleep_List(dos_uint32 dos_sleep_tick)
     if(Dos_TaskList_IsEmpty(&Dos_TaskPriority_List[cur_task->Priority]) == DOS_TRUE)
     {
       Dos_Task_Priority &= ~(0x01 << cur_task->Priority); 
-      
-      INT_CTRL_REG = PENDSVSET_BIT;
+      DOS_TASKYIELD;
     }
   }
   
@@ -245,13 +245,13 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
   dos_void *dos_stack;
   
   dos_taskcb = (DOS_TaskCB_t)Dos_MemAlloc(sizeof(struct DOS_TaskCB));
-  if(dos_taskcb != DOS_NULL)
+  if(DOS_NULL != dos_taskcb)
   {
     dos_stack = (dos_void *)Dos_MemAlloc(dos_stack_size);
     if(DOS_NULL == dos_stack)
     {
       DOS_PRINT_DEBUG("system mem DOS_NULL");
-      /* 此处应释放申请到的内存 */
+      Dos_MemFree(dos_taskcb);
       return DOS_NULL;
     }
     Dos_TaskItem_Init(&dos_taskcb->StateItem);
@@ -264,19 +264,87 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
     return DOS_NULL;
   }
   
-
   dos_taskcb->TaskEntry = (void *)dos_task_entry;
   dos_taskcb->Parameter = dos_param;
   dos_taskcb->Priority = dos_priority;
   dos_taskcb->TaskName = (dos_char *)dos_name;
-
-  
+  dos_taskcb->TaskStatus = DOS_TASK_STATUS_UNUSED;
   
   _Dos_InitTask(dos_taskcb);       
   
   _Dos_insert_TaskPriority_List(dos_taskcb);
   
   return dos_taskcb;
+}
+
+
+/**
+ * delete task function
+ */
+dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
+{
+  dos_uint16 dos_status;
+  dos_uint32 pri;
+
+  if(DOS_NULL == dos_task)
+  {
+    DOS_PRINT_ERR("delete task is null\n");
+    return DOS_NOK;
+  }
+  
+  dos_status = dos_task->TaskStatus;
+
+  if(DOS_TASK_STATUS_UNUSED == dos_status)  /** task is unused status */
+  {
+    DOS_PRINT_ERR("task status is unused\n");
+    return DOS_NOK;
+  }
+
+  if(Dos_SchedulerLock != 0)
+  {
+    DOS_PRINT_ERR("scheduler is lock\n");
+    return DOS_NOK;
+  }
+
+  // if(DOS_TASK_STATUS_RUNNING == dos_status)
+  // {
+
+  // }
+
+  /** task is used status */
+  if((DOS_TASK_STATUS_DELAY == dos_status) || (DOS_TASK_STATUS_SUSPEND == dos_status) || (DOS_TASK_STATUS_READY == dos_status))  
+  {
+    pri = Dos_Interrupt_Disable();
+
+    if(Dos_TaskItem_Del(&(dos_task->StateItem)) == 0)
+    {
+      if(Dos_TaskList_IsEmpty(&Dos_TaskPriority_List[dos_task->Priority]) == DOS_TRUE)
+      {
+        Dos_Task_Priority &= ~(0x01 << dos_task->Priority); 
+        DOS_TASKYIELD;
+      }
+    }
+
+    Dos_Interrupt_Enable(pri);
+
+    dos_task->TaskStatus = DOS_TASK_STATUS_UNUSED;
+    if(dos_task != Dos_CurrentTCB)
+    {
+      Dos_MemFree(dos_task);
+      Dos_MemFree(dos_task->StackAddr);
+      return DOS_OK;
+    }
+    else
+    {
+      /* 插入回收列表，空闲任务处理 */
+      return DOS_OK;
+    }
+  }
+  else
+  {
+    DOS_PRINT_DEBUG("task status error\n");
+    return DOS_NOK;
+  }
 }
 
 
@@ -408,7 +476,7 @@ void Dos_Scheduler(void)
 {
   if(_Dos_Scheduler() == DOS_TRUE)
   {
-    INT_CTRL_REG = PENDSVSET_BIT;   //如果当前优先级列表下有任务并且时间片到达了，或者有更高优先级的任务就绪了，那么需要切换任务
+    DOS_TASKYIELD; //如果当前优先级列表下有任务并且时间片到达了，或者有更高优先级的任务就绪了，那么需要切换任务
   }
 }
 
@@ -419,7 +487,7 @@ void Dos_Start( void )
   
   Dos_CurrentTCB = Dos_GetTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
 
-  DOS_PRINT_DEBUG("TaskPriority = %d",Dos_CurPriority);
+  DOS_PRINT_DEBUG("TaskPriority = %d\n",Dos_CurPriority);
   
   Dos_TickCount = 0U;
   Dos_IsRun = DOS_YES;
@@ -538,7 +606,7 @@ void Dos_Updata_Tick(void)
         
         if(dos_task->Priority < Dos_CurrentTCB->Priority)
         {
-          INT_CTRL_REG = PENDSVSET_BIT;
+          DOS_TASKYIELD;
         }
       }
     } 
