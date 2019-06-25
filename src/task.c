@@ -70,25 +70,6 @@ const dos_uint8 Dos_BitMap[] =
 static void _Dos_Create_IdleTask(void);
 static dos_bool _Dos_Cheek_TaskPriority(void);
 
-/** 
- * get Highest Priority by bit map
- */
-dos_uint32 Dos_Get_Highest_Priority(dos_uint32 pri)
-{
-    if (pri == 0) return 0;
-
-    if (pri & 0xff)
-        return Dos_BitMap[pri & 0xff];
-
-    if (pri & 0xff00)
-        return Dos_BitMap[(pri & 0xff00) >> 8] + 8;
-
-    if (pri & 0xff0000)
-        return Dos_BitMap[(pri & 0xff0000) >> 16] + 16;
-
-    return Dos_BitMap[(pri & 0xff000000) >> 24] + 24;
-}
-
 /**
  * task priority list initialization
  */
@@ -127,6 +108,48 @@ static void _Dos_Task_List_Init(void)
   _Dos_TaskPriority_List_Init();
   
   _Dos_TaskSleep_List_Init();
+}
+
+static void _Dos_InitTask(DOS_TaskCB_t dos_taskcb)
+{
+	/* 获取栈顶地址 */
+	dos_taskcb->TopOfStack = (dos_void *)((dos_uint32)dos_taskcb->StackAddr + (dos_uint32)(dos_taskcb->StackSize - 1));
+	
+  /* 向下做8字节对齐 */
+	dos_taskcb->TopOfStack = (dos_void *)((( uint32_t)dos_taskcb->TopOfStack) & (~((dos_uint32 )0x0007)));	
+  
+  dos_taskcb->StackPoint = Dos_StackInit( dos_taskcb->TopOfStack,
+                                          dos_taskcb->TaskEntry,
+                                          dos_taskcb->Parameter);
+}
+
+DOS_TaskCB_t _Dos_GetTCB(Dos_TaskList_t *list)
+{
+  list->Dos_TaskItem = list->Dos_TaskItem->Next;
+  if((void*)(list)->Dos_TaskItem == (void*)&((list)->Task_EndItem))
+  {
+    list->Dos_TaskItem = list->Dos_TaskItem->Next;
+  }
+  return list->Dos_TaskItem->Dos_TCB;
+}
+
+/** 
+ * get Highest Priority by bit map
+ */
+static dos_uint32 _Dos_Get_Highest_Priority(dos_uint32 pri)
+{
+    if (pri == 0) return 0;
+
+    if (pri & 0xff)
+        return Dos_BitMap[pri & 0xff];
+
+    if (pri & 0xff00)
+        return Dos_BitMap[(pri & 0xff00) >> 8] + 8;
+
+    if (pri & 0xff0000)
+        return Dos_BitMap[(pri & 0xff0000) >> 16] + 16;
+
+    return Dos_BitMap[(pri & 0xff000000) >> 24] + 24;
 }
 
 
@@ -184,6 +207,84 @@ static void _Dos_insert_TaskSleep_List(dos_uint32 dos_sleep_tick)
 }
 
 
+static dos_bool _Dos_Cheek_TaskPriority(void)
+{
+#if DOS_MAX_PRIORITY_NUM > 32
+  dos_uint32 i;
+  for(i = 0; i < DOS_PRIORITY_TAB; i++)
+  {
+    if(Dos_Task_Priority[i] & 0xFFFFFFFF)
+      break;
+  }
+  Dos_CurPriority = _Dos_Get_Highest_Priority(Dos_Task_Priority[i]) + 32 * i;
+#else
+  Dos_CurPriority = _Dos_Get_Highest_Priority(Dos_Task_Priority);
+#endif
+  
+  if(Dos_CurPriority <= Dos_CurrentTCB->Priority)
+    return DOS_TRUE;
+  else
+    return DOS_FALSE;
+}
+
+
+static void _Dos_IdleTask(void *Parameter)
+{
+  while(1)
+  {
+    ;
+  }
+}
+
+static void _Dos_Create_IdleTask(void)
+{
+ Dos_IdleTCB = Dos_TaskCreate( "IdleTask",
+                                &_Dos_IdleTask,
+                                DOS_NULL,
+                                DOS_IDLE_TASK_SIZE,
+                                DOS_IDLE_TASK_PRIORITY);
+  if(DOS_NULL == Dos_IdleTCB)
+  {
+    DOS_PRINT_ERR("Dos_IdleTCB is NULL!\n");
+  }
+}
+
+static void _Dos_Switch_SleepList(void)
+{
+  Dos_TaskList_t *dos_list;
+  DOS_TaskCB_t dos_task;
+  if(Dos_TaskList_IsEmpty(_Dos_TaskSleep_List) == DOS_TRUE)
+  {
+    dos_list = _Dos_TaskSleep_List;
+    _Dos_TaskSleep_List = _Dos_TaskSleep_OverFlow_List;
+    _Dos_TaskSleep_OverFlow_List = dos_list;
+    if(Dos_TaskList_IsEmpty(_Dos_TaskSleep_List) == DOS_TRUE)
+    {
+      Dos_NextWake_Tick = DOS_UINT32_MAX;
+    }
+    else
+    {
+      dos_task = _Dos_GetTCB(_Dos_TaskSleep_List);
+      Dos_NextWake_Tick = dos_task->StateItem.Dos_TaskValue;
+    }
+  }
+  else
+    DOS_PRINT_ERR("Task sleep list is not empty!\n");
+}
+
+static dos_bool _Dos_Scheduler(void)
+{
+  dos_bool dos_res = DOS_FALSE;
+  
+  if((_Dos_Cheek_TaskPriority() != dos_res) && (DOS_YES == Dos_IsRun))
+  {
+    return DOS_TRUE;
+  }
+  return DOS_FALSE;
+}
+
+/***********************************************************************************************************************/
+
 /**
  * @brief       NULL  
  * @param[in]   NULL
@@ -207,33 +308,14 @@ void Dos_SystemInit(void)
 
 }
 
-
-static void _Dos_InitTask(DOS_TaskCB_t dos_taskcb)
-{
-	/* 获取栈顶地址 */
-	dos_taskcb->TopOfStack = (dos_void *)((dos_uint32)dos_taskcb->StackAddr + (dos_uint32)(dos_taskcb->StackSize - 1));
-	
-  /* 向下做8字节对齐 */
-	dos_taskcb->TopOfStack = (dos_void *)((( uint32_t)dos_taskcb->TopOfStack) & (~((dos_uint32 )0x0007)));	
-  
-  dos_taskcb->StackPoint = Dos_StackInit( dos_taskcb->TopOfStack,
-                                          dos_taskcb->TaskEntry,
-                                          dos_taskcb->Parameter);
-}
-
-
 /**
  * This function will create a task
- * @param[in]  task       the task to be created
- * @param[in]  name       the name of task, which shall be unique
- * @param[in]  arg        the parameter of task enter function
- * @param[in]  pri        the prio of task
- * @param[in]  ticks      the time slice if there are same prio task
- * @param[in]  stack_buf  the start address of task stack
- * @param[in]  stack      the size of thread stack
- * @param[in]  entry      the entry function of task
- * @param[in]  autorun    the autorunning flag of task
- * @return  the operation status, RHINO_SUCCESS is OK, others is error
+ * @param[in]  dos_name         the name of task, which shall be unique
+ * @param[in]  dos_task_entry   the parameter of task enter function
+ * @param[in]  dos_param        the param of task enter 
+ * @param[in]  dos_stack_size   the start address of task stack
+ * @param[in]  dos_priority     the time slice if there are same prio task
+ * @return     Task control block pointer
  */
 DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
                             void (*dos_task_entry)(void *dos_param),
@@ -280,6 +362,7 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
 
 /**
  * delete task function
+ * @param[in]  dos_task         Task control block pointer
  */
 dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
 {
@@ -305,11 +388,6 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
     DOS_PRINT_ERR("scheduler is lock\n");
     return DOS_NOK;
   }
-
-  // if(DOS_TASK_STATUS_RUNNING == dos_status)
-  // {
-
-  // }
 
   /** task is used status */
   if((DOS_TASK_STATUS_DELAY == dos_status) || (DOS_TASK_STATUS_SUSPEND == dos_status) || (DOS_TASK_STATUS_READY == dos_status))  
@@ -347,7 +425,9 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
   }
 }
 
-
+/**
+ * task sleep (tick)
+ */
 void Dos_TaskSleep(dos_uint32 dos_sleep_tick)
 {
   dos_uint32 pri;
@@ -365,6 +445,9 @@ void Dos_TaskSleep(dos_uint32 dos_sleep_tick)
   Dos_Interrupt_Enable(pri);
 }
 
+/**
+ * get system tick
+ */
 dos_uint32 Dos_Get_Tick(void)
 {
   dos_uint32 dos_cur_tick;
@@ -379,15 +462,10 @@ dos_uint32 Dos_Get_Tick(void)
   return dos_cur_tick;
 }
 
-static void _Dos_IdleTask(void *Parameter)
-{
-  while(1)
-  {
-    ;
-  }
-}
 
-
+/**
+ * task exit function
+ */
 void Dos_TaskExit(void)
 {
   DOS_ASSERT(0);
@@ -396,82 +474,9 @@ void Dos_TaskExit(void)
 
 
 
-static void _Dos_Create_IdleTask(void)
-{
- Dos_IdleTCB = Dos_TaskCreate( "IdleTask",
-                                &_Dos_IdleTask,
-                                DOS_NULL,
-                                DOS_IDLE_TASK_SIZE,
-                                DOS_IDLE_TASK_PRIORITY);
-  if(DOS_NULL == Dos_IdleTCB)
-  {
-    DOS_PRINT_ERR("Dos_IdleTCB is NULL!\n");
-  }
-}
- 
-
-static dos_bool _Dos_Cheek_TaskPriority(void)
-{
-#if DOS_MAX_PRIORITY_NUM > 32
-  dos_uint32 i;
-  for(i = 0; i < DOS_PRIORITY_TAB; i++)
-  {
-    if(Dos_Task_Priority[i] & 0xFFFFFFFF)
-      break;
-  }
-  Dos_CurPriority = Dos_Get_Highest_Priority(Dos_Task_Priority[i]) + 32 * i;
-#else
-  Dos_CurPriority = Dos_Get_Highest_Priority(Dos_Task_Priority);
-#endif
-  
-  if(Dos_CurPriority <= Dos_CurrentTCB->Priority)
-    return DOS_TRUE;
-  else
-    return DOS_FALSE;
-}
-
-
-DOS_TaskCB_t Dos_GetTCB(Dos_TaskList_t *list)
-{
-  list->Dos_TaskItem = list->Dos_TaskItem->Next;
-  if((void*)(list)->Dos_TaskItem == (void*)&((list)->Task_EndItem))
-  {
-    list->Dos_TaskItem = list->Dos_TaskItem->Next;
-  }
-  return list->Dos_TaskItem->Dos_TCB;
-}
-
-dos_bool Dos_CheekTaskTick(Dos_TaskList_t *list)
-{
-  DOS_TaskCB_t taskcb = (DOS_TaskCB_t)&(list->Dos_TaskItem->Dos_TCB);
-  
-  if(taskcb->TaskTick >= Dos_TickCount)   //时间片到了
-  {
-    taskcb->TaskTick += taskcb->TaskInitTick; 
-    return DOS_TRUE;
-  }
-  else
-  {
-    taskcb->TaskTick++;
-    if(taskcb->TaskTick == 0)   //溢出处理
-    {
-      
-    }
-  }
-  return DOS_FALSE;
-}
-
-dos_bool _Dos_Scheduler(void)
-{
-  dos_bool dos_res = DOS_FALSE;
-  
-  if((_Dos_Cheek_TaskPriority() != dos_res) && (DOS_YES == Dos_IsRun))
-  {
-    return DOS_TRUE;
-  }
-  return DOS_FALSE;
-}
-
+/**
+ * system scheduler
+ */
 void Dos_Scheduler(void)
 {
   if(_Dos_Scheduler() == DOS_TRUE)
@@ -480,12 +485,15 @@ void Dos_Scheduler(void)
   }
 }
 
+/**
+ * start run system
+ */
 void Dos_Start( void )
 {
   
   _Dos_Cheek_TaskPriority();
   
-  Dos_CurrentTCB = Dos_GetTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
+  Dos_CurrentTCB = _Dos_GetTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
 
   DOS_PRINT_DEBUG("TaskPriority = %d\n",Dos_CurPriority);
   
@@ -498,33 +506,14 @@ void Dos_Start( void )
   }
 }
 
-static void _Dos_Switch_SleepList(void)
-{
-  Dos_TaskList_t *dos_list;
-  DOS_TaskCB_t dos_task;
-  if(Dos_TaskList_IsEmpty(_Dos_TaskSleep_List) == DOS_TRUE)
-  {
-    dos_list = _Dos_TaskSleep_List;
-    _Dos_TaskSleep_List = _Dos_TaskSleep_OverFlow_List;
-    _Dos_TaskSleep_OverFlow_List = dos_list;
-    if(Dos_TaskList_IsEmpty(_Dos_TaskSleep_List) == DOS_TRUE)
-    {
-      Dos_NextWake_Tick = DOS_UINT32_MAX;
-    }
-    else
-    {
-      dos_task = Dos_GetTCB(_Dos_TaskSleep_List);
-      Dos_NextWake_Tick = dos_task->StateItem.Dos_TaskValue;
-    }
-  }
-  else
-    DOS_PRINT_ERR("Task sleep list is not empty!\n");
-}
 
+/**
+ * Choose the right task to run
+ */
 void Dos_SwitchTask( void )
 {    
   _Dos_Cheek_TaskPriority();
-  Dos_CurrentTCB = Dos_GetTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
+  Dos_CurrentTCB = _Dos_GetTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
 }
 
 
@@ -567,8 +556,10 @@ void Dos_Scheduler_Unlock(void)
 
 
 
-
-void Dos_Updata_Tick(void)
+/**
+ * update system tick
+ */
+void Dos_Update_Tick(void)
 {
   DOS_TaskCB_t dos_task;
   dos_uint32 dos_tick;
@@ -591,7 +582,7 @@ void Dos_Updata_Tick(void)
       }
       else
       {
-        dos_task = Dos_GetTCB(_Dos_TaskSleep_List);
+        dos_task = _Dos_GetTCB(_Dos_TaskSleep_List);
         dos_tick = dos_task->StateItem.Dos_TaskValue;
         if(dos_tick > Dos_NextWake_Tick)
         {
@@ -613,15 +604,47 @@ void Dos_Updata_Tick(void)
   }
 }
 
+
+/**
+ * system tick handler
+ */
 void SysTick_Handler(void)
 {
   dos_uint32 pri; 
   pri = Interrupt_Disable();
   
-  Dos_Updata_Tick();
+  Dos_Update_Tick();
   
   Dos_Scheduler();
   
   Interrupt_Enable(pri);
 }
+
+
+/*************************************************************************************************************************/
+
+/**
+ * Check if the tick of the task has arrived, Reserved!
+ */
+dos_bool Dos_CheekTaskTick(Dos_TaskList_t *list)
+{
+  DOS_TaskCB_t taskcb = (DOS_TaskCB_t)&(list->Dos_TaskItem->Dos_TCB);
+  
+  if(taskcb->TaskTick >= Dos_TickCount)   //时间片到了
+  {
+    taskcb->TaskTick += taskcb->TaskInitTick; 
+    return DOS_TRUE;
+  }
+  else
+  {
+    taskcb->TaskTick++;
+    if(taskcb->TaskTick == 0)   //溢出处理
+    {
+      
+    }
+  }
+  return DOS_FALSE;
+}
+
+
 
