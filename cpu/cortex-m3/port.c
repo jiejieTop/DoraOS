@@ -14,32 +14,32 @@ dos_uint32 *Dos_StackInit(dos_uint32 *top_of_stack ,
 	top_of_stack--;
 	*top_of_stack = (dos_uint32)Dos_TaskExit;	/* LR */
 	/* R12, R3, R2 and R1. */
-  top_of_stack --;	
-  top_of_stack --;	
-  top_of_stack --;	
-  top_of_stack --;	
-  top_of_stack --;	
-	*top_of_stack = ( dos_uint32 ) parameter;	/* R0 */
-  /* R11, R10, R9, R8, R7, R6, R5 and R4. */
 	top_of_stack --;	
-  top_of_stack --;
-  top_of_stack --;
-  top_of_stack --;
-  top_of_stack --;
-  top_of_stack --;
-  top_of_stack --;
-  top_of_stack --;
-  
-  return top_of_stack;
+	top_of_stack --;	
+	top_of_stack --;	
+	top_of_stack --;	
+	top_of_stack --;	
+	*top_of_stack = ( dos_uint32 ) parameter;	/* R0 */
+	/* R11, R10, R9, R8, R7, R6, R5 and R4. */
+	top_of_stack --;	
+	top_of_stack --;
+	top_of_stack --;
+	top_of_stack --;
+	top_of_stack --;
+	top_of_stack --;
+	top_of_stack --;
+	top_of_stack --;
+
+	return top_of_stack;
 }
 
 
 
 __asm void SVC_Handler( void )
 {
-  extern Dos_CurrentTCB;
-  
-  PRESERVE8
+	extern Dos_CurrentTCB;
+
+	PRESERVE8
 
 	ldr	r3, =Dos_CurrentTCB	  /* 加载Dos_CurrentTCB的地址到r3 */
 	ldr r1, [r3]			        /* 加载Dos_CurrentTCB到r1 */
@@ -50,30 +50,30 @@ __asm void SVC_Handler( void )
 	mov r0, #0              /* 设置r0的值为0 */
 	msr	basepri, r0         /* 设置basepri寄存器的值为0，即所有的中断都没有被屏蔽 */
 	orr r14, #0xd           /* 当从SVC中断服务退出前,通过向r14寄存器最后4位按位或上0x0D，
-                               使得硬件在退出时使用进程堆栈指针PSP完成出栈操作并返回后进入线程模式、返回Thumb状态 */
-    
+							使得硬件在退出时使用进程堆栈指针PSP完成出栈操作并返回后进入线程模式、返回Thumb状态 */
+
 	bx r14                  /* 异常返回，这个时候栈中的剩下内容将会自动加载到CPU寄存器：
-                               xPSR，PC（任务入口地址），R14，R12，R3，R2，R1，R0（任务的形参）
-                               同时PSP的值也将更新，即指向任务栈的栈顶 */
+							xPSR，PC（任务入口地址），R14，R12，R3，R2，R1，R0（任务的形参）
+							同时PSP的值也将更新，即指向任务栈的栈顶 */
 }
 
 __asm dos_uint32 Interrupt_Disable(void) 
 {
-  PRESERVE8
-  mrs     r0, PRIMASK
-  CPSID   I
-  BX      LR
-  nop
-  nop
+	PRESERVE8
+	mrs     r0, PRIMASK
+	CPSID   I
+	BX      LR
+	nop
+	nop
 }
 
 __asm void Interrupt_Enable(dos_uint32 pri) 
 {
-  PRESERVE8
-  MSR     PRIMASK, r0
-  BX      LR
-  nop
-  nop
+	PRESERVE8
+	MSR     PRIMASK, r0
+	BX      LR
+	nop
+	nop
 }
 
 __asm void PendSV_Handler( void )
@@ -100,12 +100,12 @@ __asm void PendSV_Handler( void )
 	stmdb sp!, {r3, r14}        /* 将R3和R14临时压入堆栈，因为即将调用函数Dos_SwitchTask,
                                   调用函数时,返回地址自动保存到R14中,所以一旦调用发生,R14的值会被覆盖,因此需要入栈保护;
                                   R3保存的当前激活的任务TCB指针(Dos_CurrentTCB)地址,函数调用后会用到,因此也要入栈保护 */
-  bl Interrupt_Disable
+	bl Interrupt_Disable
 	dsb
 	isb
 	bl Dos_SwitchTask       /* 调用函数Dos_SwitchTask，寻找新的任务运行,通过使变量Dos_CurrentTCB指向新的任务来实现任务切换 */ 
   
-  bl Interrupt_Enable
+	bl Interrupt_Enable
 	ldmia sp!, {r3, r14}        /* 恢复r3和r14 */
 
 	ldr r1, [r3]
@@ -115,9 +115,9 @@ __asm void PendSV_Handler( void )
 	isb
 	bx r14                        
 	nop
-  nop
-  nop
-  nop
+	nop
+	nop
+	nop
 }
 
 __asm void Dos_StartFirstTask( void )
@@ -148,15 +148,15 @@ __asm void Dos_StartFirstTask( void )
 
 dos_uint32 Dos_StartScheduler( void )
 {
-    /* 配置PendSV 和 SysTick 的中断优先级为最低 */
+	/* 配置PendSV 和 SysTick 的中断优先级为最低 */
 	SYSPRI2_REG |= PENDSV_PRI;
-  SYSPRI2_REG |= SYSTICK_PRI;
+	SYSPRI2_REG |= SYSTICK_PRI;
 
-  SYSTICK_LOAD_REG = ( DOS_SYSTEM_CLOCK_HZ / DOS_SYSTICK_CLOCK_HZ ) - 1UL;
-  
+	SYSTICK_LOAD_REG = ( DOS_SYSTEM_CLOCK_HZ / DOS_SYSTICK_CLOCK_HZ ) - 1UL;
+
 	SYSTICK_CTRL_REG = ( SYSTICK_CLK_BIT |
-                       SYSTICK_INT_BIT |
-                       SYSTICK_ENABLE_BIT );
+						SYSTICK_INT_BIT |
+						SYSTICK_ENABLE_BIT );
 
 	/* 启动第一个任务，不再返回 */
 	Dos_StartFirstTask();
