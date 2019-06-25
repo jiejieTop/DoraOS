@@ -16,7 +16,6 @@
 #define     DOS_GET_STRUCT(ptr, type, member)   ((type *)((char *)(ptr) - (unsigned long)(&((type *)0)->member)))
 #define     DOS_GET_TCB(node)    DOS_GET_STRUCT(node, struct DOS_TaskCB, StateItem)
 
-#define     DOS_TASKYIELD               (INT_CTRL_REG = PENDSVSET_BIT)
 
 /**
  * Task status

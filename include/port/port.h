@@ -38,7 +38,7 @@
 
 #define DOS_TASK_YIELD()			      \
 {                                   \
-  INT_CTRL_REG = PENDSVSET_BIT;     \
+  INT_CTRL_REG |= PENDSVSET_BIT;     \
 }
 
 typedef void (*Dos_TaskFunction)( void * );

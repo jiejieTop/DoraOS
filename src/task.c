@@ -186,7 +186,7 @@ static void _Dos_insert_TaskSleep_List(dos_uint32 dos_sleep_tick)
     if(Dos_TaskList_IsEmpty(&Dos_TaskPriority_List[cur_task->Priority]) == DOS_TRUE)
     {
       Dos_Task_Priority &= ~(0x01 << cur_task->Priority); 
-      DOS_TASKYIELD;
+      DOS_TASK_YIELD();
     }
   }
   
@@ -399,7 +399,7 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
       if(Dos_TaskList_IsEmpty(&Dos_TaskPriority_List[dos_task->Priority]) == DOS_TRUE)
       {
         Dos_Task_Priority &= ~(0x01 << dos_task->Priority); 
-        DOS_TASKYIELD;
+        DOS_TASK_YIELD();
       }
     }
 
@@ -481,7 +481,7 @@ void Dos_Scheduler(void)
 {
   if(_Dos_Scheduler() == DOS_TRUE)
   {
-    DOS_TASKYIELD; //如果当前优先级列表下有任务并且时间片到达了，或者有更高优先级的任务就绪了，那么需要切换任务
+    DOS_TASK_YIELD(); //如果当前优先级列表下有任务并且时间片到达了，或者有更高优先级的任务就绪了，那么需要切换任务
   }
 }
 
@@ -597,7 +597,7 @@ void Dos_Update_Tick(void)
         
         if(dos_task->Priority < Dos_CurrentTCB->Priority)
         {
-          DOS_TASKYIELD;
+          DOS_TASK_YIELD();
         }
       }
     } 
