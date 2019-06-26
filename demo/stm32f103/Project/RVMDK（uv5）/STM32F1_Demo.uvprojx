@@ -588,6 +588,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\task.c</FilePath>
             </File>
+            <File>
+              <FileName>queue.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\queue.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
