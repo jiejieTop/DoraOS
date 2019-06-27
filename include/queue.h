@@ -8,7 +8,10 @@
 
 struct Dos_Queue
 {
-  dos_void  *Queue_Addr;
+  dos_uint16    QueueLen;
+  dos_uint16    QueueSize;
+  dos_uint16    QueueRWCnt[2];
+  
 };
 
 typedef struct Dos_Queue * Dos_Queue_t;

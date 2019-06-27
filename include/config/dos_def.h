@@ -20,6 +20,8 @@ typedef signed char                     dos_int8;
 typedef signed short                    dos_int16;
 typedef signed int                      dos_int32;
 
+typedef unsigned int                    dos_size;
+
 typedef float                           dos_float;
 typedef double                          dos_double;
 typedef char                            dos_char;
@@ -131,7 +133,7 @@ typedef dos_int32              			    dos_err;       /**< Type for error number 
 #endif
 
 /************************************************************ 
-  * @note    下面是记录ERR返回值的宏
+  * @note    下面是记录ERR返回值的�?
   ***********************************************************/
 #define ERR_OK        ( 0 )
 #define ERR_NOK       ( -1 )
