@@ -52,7 +52,8 @@ typedef dos_int32              			    dos_err;       /**< Type for error number 
 #define DOS_UINT32_MAX           4294967295u
 #define DOS_UINT64_MAX 		dos_uint64(18446744073709551615)
 
-
+#define DOS_MAX(a,b) (((a) > (b)) ? (a) : (b))
+#define DOS_MIN(a,b) (((a) < (b)) ? (a) : (b))
 
 #ifndef DOS_FALSE
 #define DOS_FALSE                   ((dos_bool)0)
