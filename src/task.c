@@ -1,6 +1,6 @@
 #include <dos_def.h>
 #include <task.h>
-#include "include.h"
+
 
 #if DOS_MAX_PRIORITY_NUM > 32
 #define   DOS_PRIORITY_TAB  (((DOS_MAX_PRIORITY_NUM -1 )/32) + 1)
@@ -115,7 +115,7 @@ static void _Dos_InitTask(DOS_TaskCB_t dos_taskcb)
 	/* 获取栈顶地址 */
 	dos_taskcb->TopOfStack = (dos_void *)((dos_uint32)dos_taskcb->StackAddr + (dos_uint32)(dos_taskcb->StackSize - 1));
 	
-  /* 向下做8字节对齐 */
+  /* 向下�?8字节对齐 */
 	dos_taskcb->TopOfStack = (dos_void *)((( uint32_t)dos_taskcb->TopOfStack) & (~((dos_uint32 )0x0007)));	
   
   dos_taskcb->StackPoint = Dos_StackInit( dos_taskcb->TopOfStack,
@@ -337,7 +337,9 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
       return DOS_NULL;
     }
     Dos_TaskItem_Init(&dos_taskcb->StateItem);
+    Dos_TaskItem_Init(&dos_taskcb->PendItem);
     dos_taskcb->StateItem.Dos_TCB = (dos_void *)dos_taskcb;
+    dos_taskcb->PendItem.Dos_TCB = (dos_void *)dos_taskcb;
     dos_taskcb->StackAddr = dos_stack;
     dos_taskcb->StackSize = dos_stack_size;
   }
@@ -414,7 +416,7 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
     }
     else
     {
-      /* 插入回收列表，空闲任务处理 */
+      /* 插入回收列表，空闲任务处�? */
       return DOS_OK;
     }
   }
@@ -443,6 +445,12 @@ void Dos_TaskSleep(dos_uint32 dos_sleep_tick)
   Dos_Scheduler();
 
   Dos_Interrupt_Enable(pri);
+}
+
+
+DOS_TaskCB_t Dos_Get_CurrentTCB(void)
+{
+  return Dos_CurrentTCB;
 }
 
 /**
@@ -481,7 +489,7 @@ void Dos_Scheduler(void)
 {
   if(_Dos_Scheduler() == DOS_TRUE)
   {
-    DOS_TASK_YIELD(); //如果当前优先级列表下有任务并且时间片到达了，或者有更高优先级的任务就绪了，那么需要切换任务
+    DOS_TASK_YIELD(); //如果当前优先级列表下有任务并且时间片到达了，或者有更高优先级的任务就绪了，那么需要切换任�?
   }
 }
 
@@ -499,10 +507,10 @@ void Dos_Start( void )
   
   Dos_TickCount = 0U;
   Dos_IsRun = DOS_YES;
-  /* 启动调度器 */
+  /* 启动调度�? */
   if( Dos_StartScheduler() != 0 )
   {
-      /* 调度器启动成功，则不会返回，即不会来到这里 */
+      /* 调度器启动成功，则不会返回，即不会来到这�? */
   }
 }
 
@@ -555,6 +563,10 @@ void Dos_Scheduler_Unlock(void)
 }
 
 
+dos_bool Dos_Scheduler_IsLock(void)
+{
+  return (0 == Dos_SchedulerLock);
+}
 
 /**
  * update system tick
@@ -630,7 +642,7 @@ dos_bool Dos_CheekTaskTick(Dos_TaskList_t *list)
 {
   DOS_TaskCB_t taskcb = (DOS_TaskCB_t)&(list->Dos_TaskItem->Dos_TCB);
   
-  if(taskcb->TaskTick >= Dos_TickCount)   //时间片到了
+  if(taskcb->TaskTick >= Dos_TickCount)   //时间片到�?
   {
     taskcb->TaskTick += taskcb->TaskInitTick; 
     return DOS_TRUE;

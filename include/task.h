@@ -68,6 +68,8 @@ void Dos_TaskSleep(dos_uint32 dos_sleep_tick);
 void Dos_Scheduler(void);
 void Dos_Scheduler_Lock(void);
 void Dos_Scheduler_Unlock(void);
-                            
+dos_bool Dos_Scheduler_IsLock(void);
+DOS_TaskCB_t Dos_Get_CurrentTCB(void);
+
 #endif
 
