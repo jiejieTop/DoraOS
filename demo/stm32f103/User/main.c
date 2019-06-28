@@ -9,7 +9,7 @@
   */ 
 #include "include.h"
 #include "task.h"
-
+#include "queue.h"
 
 
 /**
@@ -76,6 +76,9 @@ int main(void)
   
   p = Dos_MemAlloc(16);
   p2 = Dos_MemAlloc(128);
+  
+  Dos_QueueCreate(10,10);
+  
   task = Dos_TaskCreate( "task",
                   &test_task,
                   DOS_NULL,
