@@ -14,8 +14,8 @@
 /* 重定义头文件 */
 #include "redef.h"
 
-/* debug头文件 */
-#include "debug.h"
+///* debug头文件 */
+//#include "debug.h"
 
 /* 板级头文件 */
 #include "./exti/bsp_exti.h"
