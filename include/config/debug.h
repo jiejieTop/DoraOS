@@ -1,21 +1,22 @@
-#ifndef _DEBUG_H
-#define _DEBUG_H
+#ifndef _DEBUG_H_
+#define _DEBUG_H_
 /************************************************************
   * @brief   debug.h
   * @author  jiejie
   * @github  https://github.com/jiejieTop
   * @date    2018-xx-xx
   * @version v1.0
-  * @note    æ­¤æ–‡ä»¶ç”¨äºæ‰“å°æ—¥å¿—ä¿¡æ¯
+  * @note    ´ËÎÄ¼şÓÃÓÚ´òÓ¡ÈÕÖ¾ĞÅÏ¢
   ***********************************************************/
 /**
 * @name Debug print 
 * @{
 */
-
-#define DOS_PRINT_DEBUG_ENABLE		1		/* æ‰“å°è°ƒè¯•ä¿¡æ¯ */
-#define DOS_PRINT_ERR_ENABLE			1 	/* æ‰“å°é”™è¯¯ä¿¡æ¯ */
-#define DOS_PRINT_INFO_ENABLE			1		/* æ‰“å°ä¸ªäººä¿¡æ¯ */
+ #include <stdio.h>
+ 
+#define DOS_PRINT_DEBUG_ENABLE		1		/* ´òÓ¡µ÷ÊÔĞÅÏ¢ */
+#define DOS_PRINT_ERR_ENABLE			1 	/* ´òÓ¡´íÎóĞÅÏ¢ */
+#define DOS_PRINT_INFO_ENABLE			1		/* ´òÓ¡¸öÈËĞÅÏ¢ */
 
 
 #if DOS_PRINT_DEBUG_ENABLE
@@ -38,28 +39,28 @@
 
 /**@} */
 	
-//é’ˆå¯¹ä¸åŒçš„ç¼–è¯‘å™¨è°ƒç”¨ä¸åŒçš„stdint.hæ–‡ä»¶
+//Õë¶Ô²»Í¬µÄ±àÒëÆ÷µ÷ÓÃ²»Í¬µÄstdint.hÎÄ¼ş
 #if defined(__ICCARM__) || defined(__CC_ARM) || defined(__GNUC__)
     #include <stdint.h>
 #endif
 
-/* æ–­è¨€ Assert */
+/* ¶ÏÑÔ Assert */
 #define Dos_AssertCalled(char,int) 	printf("\nError:%s,%d\r\n",char,int)
 #define DOS_ASSERT(x)   if((x)==0)  Dos_AssertCalled(__FILE__,__LINE__)
   
 typedef enum 
 {
-	ASSERT_ERR = 0,								/* é”™è¯¯ */
-	ASSERT_SUCCESS = !ASSERT_ERR	/* æ­£ç¡® */
+	ASSERT_ERR = 0,								/* ´íÎó */
+	ASSERT_SUCCESS = !ASSERT_ERR	/* ÕıÈ· */
 } Assert_ErrorStatus;
 
 typedef enum 
 {
-	FALSE = 0,		/* å‡ */
-	TRUE = !FALSE	/* çœŸ */
+	FALSE = 0,		/* ¼Ù */
+	TRUE = !FALSE	/* Õæ */
 }bool;
 
 
 
-#endif /* __DEBUG_H */
+#endif /* __DEBUG_H_ */
 
