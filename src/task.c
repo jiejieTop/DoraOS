@@ -1,4 +1,3 @@
-#include <dos_def.h>
 #include <task.h>
 
 
@@ -112,10 +111,10 @@ static void _Dos_Task_List_Init(void)
 
 static void _Dos_InitTask(DOS_TaskCB_t dos_taskcb)
 {
-	/* èŽ·å–æ ˆé¡¶åœ°å€ */
+	/** »ñÈ¡Õ»¶¥µØÖ· */
 	dos_taskcb->TopOfStack = (dos_void *)((dos_uint32)dos_taskcb->StackAddr + (dos_uint32)(dos_taskcb->StackSize - 1));
 	
-  /* å‘ä¸‹å?8å­—èŠ‚å¯¹é½ */
+  /** ÏòÏÂ×ö8×Ö½Ú¶ÔÆë */
 	dos_taskcb->TopOfStack = (dos_void *)((( uint32_t)dos_taskcb->TopOfStack) & (~((dos_uint32 )0x0007)));	
   
   dos_taskcb->StackPoint = Dos_StackInit( dos_taskcb->TopOfStack,
@@ -123,15 +122,6 @@ static void _Dos_InitTask(DOS_TaskCB_t dos_taskcb)
                                           dos_taskcb->Parameter);
 }
 
-DOS_TaskCB_t _Dos_GetTCB(Dos_TaskList_t *list)
-{
-  list->Dos_TaskItem = list->Dos_TaskItem->Next;
-  if((void*)(list)->Dos_TaskItem == (void*)&((list)->Task_EndItem))
-  {
-    list->Dos_TaskItem = list->Dos_TaskItem->Next;
-  }
-  return list->Dos_TaskItem->Dos_TCB;
-}
 
 /** 
  * get Highest Priority by bit map
@@ -165,7 +155,8 @@ static void _Dos_insert_TaskPriority_List(DOS_TaskCB_t dos_taskcb)
   Dos_Task_Priority |= (0x01 << dos_taskcb->Priority);
   DOS_PRINT_DEBUG("Dos_Task_Priority = %#x",Dos_Task_Priority);
 #endif
-  dos_taskcb->TaskStatus = DOS_TASK_STATUS_READY;
+  dos_taskcb->TaskStatus &= (~DOS_TASK_STATUS_UNUSED);
+  dos_taskcb->TaskStatus |= DOS_TASK_STATUS_READY;
   /* init task list,the list will pend in readylist or pendlist  */
   /* insert priority list */
   Dos_TaskItem_insert(&Dos_TaskPriority_List[dos_taskcb->Priority],&dos_taskcb->StateItem);
@@ -181,6 +172,9 @@ static void _Dos_insert_TaskSleep_List(dos_uint32 dos_sleep_tick)
     return;
   }
   
+  cur_task->TaskStatus &= (~DOS_TASK_STATUS_READY);
+  cur_task->TaskStatus |= DOS_TASK_STATUS_DELAY;
+
   if(Dos_TaskItem_Del(&(cur_task->StateItem)) == 0)
   {
     if(Dos_TaskList_IsEmpty(&Dos_TaskPriority_List[cur_task->Priority]) == DOS_TRUE)
@@ -221,7 +215,7 @@ static dos_bool _Dos_Cheek_TaskPriority(void)
   Dos_CurPriority = _Dos_Get_Highest_Priority(Dos_Task_Priority);
 #endif
   
-  if(Dos_CurPriority <= Dos_CurrentTCB->Priority)
+  if((Dos_CurPriority <= Dos_CurrentTCB->Priority) || (!(Dos_CurrentTCB->TaskStatus & DOS_TASK_STATUS_READY)))
     return DOS_TRUE;
   else
     return DOS_FALSE;
@@ -264,7 +258,7 @@ static void _Dos_Switch_SleepList(void)
     }
     else
     {
-      dos_task = _Dos_GetTCB(_Dos_TaskSleep_List);
+      dos_task = Dos_GetTCB(_Dos_TaskSleep_List);
       Dos_NextWake_Tick = dos_task->StateItem.Dos_TaskValue;
     }
   }
@@ -392,7 +386,7 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
   }
 
   /** task is used status */
-  if((DOS_TASK_STATUS_DELAY == dos_status) || (DOS_TASK_STATUS_SUSPEND == dos_status) || (DOS_TASK_STATUS_READY == dos_status))  
+  if((DOS_TASK_STATUS_DELAY & dos_status) || (DOS_TASK_STATUS_SUSPEND & dos_status) || (DOS_TASK_STATUS_READY & dos_status))  
   {
     pri = Dos_Interrupt_Disable();
 
@@ -407,7 +401,7 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
 
     Dos_Interrupt_Enable(pri);
 
-    dos_task->TaskStatus = DOS_TASK_STATUS_UNUSED;
+    dos_task->TaskStatus = DOS_TASK_STATUS_UNUSED;  /** set task status is unused */
     if(dos_task != Dos_CurrentTCB)
     {
       Dos_MemFree(dos_task);
@@ -416,7 +410,8 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
     }
     else
     {
-      /* æ’å…¥å›žæ”¶åˆ—è¡¨ï¼Œç©ºé—²ä»»åŠ¡å¤„ç? */
+      /* Insert recycle list */
+
       return DOS_OK;
     }
   }
@@ -448,9 +443,20 @@ void Dos_TaskSleep(dos_uint32 dos_sleep_tick)
 }
 
 
+
 DOS_TaskCB_t Dos_Get_CurrentTCB(void)
 {
   return Dos_CurrentTCB;
+}
+
+DOS_TaskCB_t Dos_GetTCB(Dos_TaskList_t *list)
+{
+  list->Dos_TaskItem = list->Dos_TaskItem->Next;
+  if((void*)(list)->Dos_TaskItem == (void*)&((list)->Task_EndItem))
+  {
+    list->Dos_TaskItem = list->Dos_TaskItem->Next;
+  }
+  return list->Dos_TaskItem->Dos_TCB;
 }
 
 /**
@@ -468,6 +474,46 @@ dos_uint32 Dos_Get_Tick(void)
   Dos_Interrupt_Enable(pri);
   
   return dos_cur_tick;
+}
+
+
+dos_void Dos_TaskWait(Dos_TaskList_t *dos_list, dos_uint32 timeout)
+{
+  DOS_TaskCB_t task = Dos_CurrentTCB;
+  dos_uint32 pri;
+
+  task->TaskStatus |= DOS_TASK_STATUS_SUSPEND;
+  Dos_TaskItem_insert(dos_list, &task->PendItem);
+
+  if(timeout != DOS_WAIT_FOREVER)
+  {
+    pri = Dos_Interrupt_Disable();
+
+    _Dos_insert_TaskSleep_List(timeout);
+
+    Dos_Scheduler();
+
+    Dos_Interrupt_Enable(pri);
+  }
+}
+
+dos_void Dos_TaskWake(DOS_TaskCB_t task)
+{
+  // dos_uint32 pri;
+  // pri = Dos_Interrupt_Disable();
+
+  Dos_TaskItem_Del(&(task->PendItem));
+  Dos_TaskItem_Del(&(task->StateItem));
+
+  task->TaskStatus &= (~DOS_TASK_STATUS_SUSPEND | DOS_TASK_STATUS_DELAY);
+
+  task->TaskStatus |= DOS_TASK_STATUS_READY;
+
+  Dos_TaskItem_insert(&Dos_TaskPriority_List[task->Priority],&task->StateItem);
+  
+  Dos_Scheduler();
+
+  // Dos_Interrupt_Enable(pri);
 }
 
 
@@ -501,7 +547,7 @@ void Dos_Start( void )
   
   _Dos_Cheek_TaskPriority();
   
-  Dos_CurrentTCB = _Dos_GetTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
+  Dos_CurrentTCB = Dos_GetTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
 
   DOS_PRINT_DEBUG("TaskPriority = %d\n",Dos_CurPriority);
   
@@ -521,7 +567,7 @@ void Dos_Start( void )
 void Dos_SwitchTask( void )
 {    
   _Dos_Cheek_TaskPriority();
-  Dos_CurrentTCB = _Dos_GetTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
+  Dos_CurrentTCB = Dos_GetTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
 }
 
 
@@ -565,7 +611,8 @@ void Dos_Scheduler_Unlock(void)
 
 dos_bool Dos_Scheduler_IsLock(void)
 {
-  return (0 == Dos_SchedulerLock);
+  
+  return (0 != Dos_SchedulerLock);
 }
 
 /**
@@ -594,7 +641,7 @@ void Dos_Update_Tick(void)
       }
       else
       {
-        dos_task = _Dos_GetTCB(_Dos_TaskSleep_List);
+        dos_task = Dos_GetTCB(_Dos_TaskSleep_List);
         dos_tick = dos_task->StateItem.Dos_TaskValue;
         if(dos_tick > Dos_NextWake_Tick)
         {
@@ -604,6 +651,13 @@ void Dos_Update_Tick(void)
         
         Dos_TaskItem_Del(&dos_task->StateItem);
 
+        dos_task->TaskStatus &= (~DOS_TASK_STATUS_DELAY);
+        if(dos_task->TaskStatus & DOS_TASK_STATUS_SUSPEND)
+        {
+          dos_task->TaskStatus |= DOS_TASK_STATUS_TIMEOUT;
+        }
+
+        dos_task->TaskStatus |= DOS_TASK_STATUS_READY;
         Dos_TaskItem_insert(&Dos_TaskPriority_List[dos_task->Priority], &dos_task->StateItem);
         Dos_Task_Priority |= (0x01 << dos_task->Priority);
         

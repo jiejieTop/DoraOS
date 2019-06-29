@@ -22,6 +22,10 @@
 DOS_TaskCB_t task = DOS_NULL;
 DOS_TaskCB_t task2 = DOS_NULL;
 DOS_TaskCB_t task1 = DOS_NULL;
+
+
+Dos_Queue_t queue = DOS_NULL;
+
 /**
   ******************************************************************
 														函数声明
@@ -32,9 +36,16 @@ static void BSP_Init(void);
 
 void test_task(void *Parameter)
 {
-  Dos_TaskSleep(1000);
-  printf("delete task2");
-  Dos_TaskDelete(task1);
+  dos_uint8 buff[20];
+  
+//  Dos_TaskSleep(1000);
+  
+  printf("queue start\n");
+  
+  Dos_QueueRead(queue,buff,10,10000);
+  
+  printf("queue end\n");
+  
   while(1)
   {
     Dos_Interrupt_Disable();
@@ -47,6 +58,12 @@ void test_task(void *Parameter)
 }
 void test1_task(void *Parameter)
 {
+  dos_uint8 buff[20] = "ASFASF";
+  
+  Dos_TaskSleep(4000);
+  
+  Dos_QueueWrite(queue,buff,10,0);
+  
   while(1)
   {
     Dos_Interrupt_Disable();
@@ -77,7 +94,7 @@ int main(void)
   p = Dos_MemAlloc(16);
   p2 = Dos_MemAlloc(128);
   
-  Dos_QueueCreate(10,10);
+  queue = Dos_QueueCreate(10,10);
   
   task = Dos_TaskCreate( "task",
                   &test_task,

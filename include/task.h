@@ -3,9 +3,6 @@
 
 #include "dos_def.h"
 #include <list.h>
-#include <mem.h>
-/* debug */
-#include <debug.h>
 #include <port.h>
 #include <dos_config.h>
 
@@ -23,13 +20,16 @@
 #define   DOS_TASK_STATUS_MASK        0xFF
 #define   DOS_TASK_STATUS_UNUSED      0x01    /** unused status */
 #define   DOS_TASK_STATUS_READY       0x02    /** ready status */    
-#define   DOS_TASK_STATUS_RUNNING     0x03    /** running status */
+#define   DOS_TASK_STATUS_RUNNING     0x04    /** running status */
 #define   DOS_TASK_STATUS_DELAY       0x08    /** delay status */
 #define   DOS_TASK_STATUS_TIMEOUT     0x10    /** timeout status */
 #define   DOS_TASK_STATUS_SUSPEND     0x20    /** supend status */
 #define   DOS_TASK_STATUS_EVENT       0x40    /** event status, reserved */
 #define   DOS_TASK_STATUS_READ        0x80    /** read status, reserved */
 //#define   DOS_TASK_STATUS_WRITE       0x80    /** write status, reserved */
+
+
+#define   DOS_WAIT_FOREVER            0xFFFFFFFF    /** Define the timeout interval as LOS_WAIT_FOREVER. */
 
 
 struct DOS_TaskCB
@@ -70,6 +70,9 @@ void Dos_Scheduler_Lock(void);
 void Dos_Scheduler_Unlock(void);
 dos_bool Dos_Scheduler_IsLock(void);
 DOS_TaskCB_t Dos_Get_CurrentTCB(void);
+DOS_TaskCB_t Dos_GetTCB(Dos_TaskList_t *list);
+dos_void Dos_TaskWait(Dos_TaskList_t *dos_list, dos_uint32 timeout);
+dos_void Dos_TaskWake(DOS_TaskCB_t task);
 
 #endif
 

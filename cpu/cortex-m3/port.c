@@ -1,4 +1,9 @@
 #include <port.h>
+#include <dos_config.h>
+
+#ifndef DOS_SYSTEM_CLOCK_HZ
+    #error "DOS_SYSTEM_CLOCK_HZ must be defined as the system frequency, such as '#define DOS_SYSTEM_CLOCK_HZ (SystemCoreClock)' "
+#endif // !DOS_SYSTEM_CLOCK_HZ
 
 
 extern void Dos_TaskExit(void);
