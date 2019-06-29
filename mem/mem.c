@@ -1,5 +1,7 @@
 #include <mem.h>
-#include "include.h"
+#include <task.h>
+#include <string.h>
+#include <dos_config.h>
 
 
 #ifndef DOS_ALIGN_SIZE
