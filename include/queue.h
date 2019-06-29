@@ -8,7 +8,7 @@
 
 
 #define     QUEUE_READ      0
-#define     QUEUE_WRITE     0
+#define     QUEUE_WRITE     1
 
 struct Dos_Queue
 {
@@ -24,8 +24,8 @@ struct Dos_Queue
 typedef struct Dos_Queue * Dos_Queue_t;
 
 Dos_Queue_t Dos_QueueCreate(dos_uint16 len, dos_uint16 size);
-
-
+dos_err Dos_QueueRead(Dos_Queue_t queue, void *buff, size_t size, dos_uint32 timeout);
+dos_err Dos_QueueWrite(Dos_Queue_t queue, void *buff, size_t size, dos_uint32 timeout);
 
 
 
