@@ -69,10 +69,11 @@ static dos_err _Dos_Queuehandler(Dos_Queue_t queue, void *buff, size_t size, dos
         {
             task->TaskStatus &= (~DOS_TASK_STATUS_TIMEOUT);
             task->TaskStatus &= (~DOS_TASK_STATUS_SUSPEND);
+            task->TaskStatus |= DOS_TASK_STATUS_READY;
+            Dos_TaskItem_Del(&(task->PendItem));
             DOS_PRINT_DEBUG("QUEUE TIMEOUT\n");
             return DOS_NOK;
         }
-
     }
     else
     {
