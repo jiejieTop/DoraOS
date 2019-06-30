@@ -100,7 +100,7 @@ int main(void)
                   &test_task,
                   DOS_NULL,
                   512,
-                  2);
+                  1);
   DOS_PRINT_DEBUG("&task = %#x",(dos_uint32)task);
   DOS_PRINT_DEBUG("&task->StateItem = %#x",(dos_uint32)&(task->StateItem));
   
@@ -114,7 +114,7 @@ int main(void)
                 &test1_task,
                 DOS_NULL,
                 512,
-                1);
+                2);
                 
   p1 = Dos_MemAlloc(16);  
   p3 = Dos_MemAlloc(512);
