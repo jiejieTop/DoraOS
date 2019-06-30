@@ -153,9 +153,8 @@ static void _Dos_insert_TaskPriority_List(DOS_TaskCB_t dos_taskcb)
   Dos_Task_Priority[DOS_PRIORITY_TAB_INDEX(dos_taskcb->Priority)] |= (0x01 << (dos_taskcb->Priority % 32));
 #else
   Dos_Task_Priority |= (0x01 << dos_taskcb->Priority);
-  DOS_PRINT_DEBUG("Dos_Task_Priority = %#x",Dos_Task_Priority);
+//  DOS_PRINT_DEBUG("Dos_Task_Priority = %#x",Dos_Task_Priority);
 #endif
-  dos_taskcb->TaskStatus &= (~DOS_TASK_STATUS_UNUSED);
   dos_taskcb->TaskStatus |= DOS_TASK_STATUS_READY;
   /* init task list,the list will pend in readylist or pendlist  */
   /* insert priority list */
@@ -215,7 +214,7 @@ static dos_bool _Dos_Cheek_TaskPriority(void)
   Dos_CurPriority = _Dos_Get_Highest_Priority(Dos_Task_Priority);
 #endif
   
-  if((Dos_CurPriority <= Dos_CurrentTCB->Priority) || (!(Dos_CurrentTCB->TaskStatus & DOS_TASK_STATUS_READY)))
+  if(((Dos_CurPriority <= Dos_CurrentTCB->Priority) && (Dos_CurrentTCB != Dos_IdleTCB)) || (!(Dos_CurrentTCB->TaskStatus & DOS_TASK_STATUS_READY)))
     return DOS_TRUE;
   else
     return DOS_FALSE;
@@ -346,7 +345,6 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
   dos_taskcb->Parameter = dos_param;
   dos_taskcb->Priority = dos_priority;
   dos_taskcb->TaskName = (dos_char *)dos_name;
-  dos_taskcb->TaskStatus = DOS_TASK_STATUS_UNUSED;
   
   _Dos_InitTask(dos_taskcb);       
   
@@ -499,21 +497,22 @@ dos_void Dos_TaskWait(Dos_TaskList_t *dos_list, dos_uint32 timeout)
 
 dos_void Dos_TaskWake(DOS_TaskCB_t task)
 {
-  // dos_uint32 pri;
-  // pri = Dos_Interrupt_Disable();
+  dos_uint32 pri;
+  pri = Dos_Interrupt_Disable();
 
   Dos_TaskItem_Del(&(task->PendItem));
   Dos_TaskItem_Del(&(task->StateItem));
 
-  task->TaskStatus &= (~DOS_TASK_STATUS_SUSPEND | DOS_TASK_STATUS_DELAY);
-
-  task->TaskStatus |= DOS_TASK_STATUS_READY;
-
-  Dos_TaskItem_insert(&Dos_TaskPriority_List[task->Priority],&task->StateItem);
+  task->TaskStatus &= (~DOS_TASK_STATUS_SUSPEND);
+  task->TaskStatus &= (~DOS_TASK_STATUS_DELAY);
+//  task->TaskStatus |= DOS_TASK_STATUS_READY;
   
+  // Dos_Task_Priority |= (0x01 << task->Priority);
+  // Dos_TaskItem_insert(&Dos_TaskPriority_List[task->Priority],&task->StateItem);
+  _Dos_insert_TaskPriority_List(task);
   Dos_Scheduler();
 
-  // Dos_Interrupt_Enable(pri);
+  Dos_Interrupt_Enable(pri);
 }
 
 
