@@ -631,7 +631,7 @@ void Dos_Start( void )
  */
 void Dos_SwitchTask( void )
 {    
-  _Dos_Cheek_TaskPriority();
+  // _Dos_Cheek_TaskPriority();
 
   /** Get the control block for the highest priority task  */
   Dos_CurrentTCB = Dos_GetTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
