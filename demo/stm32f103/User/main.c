@@ -52,7 +52,7 @@ void test_task(void *Parameter)
     DOS_PRINT_DEBUG("ABC\n");
     Dos_Interrupt_Enable(0);
 //    Delay_ms(1000);
-    Dos_TaskSleep(1000);
+    Dos_TaskSleep(10000);
     
   }
 }
@@ -69,8 +69,8 @@ void test1_task(void *Parameter)
     Dos_Interrupt_Disable();
     DOS_PRINT_DEBUG("123\n");
     Dos_Interrupt_Enable(0);
-//    Delay_ms(1000);
-    Dos_TaskSleep(500);
+    Delay_ms(1000);
+    Dos_TaskSleep(5000);
   }
 }
 /**
@@ -100,7 +100,7 @@ int main(void)
                   &test_task,
                   DOS_NULL,
                   512,
-                  1);
+                  2);
   DOS_PRINT_DEBUG("&task = %#x",(dos_uint32)task);
   DOS_PRINT_DEBUG("&task->StateItem = %#x",(dos_uint32)&(task->StateItem));
   
@@ -114,7 +114,7 @@ int main(void)
                 &test1_task,
                 DOS_NULL,
                 512,
-                2);
+                1);
                 
   p1 = Dos_MemAlloc(16);  
   p3 = Dos_MemAlloc(512);

@@ -214,7 +214,9 @@ static dos_bool _Dos_Cheek_TaskPriority(void)
   Dos_CurPriority = _Dos_Get_Highest_Priority(Dos_Task_Priority);
 #endif
   
-  if(((Dos_CurPriority <= Dos_CurrentTCB->Priority) && (Dos_CurrentTCB != Dos_IdleTCB)) || (!(Dos_CurrentTCB->TaskStatus & DOS_TASK_STATUS_READY)))
+  if(((Dos_CurPriority < Dos_CurrentTCB->Priority) && (Dos_CurrentTCB != Dos_IdleTCB)) || (!(Dos_CurrentTCB->TaskStatus & DOS_TASK_STATUS_READY)))
+    return DOS_TRUE;
+  else if(Dos_Get_TaskListValue(&Dos_TaskPriority_List[Dos_CurrentTCB->Priority]) > 1)
     return DOS_TRUE;
   else
     return DOS_FALSE;
@@ -267,9 +269,7 @@ static void _Dos_Switch_SleepList(void)
 
 static dos_bool _Dos_Scheduler(void)
 {
-  dos_bool dos_res = DOS_FALSE;
-  
-  if((_Dos_Cheek_TaskPriority() != dos_res) && (DOS_YES == Dos_IsRun))
+  if((_Dos_Cheek_TaskPriority() != DOS_FALSE) && (DOS_YES == Dos_IsRun))
   {
     return DOS_TRUE;
   }
