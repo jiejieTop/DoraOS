@@ -58,6 +58,12 @@ dos_bool Dos_TaskList_IsEmpty(Dos_TaskList_t *dos_tasklist)
 }
 
 
+dos_uint32 Dos_Get_TaskListValue(Dos_TaskList_t *dos_tasklist)
+{
+  return dos_tasklist->Task_ItemValue;
+}
+
+
 /* double list init */
 void Dos_TaskList_Init(Dos_TaskList_t *dos_tasklist)
 {
