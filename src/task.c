@@ -186,7 +186,7 @@ static void _Dos_insert_TaskSleep_List(dos_uint32 dos_sleep_tick)
     if(Dos_TaskList_IsEmpty(&Dos_TaskPriority_List[cur_task->Priority]) == DOS_TRUE)
     {
       Dos_Task_Priority &= ~(0x01 << cur_task->Priority); 
-      DOS_TASK_YIELD();
+      Dos_Scheduler();
     }
   }
   /** Calculate the time of wake up */
@@ -433,39 +433,41 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
       {
         Dos_Task_Priority &= ~(0x01 << dos_task->Priority); 
         DOS_TASK_YIELD();
+//        Dos_Scheduler();
       }
     }
-
-    /** If the task is in a suspended state, remove it from the pending list */
-    if(DOS_TASK_STATUS_SUSPEND & dos_status)
-    {
-      Dos_TaskItem_Del(&(dos_task->PendItem));
-    }
-
     Dos_Interrupt_Enable(pri);
+  }
+  
+  /** If the task is in a suspended state, remove it from the pending list */
+  if(DOS_TASK_STATUS_SUSPEND & dos_status)
+  {
+    Dos_TaskItem_Del(&(dos_task->PendItem));
+  }
+  
+//  else
+//  {
+//    DOS_PRINT_DEBUG("task status error\n");
+//    return DOS_NOK;
+//  }
+  
+  /** set task status is unused */
+  dos_task->TaskStatus = DOS_TASK_STATUS_UNUSED; 
 
-    /** set task status is unused */
-    dos_task->TaskStatus = DOS_TASK_STATUS_UNUSED; 
-
-    if(dos_task != Dos_CurrentTCB)
-    {
-      /**If the deleted task is not the current task, then release the task control block and the task stack */
-      Dos_MemFree(dos_task);
-      Dos_MemFree(dos_task->StackAddr);
-      return DOS_OK;
-    }
-    else
-    {
-      /* Insert recycle list, Reserved not implemented*/
-
-      return DOS_OK;
-    }
+  if(dos_task != Dos_CurrentTCB)
+  {
+    /**If the deleted task is not the current task, then release the task control block and the task stack */
+    Dos_MemFree(dos_task);
+    Dos_MemFree(dos_task->StackAddr);
+    return DOS_OK;
   }
   else
   {
-    DOS_PRINT_DEBUG("task status error\n");
-    return DOS_NOK;
+    /* Insert recycle list, Reserved not implemented*/
+
+    return DOS_OK;
   }
+
 }
 
 /**
@@ -477,7 +479,8 @@ void Dos_TaskSleep(dos_uint32 dos_sleep_tick)
 
   if(0 == dos_sleep_tick)
   {
-    DOS_TASK_YIELD();
+    Dos_Scheduler();
+    return ;
   }
 
   pri = Dos_Interrupt_Disable();
@@ -555,6 +558,23 @@ dos_void Dos_TaskWait(Dos_TaskList_t *dos_list, dos_uint32 timeout)
 
     Dos_Interrupt_Enable(pri);
   }
+  else
+  {
+    /** Permanent waiting */
+    task->TaskStatus &= (~DOS_TASK_STATUS_READY);
+    
+    /** Remove a task from the corresponding status list */
+    if(Dos_TaskItem_Del(&(task->StateItem)) == 0)
+    {
+      /** If there are no more tasks under the current task priority, the bit corresponding to Dos_Task_Priority will be canceled. */
+      if(Dos_TaskList_IsEmpty(&Dos_TaskPriority_List[task->Priority]) == DOS_TRUE)
+      {
+        Dos_Task_Priority &= ~(0x01 << task->Priority); 
+        Dos_Scheduler();
+      }
+    }
+  }
+  
 }
 
 /**
@@ -599,7 +619,7 @@ void Dos_Scheduler(void)
 {
   if(_Dos_Scheduler() == DOS_TRUE)
   {
-    DOS_TASK_YIELD(); //如果当前优先级列表下有任务并且时间片到达了，或者有更高优先级的任务就绪了，那么需要切换任�?
+    DOS_TASK_YIELD(); 
   }
 }
 
@@ -631,7 +651,7 @@ void Dos_Start( void )
  */
 void Dos_SwitchTask( void )
 {    
-  // _Dos_Cheek_TaskPriority();
+//  _Dos_Cheek_TaskPriority();
 
   /** Get the control block for the highest priority task  */
   Dos_CurrentTCB = Dos_GetTCB(&Dos_TaskPriority_List[Dos_CurPriority]);

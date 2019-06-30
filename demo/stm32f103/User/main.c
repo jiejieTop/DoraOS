@@ -42,7 +42,7 @@ void test_task(void *Parameter)
   
   printf("queue start\n");
   
-  Dos_QueueRead(queue,buff,10,DOS_WAIT_FOREVER);
+  Dos_QueueRead(queue,buff,10,10000);
   
   printf("queue end\n");
   
@@ -60,9 +60,10 @@ void test1_task(void *Parameter)
 {
   dos_uint8 buff[20] = "ASFASF";
   
-  Dos_TaskSleep(4000);
+  Dos_TaskSleep(2000);
   
-//  Dos_QueueWrite(queue,buff,10,0);
+  Dos_TaskDelete(task);
+  Dos_QueueWrite(queue,buff,10,0);
   
   while(1)
   {
