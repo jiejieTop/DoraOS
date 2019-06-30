@@ -109,14 +109,18 @@ static void _Dos_Task_List_Init(void)
   _Dos_TaskSleep_List_Init();
 }
 
+/**
+ * Task initialization
+ */
 static void _Dos_InitTask(DOS_TaskCB_t dos_taskcb)
 {
-	/** »ñÈ¡Õ»¶¥µØÖ· */
+	/** Get the top address of the task stack */
 	dos_taskcb->TopOfStack = (dos_void *)((dos_uint32)dos_taskcb->StackAddr + (dos_uint32)(dos_taskcb->StackSize - 1));
 	
-  /** ÏòÏÂ×ö8×Ö½Ú¶ÔÆë */
+  /** 8-byte alignment */
 	dos_taskcb->TopOfStack = (dos_void *)((( uint32_t)dos_taskcb->TopOfStack) & (~((dos_uint32 )0x0007)));	
   
+  /** Task stack initialization */
   dos_taskcb->StackPoint = Dos_StackInit( dos_taskcb->TopOfStack,
                                           dos_taskcb->TaskEntry,
                                           dos_taskcb->Parameter);
@@ -171,29 +175,35 @@ static void _Dos_insert_TaskSleep_List(dos_uint32 dos_sleep_tick)
     return;
   }
   
+  /** Change task status */
   cur_task->TaskStatus &= (~DOS_TASK_STATUS_READY);
   cur_task->TaskStatus |= DOS_TASK_STATUS_DELAY;
 
+  /** Remove a task from the corresponding status list */
   if(Dos_TaskItem_Del(&(cur_task->StateItem)) == 0)
   {
+    /** If there are no more tasks under the current task priority, the bit corresponding to Dos_Task_Priority will be canceled. */
     if(Dos_TaskList_IsEmpty(&Dos_TaskPriority_List[cur_task->Priority]) == DOS_TRUE)
     {
       Dos_Task_Priority &= ~(0x01 << cur_task->Priority); 
       DOS_TASK_YIELD();
     }
   }
-  
+  /** Calculate the time of wake up */
   cur_task->StateItem.Dos_TaskValue = Dos_TickCount + dos_sleep_tick;
   
-  if(cur_task->StateItem.Dos_TaskValue < Dos_TickCount)   //overflow
+  /**If the time overflows, insert the _Dos_TaskSleep_OverFlow_List list */
+  if(cur_task->StateItem.Dos_TaskValue < Dos_TickCount)   //time overflow
   {
     Dos_TaskItem_insert(_Dos_TaskSleep_OverFlow_List, &(cur_task->StateItem));
   }
   else
   {
-    Dos_TaskItem_insert(_Dos_TaskSleep_List, &(cur_task->StateItem));
+    /** Time does not overflow, insert _Dos_TaskSleep_List list */
+    Dos_TaskItem_insert(_Dos_TaskSleep_List, &(cur_task->StateItem)); //time no overflow
     if(Dos_NextWake_Tick >= cur_task->StateItem.Dos_TaskValue)
     {
+      /**  */
       Dos_NextWake_Tick = cur_task->StateItem.Dos_TaskValue;
     } 
   }
@@ -211,18 +221,25 @@ static dos_bool _Dos_Cheek_TaskPriority(void)
   }
   Dos_CurPriority = _Dos_Get_Highest_Priority(Dos_Task_Priority[i]) + 32 * i;
 #else
-  Dos_CurPriority = _Dos_Get_Highest_Priority(Dos_Task_Priority);
+  Dos_CurPriority = _Dos_Get_Highest_Priority(Dos_Task_Priority); /** get current task proority */
 #endif
   
+  /** Task scheduling when there are higher priority tasks, except for idle tasks. or the current task is not in the ready state */
   if(((Dos_CurPriority < Dos_CurrentTCB->Priority) && (Dos_CurrentTCB != Dos_IdleTCB)) || (!(Dos_CurrentTCB->TaskStatus & DOS_TASK_STATUS_READY)))
     return DOS_TRUE;
+  
+  /** there are more tasks in the current task priority list */
   else if(Dos_Get_TaskListValue(&Dos_TaskPriority_List[Dos_CurrentTCB->Priority]) > 1)
     return DOS_TRUE;
+
+  /** No task schedul */
   else
     return DOS_FALSE;
 }
 
-
+/**
+ * idle task function
+ */
 static void _Dos_IdleTask(void *Parameter)
 {
   while(1)
@@ -231,6 +248,9 @@ static void _Dos_IdleTask(void *Parameter)
   }
 }
 
+/** 
+ * create idle task
+ */
 static void _Dos_Create_IdleTask(void)
 {
  Dos_IdleTCB = Dos_TaskCreate( "IdleTask",
@@ -244,21 +264,33 @@ static void _Dos_Create_IdleTask(void)
   }
 }
 
+/**
+ * switch sleep list
+ * switch _Dos_TaskSleep_OverFlow_List when time overflows. 
+ * Otherwise choose _Dos_TaskSleep_List
+ */
 static void _Dos_Switch_SleepList(void)
 {
   Dos_TaskList_t *dos_list;
   DOS_TaskCB_t dos_task;
+
+  /** When switching _Dos_TaskSleep_OverFlow_List, judge whether the current list is empty. */
   if(Dos_TaskList_IsEmpty(_Dos_TaskSleep_List) == DOS_TRUE)
   {
+    /** switch sleep list */
     dos_list = _Dos_TaskSleep_List;
     _Dos_TaskSleep_List = _Dos_TaskSleep_OverFlow_List;
     _Dos_TaskSleep_OverFlow_List = dos_list;
+
+    /** Whether the list is empty after switching sleep list  */
     if(Dos_TaskList_IsEmpty(_Dos_TaskSleep_List) == DOS_TRUE)
     {
+      /** No wake up time required */
       Dos_NextWake_Tick = DOS_UINT32_MAX;
     }
     else
     {
+      /** Get the first task of the sleep list, the task value is next wake time */
       dos_task = Dos_GetTCB(_Dos_TaskSleep_List);
       Dos_NextWake_Tick = dos_task->StateItem.Dos_TaskValue;
     }
@@ -267,6 +299,9 @@ static void _Dos_Switch_SleepList(void)
     DOS_PRINT_ERR("Task sleep list is not empty!\n");
 }
 
+/**
+ * task scheduler(Internally used function)
+ */
 static dos_bool _Dos_Scheduler(void)
 {
   if((_Dos_Cheek_TaskPriority() != DOS_FALSE) && (DOS_YES == Dos_IsRun))
@@ -279,15 +314,7 @@ static dos_bool _Dos_Scheduler(void)
 /***********************************************************************************************************************/
 
 /**
- * @brief       NULL  
- * @param[in]   NULL
- * @param[out]  NULL
- * @return      NULL
- * @author      jiejie
- * @github      https://github.com/jiejieTop
- * @date        2018-xx-xx
- * @version     v1.0
- * @note        nados system init
+ * system init
  */
 void Dos_SystemInit(void)
 {
@@ -297,6 +324,7 @@ void Dos_SystemInit(void)
   /* init task list */
   _Dos_Task_List_Init();
 
+  /** create idle task */
   _Dos_Create_IdleTask();
 
 }
@@ -319,16 +347,22 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
   DOS_TaskCB_t dos_taskcb;
   dos_void *dos_stack;
   
+  /** alloc for task control block memory  */
   dos_taskcb = (DOS_TaskCB_t)Dos_MemAlloc(sizeof(struct DOS_TaskCB));
   if(DOS_NULL != dos_taskcb)
   {
+    /** alloc for task stack memory  */
     dos_stack = (dos_void *)Dos_MemAlloc(dos_stack_size);
     if(DOS_NULL == dos_stack)
     {
       DOS_PRINT_DEBUG("system mem DOS_NULL");
-      Dos_MemFree(dos_taskcb);
+
+      /** Failed to alloc memory */
+      Dos_MemFree(dos_taskcb);  
       return DOS_NULL;
     }
+
+    /** Initialize list item and task control block information */
     Dos_TaskItem_Init(&dos_taskcb->StateItem);
     Dos_TaskItem_Init(&dos_taskcb->PendItem);
     dos_taskcb->StateItem.Dos_TCB = (dos_void *)dos_taskcb;
@@ -341,13 +375,16 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
     return DOS_NULL;
   }
   
+  /** Initialize task control block information */
   dos_taskcb->TaskEntry = (void *)dos_task_entry;
   dos_taskcb->Parameter = dos_param;
   dos_taskcb->Priority = dos_priority;
   dos_taskcb->TaskName = (dos_char *)dos_name;
   
+  /** Task initialization */
   _Dos_InitTask(dos_taskcb);       
   
+  /** Insert tasks into the ready list to allow task scheduling */
   _Dos_insert_TaskPriority_List(dos_taskcb);
   
   return dos_taskcb;
@@ -384,12 +421,14 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
   }
 
   /** task is used status */
-  if((DOS_TASK_STATUS_DELAY & dos_status) || (DOS_TASK_STATUS_SUSPEND & dos_status) || (DOS_TASK_STATUS_READY & dos_status))  
+  if((DOS_TASK_STATUS_DELAY & dos_status) || (DOS_TASK_STATUS_READY & dos_status))  
   {
     pri = Dos_Interrupt_Disable();
 
+    /**Remove a task from the corresponding status list */
     if(Dos_TaskItem_Del(&(dos_task->StateItem)) == 0)
     {
+      /** If there are no more tasks under the current task priority, the bit corresponding to Dos_Task_Priority will be canceled. */
       if(Dos_TaskList_IsEmpty(&Dos_TaskPriority_List[dos_task->Priority]) == DOS_TRUE)
       {
         Dos_Task_Priority &= ~(0x01 << dos_task->Priority); 
@@ -397,18 +436,27 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
       }
     }
 
+    /** If the task is in a suspended state, remove it from the pending list */
+    if(DOS_TASK_STATUS_SUSPEND & dos_status)
+    {
+      Dos_TaskItem_Del(&(dos_task->PendItem));
+    }
+
     Dos_Interrupt_Enable(pri);
 
-    dos_task->TaskStatus = DOS_TASK_STATUS_UNUSED;  /** set task status is unused */
+    /** set task status is unused */
+    dos_task->TaskStatus = DOS_TASK_STATUS_UNUSED; 
+
     if(dos_task != Dos_CurrentTCB)
     {
+      /**If the deleted task is not the current task, then release the task control block and the task stack */
       Dos_MemFree(dos_task);
       Dos_MemFree(dos_task->StackAddr);
       return DOS_OK;
     }
     else
     {
-      /* Insert recycle list */
+      /* Insert recycle list, Reserved not implemented*/
 
       return DOS_OK;
     }
@@ -431,22 +479,30 @@ void Dos_TaskSleep(dos_uint32 dos_sleep_tick)
   {
     DOS_TASK_YIELD();
   }
+
   pri = Dos_Interrupt_Disable();
 
+  /** insert Task Sleep List */
   _Dos_insert_TaskSleep_List(dos_sleep_tick);
 
+  /** After the task sleeps, perform a task scheduling */
   Dos_Scheduler();
 
   Dos_Interrupt_Enable(pri);
 }
 
 
-
+/**
+ * get current task control block 
+ */
 DOS_TaskCB_t Dos_Get_CurrentTCB(void)
 {
   return Dos_CurrentTCB;
 }
 
+/**
+ * get the first task control block from the list
+ */
 DOS_TaskCB_t Dos_GetTCB(Dos_TaskList_t *list)
 {
   list->Dos_TaskItem = list->Dos_TaskItem->Next;
@@ -474,12 +530,16 @@ dos_uint32 Dos_Get_Tick(void)
   return dos_cur_tick;
 }
 
-
+/**
+ * Tasks are waiting for message queues, events, semaphores, mutex locks etc.
+ * set task status is suspend, insert pend list and sleep list.
+ */
 dos_void Dos_TaskWait(Dos_TaskList_t *dos_list, dos_uint32 timeout)
 {
   DOS_TaskCB_t task = Dos_CurrentTCB;
   dos_uint32 pri;
 
+  /** set task status is suspend, insert pend list */
   task->TaskStatus |= DOS_TASK_STATUS_SUSPEND;
   Dos_TaskItem_insert(dos_list, &task->PendItem);
 
@@ -487,14 +547,20 @@ dos_void Dos_TaskWait(Dos_TaskList_t *dos_list, dos_uint32 timeout)
   {
     pri = Dos_Interrupt_Disable();
 
+    /** Insert a task into the sleep list based on the wait timeout */
     _Dos_insert_TaskSleep_List(timeout);
 
+    /** After the task sleeps, perform a task scheduling */
     Dos_Scheduler();
 
     Dos_Interrupt_Enable(pri);
   }
 }
 
+/**
+ * wake task from pend list and sleep list.
+ * and insert task priority list, task can be scheduled
+ */
 dos_void Dos_TaskWake(DOS_TaskCB_t task)
 {
   dos_uint32 pri;
@@ -505,11 +571,10 @@ dos_void Dos_TaskWake(DOS_TaskCB_t task)
 
   task->TaskStatus &= (~DOS_TASK_STATUS_SUSPEND);
   task->TaskStatus &= (~DOS_TASK_STATUS_DELAY);
-//  task->TaskStatus |= DOS_TASK_STATUS_READY;
-  
-  // Dos_Task_Priority |= (0x01 << task->Priority);
-  // Dos_TaskItem_insert(&Dos_TaskPriority_List[task->Priority],&task->StateItem);
+
+  /** insert task priority list, and set the priority position corresponding to the Dos_Task_Priority variable is 1*/
   _Dos_insert_TaskPriority_List(task);
+
   Dos_Scheduler();
 
   Dos_Interrupt_Enable(pri);
@@ -550,12 +615,13 @@ void Dos_Start( void )
 
   DOS_PRINT_DEBUG("TaskPriority = %d\n",Dos_CurPriority);
   
+  /** Update Dos_TickCount and Dos_IsRun to indicate that the system starts to boot */
   Dos_TickCount = 0U;
   Dos_IsRun = DOS_YES;
-  /* å¯åŠ¨è°ƒåº¦å™? */
+
   if( Dos_StartScheduler() != 0 )
   {
-      /* è°ƒåº¦å™¨å¯åŠ¨æˆåŠŸï¼Œåˆ™ä¸ä¼šè¿”å›žï¼Œå³ä¸ä¼šæ¥åˆ°è¿™é‡? */
+      /* Will not be executed here after the task is started */
   }
 }
 
@@ -566,6 +632,8 @@ void Dos_Start( void )
 void Dos_SwitchTask( void )
 {    
   _Dos_Cheek_TaskPriority();
+
+  /** Get the control block for the highest priority task  */
   Dos_CurrentTCB = Dos_GetTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
 }
 
@@ -596,9 +664,13 @@ void Dos_Scheduler_Unlock(void)
   if(Dos_SchedulerLock > 0)
   {
     Dos_SchedulerLock -- ;
+
+    /** When the scheduler is completely unlocked */
     if(0 == Dos_SchedulerLock)
     {
        Dos_Interrupt_Enable(pri);
+
+       /** Perform a task scheduling */
        Dos_Scheduler();
        return;
     }
@@ -607,10 +679,11 @@ void Dos_Scheduler_Unlock(void)
   Dos_Interrupt_Enable(pri);
 }
 
-
+/**
+ * Determine if the system scheduler is locked
+ */
 dos_bool Dos_Scheduler_IsLock(void)
 {
-  
   return (0 != Dos_SchedulerLock);
 }
 
@@ -626,13 +699,17 @@ void Dos_Update_Tick(void)
   
   if(Dos_TickCount ==0)   //overflow
   {
+    /** When time overflows, switch list */
     _Dos_Switch_SleepList();
   }
   
+  /** When a timeout event occurs, such as sleep timeout, waiting for message queue, semaphore, mutex, event timeout ect */
   if(Dos_TickCount >= Dos_NextWake_Tick)
   {
+    /** Handle all timeout events in the loop, ensuring that each timeout is handled */
     for(;;)
     {
+      /** When the timeout list is empty, the task wakeup time is not set. */
       if(Dos_TaskList_IsEmpty(_Dos_TaskSleep_List) == DOS_TRUE)
       {
         Dos_NextWake_Tick = DOS_UINT32_MAX;
@@ -640,6 +717,7 @@ void Dos_Update_Tick(void)
       }
       else
       {
+        /** get task contorl block and set task wake time */
         dos_task = Dos_GetTCB(_Dos_TaskSleep_List);
         dos_tick = dos_task->StateItem.Dos_TaskValue;
         if(dos_tick > Dos_NextWake_Tick)
@@ -648,18 +726,24 @@ void Dos_Update_Tick(void)
           break;
         }
         
+        /** Timeout has occurred, remove the task from the sleep list, and set the task status to (~DOS_TASK_STATUS_DELAY) */
         Dos_TaskItem_Del(&dos_task->StateItem);
-
         dos_task->TaskStatus &= (~DOS_TASK_STATUS_DELAY);
+
         if(dos_task->TaskStatus & DOS_TASK_STATUS_SUSPEND)
         {
+          /** If the task status is waiting for a message queue, semaphore, mutex, event, etc.
+           *  when the wait has timed out, set its status to DOS_TASK_STATUS_TIMEOUT */
           dos_task->TaskStatus |= DOS_TASK_STATUS_TIMEOUT;
         }
 
-        dos_task->TaskStatus |= DOS_TASK_STATUS_READY;
-        Dos_TaskItem_insert(&Dos_TaskPriority_List[dos_task->Priority], &dos_task->StateItem);
-        Dos_Task_Priority |= (0x01 << dos_task->Priority);
+        /** Insert the task into the ready list and set the task status to aaa */
+        _Dos_insert_TaskPriority_List(dos_task);
+        // dos_task->TaskStatus |= DOS_TASK_STATUS_READY;
+        // Dos_TaskItem_insert(&Dos_TaskPriority_List[dos_task->Priority], &dos_task->StateItem);
+        // Dos_Task_Priority |= (0x01 << dos_task->Priority);
         
+        /** Determine the priority of the task and decide whether task scheduling is required. */
         if(dos_task->Priority < Dos_CurrentTCB->Priority)
         {
           DOS_TASK_YIELD();
@@ -678,6 +762,7 @@ void SysTick_Handler(void)
   dos_uint32 pri; 
   pri = Interrupt_Disable();
   
+  /** update system tick */
   Dos_Update_Tick();
   
   Dos_Scheduler();
@@ -695,7 +780,7 @@ dos_bool Dos_CheekTaskTick(Dos_TaskList_t *list)
 {
   DOS_TaskCB_t taskcb = (DOS_TaskCB_t)&(list->Dos_TaskItem->Dos_TCB);
   
-  if(taskcb->TaskTick >= Dos_TickCount)   //æ—¶é—´ç‰‡åˆ°äº?
+  if(taskcb->TaskTick >= Dos_TickCount)   
   {
     taskcb->TaskTick += taskcb->TaskInitTick; 
     return DOS_TRUE;
@@ -703,7 +788,7 @@ dos_bool Dos_CheekTaskTick(Dos_TaskList_t *list)
   else
   {
     taskcb->TaskTick++;
-    if(taskcb->TaskTick == 0)   //æº¢å‡ºå¤„ç†
+    if(taskcb->TaskTick == 0)   
     {
       
     }

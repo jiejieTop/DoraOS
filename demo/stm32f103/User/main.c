@@ -42,7 +42,7 @@ void test_task(void *Parameter)
   
   printf("queue start\n");
   
-  Dos_QueueRead(queue,buff,10,10000);
+  Dos_QueueRead(queue,buff,10,DOS_WAIT_FOREVER);
   
   printf("queue end\n");
   
@@ -52,7 +52,7 @@ void test_task(void *Parameter)
     DOS_PRINT_DEBUG("ABC\n");
     Dos_Interrupt_Enable(0);
 //    Delay_ms(1000);
-    Dos_TaskSleep(10000);
+    Dos_TaskSleep(1000);
     
   }
 }
@@ -62,15 +62,15 @@ void test1_task(void *Parameter)
   
   Dos_TaskSleep(4000);
   
-  Dos_QueueWrite(queue,buff,10,0);
+//  Dos_QueueWrite(queue,buff,10,0);
   
   while(1)
   {
     Dos_Interrupt_Disable();
     DOS_PRINT_DEBUG("123\n");
     Dos_Interrupt_Enable(0);
-    Delay_ms(1000);
-    Dos_TaskSleep(5000);
+//    Delay_ms(1000);
+    Dos_TaskSleep(500);
   }
 }
 /**
