@@ -225,7 +225,7 @@ static dos_bool _Dos_Cheek_TaskPriority(void)
 #endif
   
   /** Task scheduling when there are higher priority tasks, except for idle tasks. or the current task is not in the ready state */
-  if(((Dos_CurPriority < Dos_CurrentTCB->Priority) && (Dos_CurrentTCB != Dos_IdleTCB)) || (!(Dos_CurrentTCB->TaskStatus & DOS_TASK_STATUS_READY)))
+  if((Dos_CurPriority < Dos_CurrentTCB->Priority) || (!(Dos_CurrentTCB->TaskStatus & DOS_TASK_STATUS_READY)))
     return DOS_TRUE;
   
   /** there are more tasks in the current task priority list */
