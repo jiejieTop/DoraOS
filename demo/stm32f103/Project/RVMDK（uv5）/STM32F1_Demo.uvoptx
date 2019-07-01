@@ -166,9 +166,73 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>65</LineNumber>
+          <LineNumber>564</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134221470</Address>
+          <Address>134225054</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>H:\jiejieTop\DoraOS\demo\src\task.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\STM32_Demo\../../../../src/task.c\564</Expression>
+        </Bp>
+        <Bp>
+          <Number>1</Number>
+          <Type>0</Type>
+          <LineNumber>64</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134225780</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>H:\jiejieTop\DoraOS\demo\src\queue.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\STM32_Demo\../../../../src/queue.c\64</Expression>
+        </Bp>
+        <Bp>
+          <Number>2</Number>
+          <Type>0</Type>
+          <LineNumber>66</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134225796</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>H:\jiejieTop\DoraOS\demo\src\queue.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\STM32_Demo\../../../../src/queue.c\66</Expression>
+        </Bp>
+        <Bp>
+          <Number>3</Number>
+          <Type>0</Type>
+          <LineNumber>657</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134225246</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>H:\jiejieTop\DoraOS\demo\src\task.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\STM32_Demo\../../../../src/task.c\657</Expression>
+        </Bp>
+        <Bp>
+          <Number>4</Number>
+          <Type>0</Type>
+          <LineNumber>66</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134221472</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -177,14 +241,14 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>H:\jiejieTop\DoraOS\demo\stm32f103\Project\User\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\STM32_Demo\../../User/main.c\65</Expression>
+          <Expression>\\STM32_Demo\../../User/main.c\66</Expression>
         </Bp>
         <Bp>
-          <Number>1</Number>
+          <Number>5</Number>
           <Type>0</Type>
-          <LineNumber>429</LineNumber>
+          <LineNumber>733</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134224562</Address>
+          <Address>134225364</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
@@ -193,23 +257,39 @@
           <BreakIfRCount>1</BreakIfRCount>
           <Filename>H:\jiejieTop\DoraOS\demo\src\task.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\STM32_Demo\../../../../src/task.c\429</Expression>
+          <Expression>\\STM32_Demo\../../../../src/task.c\733</Expression>
         </Bp>
         <Bp>
-          <Number>2</Number>
+          <Number>6</Number>
           <Type>0</Type>
-          <LineNumber>436</LineNumber>
+          <LineNumber>63</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134224614</Address>
+          <Address>134223702</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>H:\jiejieTop\DoraOS\demo\src\task.c</Filename>
+          <Filename>H:\jiejieTop\DoraOS\demo\src\list.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\STM32_Demo\../../../../src/task.c\436</Expression>
+          <Expression>\\STM32_Demo\../../../../src/list.c\63</Expression>
+        </Bp>
+        <Bp>
+          <Number>7</Number>
+          <Type>0</Type>
+          <LineNumber>49</LineNumber>
+          <EnabledFlag>1</EnabledFlag>
+          <Address>134223668</Address>
+          <ByteObject>0</ByteObject>
+          <HtxType>0</HtxType>
+          <ManyObjects>0</ManyObjects>
+          <SizeOfObject>0</SizeOfObject>
+          <BreakByAccess>0</BreakByAccess>
+          <BreakIfRCount>1</BreakIfRCount>
+          <Filename>H:\jiejieTop\DoraOS\demo\src\list.c</Filename>
+          <ExecCommand></ExecCommand>
+          <Expression>\\STM32_Demo\../../../../src/list.c\49</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -273,6 +353,36 @@
           <WinNumber>1</WinNumber>
           <ItemText>Dos_Task_Priority</ItemText>
         </Ww>
+        <Ww>
+          <count>12</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>dos_list</ItemText>
+        </Ww>
+        <Ww>
+          <count>13</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>Dos_NextWake_Tick</ItemText>
+        </Ww>
+        <Ww>
+          <count>14</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>Dos_TickCount</ItemText>
+        </Ww>
+        <Ww>
+          <count>15</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>dos_task</ItemText>
+        </Ww>
+        <Ww>
+          <count>16</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>task</ItemText>
+        </Ww>
+        <Ww>
+          <count>17</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>dos_item</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>
@@ -329,6 +439,11 @@
           <count>10</count>
           <WinNumber>2</WinNumber>
           <ItemText>task</ItemText>
+        </Ww>
+        <Ww>
+          <count>11</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>dos_task-&gt;StateItem.Dos_TaskValue</ItemText>
         </Ww>
       </WatchWindow2>
       <MemoryWindow1>

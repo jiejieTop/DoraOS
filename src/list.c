@@ -18,9 +18,16 @@ void Dos_TaskItem_insert(Dos_TaskList_t *dos_list , Dos_TaskItem_t *new_item)
   Dos_TaskItem_t *item;
   dos_uint32 value = new_item->Dos_TaskValue;
   
-  for(item = (Dos_TaskItem_t*)&(dos_list->Task_EndItem);
-      item->Next->Dos_TaskValue <= value;
-      item = item->Next);
+  if(value == 0xFFFFFFFF)
+  {
+    item = dos_list->Task_EndItem.Prev;
+  }
+  else
+  {
+    for(item = (Dos_TaskItem_t*)&(dos_list->Task_EndItem);
+        item->Next->Dos_TaskValue <= value;
+        item = item->Next);
+  }
   
   new_item->Next = item->Next;
   new_item->Next->Prev = new_item;
@@ -37,17 +44,20 @@ dos_uint32 Dos_TaskItem_Del(Dos_TaskItem_t *dos_item)
 {
   Dos_TaskList_t *dos_list = dos_item->Dos_TaskList;
   
-  dos_item->Prev->Next = dos_item->Next;
-  dos_item->Next->Prev = dos_item->Prev;
-  
-  dos_item->Dos_TaskList = DOS_NULL;
-  
-  if(dos_list->Dos_TaskItem == dos_item)
+  if(dos_item->Dos_TaskList != DOS_NULL)
   {
-    dos_list->Dos_TaskItem = dos_item->Prev;
+    dos_item->Prev->Next = dos_item->Next;
+    dos_item->Next->Prev = dos_item->Prev;
+    
+    dos_item->Dos_TaskList = DOS_NULL;
+    
+    if(dos_list->Dos_TaskItem == dos_item)
+    {
+      dos_list->Dos_TaskItem = dos_item->Prev;
+    }
+    
+    dos_list->Task_ItemValue--;
   }
-  
-  dos_list->Task_ItemValue--;
   
   return dos_list->Task_ItemValue;
 }
