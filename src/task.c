@@ -290,7 +290,7 @@ static void _Dos_Switch_SleepList(void)
     else
     {
       /** Get the first task of the sleep list, the task value is next wake time */
-      dos_task = Dos_GetTCB(_Dos_TaskSleep_List);
+      dos_task = Dos_Get_NextTCB(_Dos_TaskSleep_List);
       Dos_NextWake_Tick = dos_task->StateItem.Dos_TaskValue;
     }
   }
@@ -508,9 +508,11 @@ DOS_TaskCB_t Dos_Get_CurrentTCB(void)
 /**
  * get the first task control block from the list
  */
-DOS_TaskCB_t Dos_GetTCB(Dos_TaskList_t *list)
+DOS_TaskCB_t Dos_Get_NextTCB(Dos_TaskList_t *list)
 {
-  list->Dos_TaskItem = list->Dos_TaskItem->Next;
+  /** Support time slice rotation scheduling. Each time the function is called, the task item will move backwards once. */
+  list->Dos_TaskItem = list->Dos_TaskItem->Next;    
+
   if((void*)(list)->Dos_TaskItem == (void*)&((list)->Task_EndItem))
   {
     list->Dos_TaskItem = list->Dos_TaskItem->Next;
@@ -634,7 +636,7 @@ void Dos_Start( void )
   
   _Dos_Cheek_TaskPriority();
   
-  Dos_CurrentTCB = Dos_GetTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
+  Dos_CurrentTCB = Dos_Get_NextTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
 
   DOS_PRINT_DEBUG("TaskPriority = %d\n",Dos_CurPriority);
   
@@ -657,7 +659,7 @@ void Dos_SwitchTask( void )
 //  _Dos_Cheek_TaskPriority();
 
   /** Get the control block for the highest priority task  */
-  Dos_CurrentTCB = Dos_GetTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
+  Dos_CurrentTCB = Dos_Get_NextTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
 }
 
 
@@ -741,7 +743,7 @@ void Dos_Update_Tick(void)
       else
       {
         /** get task contorl block and set task wake time */
-        dos_task = Dos_GetTCB(_Dos_TaskSleep_List);
+        dos_task = Dos_Get_NextTCB(_Dos_TaskSleep_List);
         dos_tick = dos_task->StateItem.Dos_TaskValue;
         if(dos_tick > Dos_NextWake_Tick)
         {
