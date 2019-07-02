@@ -1,10 +1,7 @@
 #include <task.h>
 
 
-#if DOS_MAX_PRIORITY_NUM > 32
-#define   DOS_PRIORITY_TAB  (((DOS_MAX_PRIORITY_NUM -1 )/32) + 1)
-#define   DOS_PRIORITY_TAB_INDEX(PRI)  (((PRI -1 )/32))
-
+#if DOS_MAX_PRIORITY_NUM > 32U
 static dos_uint32 Dos_Task_Priority[DOS_PRIORITY_TAB];
 #else
 static dos_uint32 Dos_Task_Priority;
@@ -153,12 +150,13 @@ static dos_uint32 _Dos_Get_Highest_Priority(dos_uint32 pri)
 static void _Dos_insert_TaskPriority_List(DOS_TaskCB_t dos_taskcb)
 {
   /* update priority  */
-#if DOS_MAX_PRIORITY_NUM > 32
-  Dos_Task_Priority[DOS_PRIORITY_TAB_INDEX(dos_taskcb->Priority)] |= (0x01 << (dos_taskcb->Priority % 32));
-#else
-  Dos_Task_Priority |= (0x01 << dos_taskcb->Priority);
+// #if DOS_MAX_PRIORITY_NUM > 32
+//   Dos_Task_Priority[DOS_PRIORITY_TAB_INDEX(dos_taskcb->Priority)] |= (0x01 << (dos_taskcb->Priority % 32));
+// #else
+  DOS_SET_TASK_PTIORITY(dos_taskcb);
+  // Dos_Task_Priority |= (0x01 << dos_taskcb->Priority);
 //  DOS_PRINT_DEBUG("Dos_Task_Priority = %#x",Dos_Task_Priority);
-#endif
+// #endif
   dos_taskcb->TaskStatus |= DOS_TASK_STATUS_READY;
   /* init task list,the list will pend in readylist or pendlist  */
   /* insert priority list */
@@ -185,7 +183,8 @@ static void _Dos_insert_TaskSleep_List(dos_uint32 dos_sleep_tick)
     /** If there are no more tasks under the current task priority, the bit corresponding to Dos_Task_Priority will be canceled. */
     if(Dos_TaskList_IsEmpty(&Dos_TaskPriority_List[cur_task->Priority]) == DOS_TRUE)
     {
-      Dos_Task_Priority &= ~(0x01 << cur_task->Priority); 
+      DOS_RESET_TASK_PTIORITY(cur_task);
+      // Dos_Task_Priority &= ~(0x01 << cur_task->Priority); 
       Dos_Scheduler();
     }
   }
@@ -347,6 +346,8 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
   DOS_TaskCB_t dos_taskcb;
   dos_void *dos_stack;
   
+  DOS_ASSERT(dos_priority <= DOS_MAX_PRIORITY_NUM);
+  
   /** alloc for task control block memory  */
   dos_taskcb = (DOS_TaskCB_t)Dos_MemAlloc(sizeof(struct DOS_TaskCB));
   if(DOS_NULL != dos_taskcb)
@@ -431,7 +432,8 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
       /** If there are no more tasks under the current task priority, the bit corresponding to Dos_Task_Priority will be canceled. */
       if(Dos_TaskList_IsEmpty(&Dos_TaskPriority_List[dos_task->Priority]) == DOS_TRUE)
       {
-        Dos_Task_Priority &= ~(0x01 << dos_task->Priority); 
+        DOS_RESET_TASK_PTIORITY(dos_task);
+        // Dos_Task_Priority &= ~(0x01 << dos_task->Priority); 
         DOS_TASK_YIELD();
 //        Dos_Scheduler();
       }
@@ -569,7 +571,8 @@ dos_void Dos_TaskWait(Dos_TaskList_t *dos_list, dos_uint32 timeout)
       /** If there are no more tasks under the current task priority, the bit corresponding to Dos_Task_Priority will be canceled. */
       if(Dos_TaskList_IsEmpty(&Dos_TaskPriority_List[task->Priority]) == DOS_TRUE)
       {
-        Dos_Task_Priority &= ~(0x01 << task->Priority); 
+        DOS_RESET_TASK_PTIORITY(task);
+        // Dos_Task_Priority &= ~(0x01 << task->Priority); 
         Dos_Scheduler();
       }
     }

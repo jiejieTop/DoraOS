@@ -60,7 +60,7 @@ void test1_task(void *Parameter)
 {
   dos_uint8 buff[20] = "ASFASF";
   
-  Dos_TaskSleep(3000);
+  Dos_TaskSleep(4000);
   
 //  Dos_TaskDelete(task);
   Dos_QueueWrite(queue,buff,10,0);

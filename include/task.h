@@ -14,6 +14,18 @@
 #define     DOS_GET_TCB(node)    DOS_GET_STRUCT(node, struct DOS_TaskCB, StateItem)
 
 
+#if DOS_MAX_PRIORITY_NUM > 32U
+#define   DOS_PRIORITY_TAB  (((DOS_MAX_PRIORITY_NUM -1 )/32) + 1)
+#define   DOS_PRIORITY_TAB_INDEX(PRI)  (((PRI -1 )/32))
+
+/** set or reset the task ready priority */
+#define     DOS_SET_TASK_PTIORITY(task)         (Dos_Task_Priority[DOS_PRIORITY_TAB_INDEX(task->Priority)]) |= (0x01 << (task->Priority % 32))
+#define     DOS_RESET_TASK_PTIORITY(task)       (Dos_Task_Priority[DOS_PRIORITY_TAB_INDEX(task->Priority)]) &= ~(0x01 << (task->Priority % 32))
+#else 
+/** set or reset the task ready priority */
+#define     DOS_SET_TASK_PTIORITY(task)         (Dos_Task_Priority) |= (0x01 << task->Priority)
+#define     DOS_RESET_TASK_PTIORITY(task)       (Dos_Task_Priority) &= ~(0x01 << task->Priority)
+#endif
 /**
  * Task status
  */
