@@ -84,7 +84,7 @@ static dos_err _Dos_Queuehandler(Dos_Queue_t queue, void *buff, size_t size, dos
 
     if(!Dos_TaskList_IsEmpty(&(queue->QueuePend[1-op])))
     {
-        task = Dos_Get_NextTCB(&(queue->QueuePend[1-op]));
+        task = Dos_GetTCB(&(queue->QueuePend[1-op]));
         Dos_TaskWake(task);
     }
     else

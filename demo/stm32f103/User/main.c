@@ -38,7 +38,7 @@ void test_task(void *Parameter)
 {
   dos_uint8 buff[20];
   
-  Dos_TaskSleep(1000);
+  Dos_TaskSleep(100);
   
   printf("queue start\n");
   
@@ -51,8 +51,8 @@ void test_task(void *Parameter)
     Dos_Interrupt_Disable();
     DOS_PRINT_DEBUG("ABC\n");
     Dos_Interrupt_Enable(0);
-    Delay_ms(1000);
-//    Dos_TaskSleep(1000);
+//    Delay_ms(1000);
+    Dos_TaskSleep(1000);
     
   }
 }
@@ -60,7 +60,7 @@ void test1_task(void *Parameter)
 {
   dos_uint8 buff[20] = "ASFASF";
   
-  Dos_TaskSleep(4000);
+  Dos_TaskSleep(1000);
   
 //  Dos_TaskDelete(task);
   Dos_QueueWrite(queue,buff,10,0);
@@ -70,8 +70,8 @@ void test1_task(void *Parameter)
     Dos_Interrupt_Disable();
     DOS_PRINT_DEBUG("123\n");
     Dos_Interrupt_Enable(0);
-    Delay_ms(1000);
-//    Dos_TaskSleep(500);
+//    Delay_ms(1000);
+    Dos_TaskSleep(500);
   }
 }
 /**
@@ -101,7 +101,7 @@ int main(void)
                   &test_task,
                   DOS_NULL,
                   512,
-                  3);
+                  2);
   DOS_PRINT_DEBUG("&task = %#x",(dos_uint32)task);
   DOS_PRINT_DEBUG("&task->StateItem = %#x",(dos_uint32)&(task->StateItem));
   

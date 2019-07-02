@@ -185,7 +185,7 @@ static void _Dos_insert_TaskSleep_List(dos_uint32 dos_sleep_tick)
     {
       DOS_RESET_TASK_PTIORITY(cur_task);
       // Dos_Task_Priority &= ~(0x01 << cur_task->Priority); 
-      Dos_Scheduler();
+//      Dos_Scheduler();
     }
   }
   /** Calculate the time of wake up */
@@ -505,8 +505,22 @@ DOS_TaskCB_t Dos_Get_CurrentTCB(void)
   return Dos_CurrentTCB;
 }
 
+
 /**
  * get the first task control block from the list
+ */
+DOS_TaskCB_t Dos_GetTCB(Dos_TaskList_t *list)
+{
+  if((void*)(list)->Dos_TaskItem == (void*)&((list)->Task_EndItem))
+  {
+    list->Dos_TaskItem = list->Dos_TaskItem->Next;
+  }
+  return list->Dos_TaskItem->Dos_TCB;
+}
+
+
+/**
+ * get the task control block from the list, each time the function is called, the task item will move backwards once. 
  */
 DOS_TaskCB_t Dos_Get_NextTCB(Dos_TaskList_t *list)
 {
@@ -519,6 +533,7 @@ DOS_TaskCB_t Dos_Get_NextTCB(Dos_TaskList_t *list)
   }
   return list->Dos_TaskItem->Dos_TCB;
 }
+
 
 /**
  * get system tick

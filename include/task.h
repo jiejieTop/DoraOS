@@ -82,6 +82,7 @@ void Dos_Scheduler_Lock(void);
 void Dos_Scheduler_Unlock(void);
 dos_bool Dos_Scheduler_IsLock(void);
 DOS_TaskCB_t Dos_Get_CurrentTCB(void);
+DOS_TaskCB_t Dos_GetTCB(Dos_TaskList_t *list);
 DOS_TaskCB_t Dos_Get_NextTCB(Dos_TaskList_t *list);
 dos_void Dos_TaskWait(Dos_TaskList_t *dos_list, dos_uint32 timeout);
 dos_void Dos_TaskWake(DOS_TaskCB_t task);
