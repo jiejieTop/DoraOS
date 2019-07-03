@@ -40,12 +40,16 @@ static void _Dos_QueueCopy(Dos_Queue_t queue, void *buff, size_t size, dos_uint8
  */
 static dos_err _Dos_Queuehandler(Dos_Queue_t queue, void *buff, size_t size, dos_uint8 op, dos_uint32 timeout)
 {
-   DOS_TaskCB_t task;
+    DOS_TaskCB_t task;
+    dos_err err;
 
-    if((!queue) || (!buff) || (!size) || (op > QUEUE_WRITE))
+    if((!queue) || (!buff) || (!size) || (op > QUEUE_WRITE) || (queue->QueueRWLock[op]))
     {
-        return DOS_NOK;
+        err =  DOS_NOK;
+        goto OUT;
     }
+
+    queue->QueueRWLock[op]++;
 
     size = DOS_MIN(size, queue->QueueSize);
 
@@ -53,14 +57,17 @@ static dos_err _Dos_Queuehandler(Dos_Queue_t queue, void *buff, size_t size, dos
     {
         if(0 == timeout)
         {
-            return DOS_NOK;
+            err =  DOS_NOK;
+            goto OUT;
         }
 
         if(Dos_Scheduler_IsLock())  /** scheduler is lock */
         {
-            return DOS_NOK;
+            err = DOS_NOK;
+            goto OUT;
         }
 
+        queue->QueueRWLock[op]--;
         Dos_TaskWait(&queue->QueuePend[op], timeout);
         
         task = (DOS_TaskCB_t)Dos_Get_CurrentTCB();
@@ -72,7 +79,8 @@ static dos_err _Dos_Queuehandler(Dos_Queue_t queue, void *buff, size_t size, dos
             task->TaskStatus |= DOS_TASK_STATUS_READY;
             Dos_TaskItem_Del(&(task->PendItem));
             DOS_PRINT_DEBUG("QUEUE TIMEOUT\n");
-            return DOS_NOK;
+            err = DOS_NOK;
+            goto OUT;
         }
     }
     else
@@ -92,7 +100,14 @@ static dos_err _Dos_Queuehandler(Dos_Queue_t queue, void *buff, size_t size, dos
         queue->QueueRWCnt[1-op]++;
     }
 
-    return DOS_OK;
+    err = DOS_OK;
+
+OUT:
+    if(queue->QueueRWLock[op])
+    {
+        queue->QueueRWLock[op]--;
+    }
+    return err;
 }
 
 
