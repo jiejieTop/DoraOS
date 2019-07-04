@@ -758,7 +758,7 @@ void Dos_Update_Tick(void)
       else
       {
         /** get task contorl block and set task wake time */
-        dos_task = Dos_Get_NextTCB(_Dos_TaskSleep_List);
+        dos_task = Dos_GetTCB(_Dos_TaskSleep_List);
         dos_tick = dos_task->StateItem.Dos_TaskValue;
         if(dos_tick > Dos_NextWake_Tick)
         {

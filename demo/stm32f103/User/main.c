@@ -38,13 +38,13 @@ void test_task(void *Parameter)
 {
   dos_uint8 buff[20];
   
-  Dos_TaskSleep(100);
+  Dos_TaskSleep(1000);
   
-  printf("queue start\n");
+  printf("task queue start\n");
   
   Dos_QueueRead(queue,buff,10,DOS_WAIT_FOREVER);
   
-  printf("queue end\n");
+  printf("task queue end\n");
   
   while(1)
   {
@@ -60,11 +60,17 @@ void test1_task(void *Parameter)
 {
   dos_uint8 buff[20] = "ASFASF";
   
-  Dos_TaskSleep(1000);
+  Dos_TaskSleep(5000);
+  
+  printf("task1 write queue1\n");
   
 //  Dos_TaskDelete(task);
   Dos_QueueWrite(queue,buff,10,0);
   
+  printf("task1 write queue2\n");
+  
+//  Dos_TaskDelete(task);
+  Dos_QueueWrite(queue,buff,10,0);
   while(1)
   {
     Dos_Interrupt_Disable();
@@ -72,6 +78,27 @@ void test1_task(void *Parameter)
     Dos_Interrupt_Enable(0);
 //    Delay_ms(1000);
     Dos_TaskSleep(500);
+  }
+}
+void test2_task(void *Parameter)
+{
+  dos_uint8 buff[20];
+  
+  Dos_TaskSleep(100);
+  
+  printf("task2 queue start\n");
+  
+  Dos_QueueRead(queue,buff,10,DOS_WAIT_FOREVER);
+  
+  printf("task2 queue end\n");
+  
+  while(1)
+  {
+    Dos_Interrupt_Disable();
+    DOS_PRINT_DEBUG("456\n");
+    Dos_Interrupt_Enable(0);
+//    Delay_ms(1000);
+    Dos_TaskSleep(2000);
   }
 }
 /**
@@ -105,17 +132,17 @@ int main(void)
   DOS_PRINT_DEBUG("&task = %#x",(dos_uint32)task);
   DOS_PRINT_DEBUG("&task->StateItem = %#x",(dos_uint32)&(task->StateItem));
   
-  task2 = DOS_GET_TCB(&(task->StateItem));
-  
-//  task2 = rt_container_of(&(task->StateList),struct DOS_TaskCB,StateList);
-//  
-  DOS_PRINT_DEBUG("&task2 = %#x",(dos_uint32)task2);
-  
   task1 = Dos_TaskCreate( "task1",
                 &test1_task,
                 DOS_NULL,
                 512,
                 3);
+                
+  task2 = Dos_TaskCreate( "task2",
+                &test2_task,
+                DOS_NULL,
+                512,
+                4);
                 
   p1 = Dos_MemAlloc(16);  
   p3 = Dos_MemAlloc(512);
