@@ -125,19 +125,19 @@ Dos_Queue_t Dos_QueueCreate(dos_uint16 len, dos_uint16 size)
 
     queue_size = (dos_size)(len * size);
 
-    queue = (Dos_Queue_t)Dos_MemAlloc(sizeof(Dos_Queue_t) + queue_size);
+    queue = (Dos_Queue_t)Dos_MemAlloc(sizeof(struct Dos_Queue) + queue_size);
     if(queue == DOS_NULL)
     {
        DOS_PRINT_ERR("queue is null\n");
         return DOS_NULL;
     }
 
-    memset(queue,0,sizeof(Dos_Queue_t) + queue_size);
+    memset(queue,0,sizeof(struct Dos_Queue) + queue_size);
 
     queue->QueueLen = len;
     queue->QueueSize = size;
 
-    queue->QueueHPtr = (dos_uint8 *)queue + sizeof(Dos_Queue_t);
+    queue->QueueHPtr = (dos_uint8 *)queue + sizeof(struct Dos_Queue);
     queue->QueueTPtr = queue->QueueHPtr + (queue->QueueLen * queue->QueueSize);
 
     queue->QueueRWCnt[QUEUE_READ] = 0;
