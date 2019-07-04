@@ -20,19 +20,19 @@
 
 
 #if DOS_PRINT_DEBUG_ENABLE
-#define   DOS_PRINT_DEBUG(fmt, args...) 	 do{(printf("\n[DEBUG] >> "), printf(fmt, ##args));}while(0)
+#define DOS_PRINT_DEBUG(fmt, args...)   do{(printf("\n[DEBUG] >> "), printf(fmt, ##args));}while(0)
 #else
 #define DOS_PRINT_DEBUG(fmt, args...)	     
 #endif
 
 #if DOS_PRINT_ERR_ENABLE
-#define DOS_PRINT_ERR(fmt, args...) 	 do{(printf("\n[ERR] >> "), printf(fmt, ##args));}while(0)     
+#define DOS_PRINT_ERR(fmt, args...)     do{(printf("\n[ERR] >> "), printf(fmt, ##args));}while(0)     
 #else
 #define DOS_PRINT_ERR(fmt, args...)	       
 #endif
 
 #if DOS_PRINT_INFO_ENABLE
-#define DOS_PRINT_INFO(fmt, args...) 	 do{(printf("\n[INFO] >> "), printf(fmt, ##args));}while(0)  
+#define DOS_PRINT_INFO(fmt, args...)    do{(printf("\n[INFO] >> "), printf(fmt, ##args));}while(0)  
 #else
 #define DOS_PRINT_INFO(fmt, args...)	       
 #endif
