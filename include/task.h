@@ -26,6 +26,10 @@
 #define     DOS_SET_TASK_PTIORITY(task)         (Dos_Task_Priority) |= (0x01 << task->Priority)
 #define     DOS_RESET_TASK_PTIORITY(task)       (Dos_Task_Priority) &= ~(0x01 << task->Priority)
 #endif
+
+#define     DOS_SET_TASK_STATUS(task, status)     (task->TaskStatus) |= (status)
+#define     DOS_RESET_TASK_STATUS(task, status)   (task->TaskStatus) &= ~(status)
+
 /**
  * Task status
  */
@@ -55,7 +59,6 @@ struct DOS_TaskCB
   dos_uint32                      TaskTick;                 /** TaskTick                    */
   dos_uint32                      TaskInitTick;             /** TaskInitTick                */ 
   dos_void                        *TaskEntry;               /** Task entrance function      */
-  dos_void                        *TaskSem;                 /** Task-held semaphore         */
   dos_void                        *TaskMux;                 /** Task-held mutex             */
   dos_void                        *Parameter;               /** Parameter                   */
   dos_char                        *TaskName;                /** Task name                   */

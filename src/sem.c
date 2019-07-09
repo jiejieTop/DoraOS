@@ -26,7 +26,7 @@ Dos_Sem_t Dos_SemCreate(dos_uint32 cnt, dos_uint32 max_cnt)
         return DOS_NULL;
     }
 
-    memset(sem,0,sizeof(struct Dos_Sem));
+    memset(sem, 0, sizeof(struct Dos_Sem));
 
     sem->SemCnt = cnt;
     sem->SemMaxCnt = max_cnt;
