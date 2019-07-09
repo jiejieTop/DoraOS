@@ -47,7 +47,7 @@ dos_uint32 *Dos_StackInit(dos_uint32 *top_of_stack ,
                           dos_void *parameter);
                           
 dos_uint32 Dos_StartScheduler( void );
-
+dos_bool Dos_ContextIsInt(void);
 __asm dos_uint32 Dos_Interrupt_Disable(void);
 
 __asm void Dos_Interrupt_Enable(dos_uint32 pri);
