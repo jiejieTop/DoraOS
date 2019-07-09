@@ -6,6 +6,8 @@
 #include <list.h>
 #include <task.h>
 
+#define Dos_BinarySem_Create(cnt)  Dos_SemCreate(cnt,1)
+
 struct Dos_Sem
 {
     dos_uint32      SemCnt;         /** sem count */
@@ -16,6 +18,7 @@ typedef struct Dos_Sem * Dos_Sem_t;
 
 
 Dos_Sem_t Dos_SemCreate(dos_uint32 cnt, dos_uint32 max_cnt);
+dos_err Dos_SemDelete(Dos_Sem_t sem);
 dos_err Dos_SemWait(Dos_Sem_t sem, dos_uint32 timeout);
 dos_err Dos_SemPost(Dos_Sem_t sem);
 

@@ -5,6 +5,11 @@
 #include <task.h>
 #include <port.h>
 
+/**
+ * semaphores create
+ * @param[in]  cnt : Initialize the number of semaphores
+ * @param[in]  cnt : Maximum number of semaphores
+ */
 Dos_Sem_t Dos_SemCreate(dos_uint32 cnt, dos_uint32 max_cnt)
 {
     Dos_Sem_t sem;
@@ -17,7 +22,7 @@ Dos_Sem_t Dos_SemCreate(dos_uint32 cnt, dos_uint32 max_cnt)
     sem = (Dos_Sem_t)Dos_MemAlloc(sizeof(struct Dos_Sem));
     if(sem == DOS_NULL)
     {
-        DOS_PRINT_ERR("sem is null\n");
+        DOS_PRINT_DEBUG("sem is null\n");
         return DOS_NULL;
     }
 
@@ -26,14 +31,51 @@ Dos_Sem_t Dos_SemCreate(dos_uint32 cnt, dos_uint32 max_cnt)
     sem->SemCnt = cnt;
     sem->SemMaxCnt = max_cnt;
     
+    /** Initialize semaphores pend list */
     Dos_TaskList_Init(&(sem->SemPend));
 
     return sem;
 }
 
+/**
+ * semaphores delete
+ * description: You need to set the semaphore pointer to null after deleting the semaphore
+ */
+dos_err Dos_SemDelete(Dos_Sem_t sem)
+{
+    if(sem != DOS_NULL)
+    {
+        if(Dos_TaskList_IsEmpty(&(sem->SemPend)))
+        {
+            memset(sem,0,sizeof(struct Dos_Sem));
+            Dos_MemFree(sem);
+            return DOS_OK;
+        }
+        else
+        {
+            DOS_PRINT_DEBUG("there are tasks in the semaphore pend list\n");
+            return DOS_NOK;
+        }
+    }
+    else
+    {
+        DOS_PRINT_DEBUG("sem is null\n");
+        return DOS_NOK;
+    }
+}
+
+/**
+ * semaphores wait function
+ */
 dos_err Dos_SemWait(Dos_Sem_t sem, dos_uint32 timeout)
 {
     DOS_TaskCB_t task;
+
+    if(sem == DOS_NULL)
+    {
+        DOS_PRINT_DEBUG("sem is null\n");
+        return DOS_NOK;
+    }
 
     if(sem->SemCnt > 0)
     {
@@ -68,10 +110,18 @@ dos_err Dos_SemWait(Dos_Sem_t sem, dos_uint32 timeout)
     return DOS_OK;
 }
 
-
+/**
+ * semaphores post
+ */
 dos_err Dos_SemPost(Dos_Sem_t sem)
 {
     DOS_TaskCB_t task;
+
+    if(sem == DOS_NULL)
+    {
+        DOS_PRINT_DEBUG("sem is null\n");
+        return DOS_NOK;
+    }
     
     if(sem->SemCnt == sem->SemMaxCnt)
     {
