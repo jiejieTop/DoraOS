@@ -43,13 +43,11 @@ static dos_err _Dos_Queuehandler(Dos_Queue_t queue, void *buff, size_t size, dos
     DOS_TaskCB_t task;
     dos_err err;
 
-    if((!queue) || (!buff) || (!size) || (op > QUEUE_WRITE) || (queue->QueueRWLock[op]))
+    if((!queue) || (!buff) || (!size) || (op > QUEUE_WRITE))
     {
         err =  DOS_NOK;
         goto OUT;
     }
-
-    queue->QueueRWLock[op]++;
 
     size = DOS_MIN(size, queue->QueueSize);
 
@@ -61,21 +59,26 @@ static dos_err _Dos_Queuehandler(Dos_Queue_t queue, void *buff, size_t size, dos
             goto OUT;
         }
 
+        if(Dos_ContextIsInt())
+        {
+            DOS_PRINT_ERR("queue wait time is not 0, and the context is in an interrupt\n");
+            err = DOS_NOK;
+            goto OUT;
+        }
+
         if(Dos_Scheduler_IsLock())  /** scheduler is lock */
         {
             err = DOS_NOK;
             goto OUT;
         }
 
-        queue->QueueRWLock[op]--;
         Dos_TaskWait(&queue->QueuePend[op], timeout);
         
         task = (DOS_TaskCB_t)Dos_Get_CurrentTCB();
         /** Task resumes running */
         if(task->TaskStatus & DOS_TASK_STATUS_TIMEOUT)
         {
-            task->TaskStatus &= (~DOS_TASK_STATUS_TIMEOUT);
-            task->TaskStatus &= (~DOS_TASK_STATUS_SUSPEND);
+            task->TaskStatus &= (~(DOS_TASK_STATUS_TIMEOUT | DOS_TASK_STATUS_SUSPEND));
             task->TaskStatus |= DOS_TASK_STATUS_READY;
             Dos_TaskItem_Del(&(task->PendItem));
             DOS_PRINT_DEBUG("QUEUE TIMEOUT\n");
@@ -103,10 +106,10 @@ static dos_err _Dos_Queuehandler(Dos_Queue_t queue, void *buff, size_t size, dos
     err = DOS_OK;
 
 OUT:
-    if(queue->QueueRWLock[op])
-    {
-        queue->QueueRWLock[op]--;
-    }
+    // if(queue->QueueRWLock[op])
+    // {
+    //     queue->QueueRWLock[op]--;
+    // }
     return err;
 }
 
@@ -128,7 +131,7 @@ Dos_Queue_t Dos_QueueCreate(dos_uint16 len, dos_uint16 size)
     queue = (Dos_Queue_t)Dos_MemAlloc(sizeof(struct Dos_Queue) + queue_size);
     if(queue == DOS_NULL)
     {
-       DOS_PRINT_ERR("queue is null\n");
+        DOS_PRINT_ERR("queue is null\n");
         return DOS_NULL;
     }
 
@@ -143,8 +146,8 @@ Dos_Queue_t Dos_QueueCreate(dos_uint16 len, dos_uint16 size)
     queue->QueueRWCnt[QUEUE_READ] = 0;
     queue->QueueRWCnt[QUEUE_WRITE] = len;
 
-    queue->QueueRWLock[QUEUE_READ] = 0;
-    queue->QueueRWLock[QUEUE_WRITE] = 0;
+//    queue->QueueRWLock[QUEUE_READ] = 0;
+//    queue->QueueRWLock[QUEUE_WRITE] = 0;
 
     queue->QueueRWPtr[QUEUE_READ] = queue->QueueHPtr;
     queue->QueueRWPtr[QUEUE_WRITE] = queue->QueueHPtr;

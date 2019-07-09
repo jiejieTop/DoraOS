@@ -17,7 +17,7 @@ struct Dos_Queue
   dos_uint8       *QueueHPtr;       /** head pointer  */
   dos_uint8       *QueueTPtr;       /** tail pointer  */
   dos_uint16      QueueRWCnt[2];    /** write count / read count */
-  dos_uint16      QueueRWLock[2];   /** write lock / read lock */
+  // dos_uint16      QueueRWLock[2];   /** write lock / read lock */
   dos_uint8       *QueueRWPtr[2];   /** write pointer / read pointer */
   Dos_TaskList_t  QueuePend[2];     /** task pend list, 28 byte *2 */
 };
