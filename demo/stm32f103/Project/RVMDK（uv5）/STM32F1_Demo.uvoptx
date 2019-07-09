@@ -167,34 +167,34 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>753</LineNumber>
+          <LineNumber>45</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134225418</Address>
+          <Address>134221384</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>H:\jiejieTop\DoraOS\demo\src\task.c</Filename>
+          <Filename>H:\jiejieTop\DoraOS\demo\stm32f103\Project\User\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\STM32_Demo\../../../../src/task.c\753</Expression>
+          <Expression>\\STM32_Demo\../../User/main.c\45</Expression>
         </Bp>
         <Bp>
           <Number>1</Number>
           <Type>0</Type>
-          <LineNumber>765</LineNumber>
+          <LineNumber>49</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134225444</Address>
+          <Address>134221398</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>H:\jiejieTop\DoraOS\demo\src\task.c</Filename>
+          <Filename>H:\jiejieTop\DoraOS\demo\stm32f103\Project\User\main.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\STM32_Demo\../../../../src/task.c\765</Expression>
+          <Expression>\\STM32_Demo\../../User/main.c\49</Expression>
         </Bp>
       </Breakpoint>
       <WatchWindow1>
@@ -267,6 +267,11 @@
           <count>13</count>
           <WinNumber>1</WinNumber>
           <ItemText>list</ItemText>
+        </Ww>
+        <Ww>
+          <count>14</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>sem</ItemText>
         </Ww>
       </WatchWindow1>
       <WatchWindow2>

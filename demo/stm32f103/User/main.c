@@ -41,6 +41,11 @@ void test_task(void *Parameter)
   
   Dos_TaskSleep(3000);
   
+  printf("task sem delete\n");
+  Dos_SemDelete(sem);
+  sem = DOS_NULL;
+  Dos_QueueDelete(queue);
+  queue = DOS_NULL;
   printf("task sem start\n");
   
   Dos_SemWait(sem, 100000);
@@ -136,7 +141,7 @@ int main(void)
   p2 = Dos_MemAlloc(128);
   
   queue = Dos_QueueCreate(10,10);
-  sem = Dos_SemCreate(0,10);
+  sem = Dos_BinarySem_Create(0);
   task = Dos_TaskCreate( "task",
                   &test_task,
                   DOS_NULL,
