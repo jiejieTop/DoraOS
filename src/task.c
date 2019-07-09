@@ -290,7 +290,7 @@ static void _Dos_Switch_SleepList(void)
     else
     {
       /** Get the first task of the sleep list, the task value is next wake time */
-      dos_task = Dos_Get_NextTCB(_Dos_TaskSleep_List);
+      dos_task = Dos_GetTCB(_Dos_TaskSleep_List);
       Dos_NextWake_Tick = dos_task->StateItem.Dos_TaskValue;
     }
   }
@@ -511,6 +511,7 @@ DOS_TaskCB_t Dos_Get_CurrentTCB(void)
  */
 DOS_TaskCB_t Dos_GetTCB(Dos_TaskList_t *list)
 {
+  list->Dos_TaskItem = list->Task_EndItem.Next;
   if((void*)(list)->Dos_TaskItem == (void*)&((list)->Task_EndItem))
   {
     list->Dos_TaskItem = list->Dos_TaskItem->Next;
@@ -651,7 +652,7 @@ void Dos_Start( void )
   
   _Dos_Cheek_TaskPriority();
   
-  Dos_CurrentTCB = Dos_Get_NextTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
+  Dos_CurrentTCB = Dos_GetTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
 
   DOS_PRINT_DEBUG("TaskPriority = %d\n",Dos_CurPriority);
   
@@ -804,7 +805,7 @@ void SysTick_Handler(void)
   
   /** update system tick */
   Dos_Update_Tick();
-  
+
   Dos_Scheduler();
   
   Interrupt_Enable(pri);
