@@ -45,6 +45,7 @@ static dos_err _Dos_Queuehandler(Dos_Queue_t queue, void *buff, size_t size, dos
 
     if((!queue) || (!buff) || (!size) || (op > QUEUE_WRITE))
     {
+        DOS_PRINT_DEBUG("queue does not satisfy the condition\n");
         err =  DOS_NOK;
         goto OUT;
     }
@@ -114,7 +115,11 @@ OUT:
 }
 
 
-
+/**
+ * create a queue
+ * @param[in]  len: queue length
+ * @param[in]  size: queue node size
+ */
 Dos_Queue_t Dos_QueueCreate(dos_uint16 len, dos_uint16 size)
 {
     Dos_Queue_t queue;
@@ -122,7 +127,7 @@ Dos_Queue_t Dos_QueueCreate(dos_uint16 len, dos_uint16 size)
 
     if((len <= 0) || (size <= 0))
     {
-       DOS_PRINT_ERR("queue len or size is 0\n");
+       DOS_PRINT_DEBUG("queue len or size is 0\n");
         return DOS_NULL;
     }
 
@@ -131,7 +136,7 @@ Dos_Queue_t Dos_QueueCreate(dos_uint16 len, dos_uint16 size)
     queue = (Dos_Queue_t)Dos_MemAlloc(sizeof(struct Dos_Queue) + queue_size);
     if(queue == DOS_NULL)
     {
-        DOS_PRINT_ERR("queue is null\n");
+        DOS_PRINT_DEBUG("queue is null\n");
         return DOS_NULL;
     }
 
@@ -159,11 +164,44 @@ Dos_Queue_t Dos_QueueCreate(dos_uint16 len, dos_uint16 size)
 }
 
 
+/**
+ * delete a queue
+ * description: You need to set the semaphore pointer to null after deleting the semaphore
+ */
+dos_err Dos_QueueDelete(Dos_Queue_t queue)
+{
+    if(queue != DOS_NULL)
+    {
+        if((Dos_TaskList_IsEmpty(&(queue->QueuePend[QUEUE_READ]))) && (Dos_TaskList_IsEmpty(&(queue->QueuePend[QUEUE_WRITE]))))
+        {
+            memset(queue,0,sizeof(struct Dos_Queue) + (dos_size)(queue->QueueLen * queue->QueueSize));
+            Dos_MemFree(queue);
+            return DOS_OK;
+        }
+        else
+        {
+            DOS_PRINT_DEBUG("there are tasks in the queue pend list\n");
+            return DOS_NOK;
+        }
+    }
+    else
+    {
+        DOS_PRINT_DEBUG("queue is null\n");
+        return DOS_NOK;
+    }
+}
+
+/**
+ * Read data from the queue
+ */
 dos_err Dos_QueueRead(Dos_Queue_t queue, void *buff, size_t size, dos_uint32 timeout)
 {
     return _Dos_Queuehandler(queue, buff, size, QUEUE_READ, timeout);
 }
 
+/**
+ * Write data to the queue
+ */
 dos_err Dos_QueueWrite(Dos_Queue_t queue, void *buff, size_t size, dos_uint32 timeout)
 {
     return _Dos_Queuehandler(queue, buff, size, QUEUE_WRITE, timeout);

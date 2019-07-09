@@ -24,6 +24,7 @@ struct Dos_Queue
 typedef struct Dos_Queue * Dos_Queue_t;
 
 Dos_Queue_t Dos_QueueCreate(dos_uint16 len, dos_uint16 size);
+dos_err Dos_QueueDelete(Dos_Queue_t queue);
 dos_err Dos_QueueRead(Dos_Queue_t queue, void *buff, size_t size, dos_uint32 timeout);
 dos_err Dos_QueueWrite(Dos_Queue_t queue, void *buff, size_t size, dos_uint32 timeout);
 
