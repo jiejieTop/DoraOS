@@ -339,7 +339,7 @@
               <MiscControls>--c99</MiscControls>
               <Define>STM32F10X_HD, USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\bsp;..\..\..\..\include;..\..\..\..\include\config;..\..\..\..\include\mem;..\..\..\..\include\port</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\bsp;..\..\..\..\include;..\..\..\..\include\config;..\..\..\..\include\mem;..\..\..\..\include\port;..\..\..\..\include\port\cmsis</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -593,20 +593,20 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\queue.c</FilePath>
             </File>
+            <File>
+              <FileName>sem.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\sem.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
-          <GroupName>dos/cpu</GroupName>
+          <GroupName>dos/port</GroupName>
           <Files>
-            <File>
-              <FileName>cpu.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\cpu\cortex-m3\cpu.c</FilePath>
-            </File>
             <File>
               <FileName>port.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\..\cpu\cortex-m3\port.c</FilePath>
+              <FilePath>..\..\..\..\port\arm\cortex-m3\port.c</FilePath>
             </File>
           </Files>
         </Group>

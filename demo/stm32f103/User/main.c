@@ -10,7 +10,7 @@
 #include "include.h"
 #include "task.h"
 #include "queue.h"
-
+#include <sem.h>
 
 /**
   ******************************************************************
@@ -25,6 +25,7 @@ DOS_TaskCB_t task1 = DOS_NULL;
 
 
 Dos_Queue_t queue = DOS_NULL;
+Dos_Sem_t sem = DOS_NULL;
 
 /**
   ******************************************************************
@@ -38,11 +39,17 @@ void test_task(void *Parameter)
 {
   dos_uint8 buff[20];
   
-  Dos_TaskSleep(1000);
+  Dos_TaskSleep(3000);
+  
+  printf("task sem start\n");
+  
+  Dos_SemWait(sem, 100000);
+  
+  printf("task sem end\n");
   
   printf("task queue start\n");
   
-  Dos_QueueRead(queue,buff,10,DOS_WAIT_FOREVER);
+  Dos_QueueRead(queue,buff,10,55500);
   
   printf("task queue end\n");
   
@@ -51,7 +58,7 @@ void test_task(void *Parameter)
     Dos_Interrupt_Disable();
     DOS_PRINT_DEBUG("ABC\n");
     Dos_Interrupt_Enable(0);
-//    Delay_ms(1000);
+    Delay_ms(1000);
     Dos_TaskSleep(1000);
     
   }
@@ -60,7 +67,7 @@ void test1_task(void *Parameter)
 {
   dos_uint8 buff[20] = "ASFASF";
   
-  Dos_TaskSleep(5000);
+  Dos_TaskSleep(18000);
   
   printf("task1 write queue1\n");
   
@@ -71,6 +78,10 @@ void test1_task(void *Parameter)
   
 //  Dos_TaskDelete(task);
   Dos_QueueWrite(queue,buff,10,0);
+
+  printf("task1 write sem\n");
+  Dos_SemPost(sem);
+  
   while(1)
   {
     Dos_Interrupt_Disable();
@@ -84,21 +95,23 @@ void test2_task(void *Parameter)
 {
   dos_uint8 buff[20];
   
-  Dos_TaskSleep(100);
+  Dos_TaskSleep(10000);
   
   printf("task2 queue start\n");
   
   Dos_QueueRead(queue,buff,10,DOS_WAIT_FOREVER);
-  
+
   printf("task2 queue end\n");
+  Dos_TaskSleep(500);
   
+  printf("task2 queue start1\n");
   while(1)
   {
     Dos_Interrupt_Disable();
     DOS_PRINT_DEBUG("456\n");
     Dos_Interrupt_Enable(0);
 //    Delay_ms(1000);
-    Dos_TaskSleep(2000);
+    Dos_TaskSleep(1500);
   }
 }
 /**
@@ -123,7 +136,7 @@ int main(void)
   p2 = Dos_MemAlloc(128);
   
   queue = Dos_QueueCreate(10,10);
-  
+  sem = Dos_SemCreate(0,10);
   task = Dos_TaskCreate( "task",
                   &test_task,
                   DOS_NULL,
