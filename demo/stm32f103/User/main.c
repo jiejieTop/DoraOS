@@ -42,10 +42,10 @@ void test_task(void *Parameter)
   Dos_TaskSleep(3000);
   
   printf("task sem delete\n");
-  Dos_SemDelete(sem);
-  sem = DOS_NULL;
-  Dos_QueueDelete(queue);
-  queue = DOS_NULL;
+//  Dos_SemDelete(sem);
+//  sem = DOS_NULL;
+//  Dos_QueueDelete(queue);
+//  queue = DOS_NULL;
   printf("task sem start\n");
   
   Dos_SemWait(sem, 100000);
