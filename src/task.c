@@ -150,14 +150,10 @@ static dos_uint32 _Dos_Get_Highest_Priority(dos_uint32 pri)
 static void _Dos_insert_TaskPriority_List(DOS_TaskCB_t dos_taskcb)
 {
   /* update priority  */
-// #if DOS_MAX_PRIORITY_NUM > 32
-//   Dos_Task_Priority[DOS_PRIORITY_TAB_INDEX(dos_taskcb->Priority)] |= (0x01 << (dos_taskcb->Priority % 32));
-// #else
   DOS_SET_TASK_PTIORITY(dos_taskcb);
-  // Dos_Task_Priority |= (0x01 << dos_taskcb->Priority);
-//  DOS_PRINT_DEBUG("Dos_Task_Priority = %#x",Dos_Task_Priority);
-// #endif
-  dos_taskcb->TaskStatus |= DOS_TASK_STATUS_READY;
+
+  DOS_SET_TASK_STATUS(dos_taskcb, DOS_TASK_STATUS_READY);
+
   /* init task list,the list will pend in readylist or pendlist  */
   /* insert priority list */
   Dos_TaskItem_insert(&Dos_TaskPriority_List[dos_taskcb->Priority],&dos_taskcb->StateItem);
@@ -174,8 +170,8 @@ static void _Dos_insert_TaskSleep_List(dos_uint32 dos_sleep_tick)
   }
   
   /** Change task status */
-  cur_task->TaskStatus &= (~DOS_TASK_STATUS_READY);
-  cur_task->TaskStatus |= DOS_TASK_STATUS_DELAY;
+  DOS_RESET_TASK_STATUS(cur_task, DOS_TASK_STATUS_READY);
+  DOS_SET_TASK_STATUS(cur_task, DOS_TASK_STATUS_DELAY);
 
   /** Remove a task from the corresponding status list */
   if(Dos_TaskItem_Del(&(cur_task->StateItem)) == 0)
@@ -447,14 +443,9 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
     Dos_TaskItem_Del(&(dos_task->PendItem));
   }
   
-//  else
-//  {
-//    DOS_PRINT_DEBUG("task status error\n");
-//    return DOS_NOK;
-//  }
-  
   /** set task status is unused */
-  dos_task->TaskStatus = DOS_TASK_STATUS_UNUSED; 
+  DOS_RESET_TASK_STATUS(dos_task, DOS_TASK_STATUS_MASK);
+  DOS_SET_TASK_STATUS(dos_task, DOS_TASK_STATUS_UNUSED);
 
   if(dos_task != Dos_CurrentTCB)
   {
@@ -563,7 +554,7 @@ dos_void Dos_TaskWait(Dos_TaskList_t *dos_list, dos_uint32 timeout)
   dos_uint32 pri;
 
   /** set task status is suspend, insert pend list */
-  task->TaskStatus |= DOS_TASK_STATUS_SUSPEND;
+  DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_SUSPEND);
   Dos_TaskItem_insert(dos_list, &task->PendItem);
 
   if(timeout != DOS_WAIT_FOREVER)
@@ -581,7 +572,7 @@ dos_void Dos_TaskWait(Dos_TaskList_t *dos_list, dos_uint32 timeout)
   else
   {
     /** Permanent waiting */
-    task->TaskStatus &= (~DOS_TASK_STATUS_READY);
+    DOS_RESET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
     
     /** Remove a task from the corresponding status list */
     if(Dos_TaskItem_Del(&(task->StateItem)) == 0)
@@ -609,9 +600,8 @@ dos_void Dos_TaskWake(DOS_TaskCB_t task)
 
   Dos_TaskItem_Del(&(task->PendItem));
   Dos_TaskItem_Del(&(task->StateItem));
-
-  task->TaskStatus &= (~DOS_TASK_STATUS_SUSPEND);
-  task->TaskStatus &= (~DOS_TASK_STATUS_DELAY);
+  
+  DOS_RESET_TASK_STATUS(task, (DOS_TASK_STATUS_SUSPEND | DOS_TASK_STATUS_DELAY));
 
   /** insert task priority list, and set the priority position corresponding to the Dos_Task_Priority variable is 1*/
   _Dos_insert_TaskPriority_List(task);
@@ -769,13 +759,13 @@ void Dos_Update_Tick(void)
         
         /** Timeout has occurred, remove the task from the sleep list, and set the task status to (~DOS_TASK_STATUS_DELAY) */
         Dos_TaskItem_Del(&dos_task->StateItem);
-        dos_task->TaskStatus &= (~DOS_TASK_STATUS_DELAY);
+        DOS_RESET_TASK_STATUS(dos_task, DOS_TASK_STATUS_DELAY);
 
         if(dos_task->TaskStatus & DOS_TASK_STATUS_SUSPEND)
         {
           /** If the task status is waiting for a message queue, semaphore, mutex, event, etc.
            *  when the wait has timed out, set its status to DOS_TASK_STATUS_TIMEOUT */
-          dos_task->TaskStatus |= DOS_TASK_STATUS_TIMEOUT;
+          DOS_SET_TASK_STATUS(dos_task, DOS_TASK_STATUS_TIMEOUT);
         }
 
         /** Insert the task into the ready list and set the task status to aaa */
