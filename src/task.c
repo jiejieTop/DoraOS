@@ -311,11 +311,8 @@ static dos_bool _Dos_Scheduler(void)
 /**
  * system init
  */
-void Dos_SystemInit(void)
+void Dos_TaskInit(void)
 {
-  /* system memheap init */
-  Dos_MemHeap_Init();
-  
   /* init task list */
   _Dos_Task_List_Init();
 
@@ -366,6 +363,9 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
     dos_taskcb->PendItem.Dos_TCB = (dos_void *)dos_taskcb;
     dos_taskcb->StackAddr = dos_stack;
     dos_taskcb->StackSize = dos_stack_size;
+    /** Insert in ascending order of priority in the pend list */
+    dos_taskcb->PendItem.Dos_TaskValue = dos_priority;  
+
   }
   else
   {

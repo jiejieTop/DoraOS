@@ -4,6 +4,7 @@
 #include "dos_def.h"
 #include <list.h>
 #include <port.h>
+#include <sys.h>
 #include <dos_config.h>
 
 #ifndef     DOS_MAX_PRIORITY_NUM
@@ -70,7 +71,7 @@ typedef struct DOS_TaskCB * DOS_TaskCB_t;
 
 
 
-void Dos_SystemInit(void);
+void Dos_TaskInit(void);
 DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
                             void (*dos_task_entry)(void *dos_param),
                             void * const dos_param,
