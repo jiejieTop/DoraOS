@@ -612,6 +612,31 @@ dos_void Dos_TaskWake(DOS_TaskCB_t task)
 }
 
 
+dos_void Dos_SetTaskPrio(DOS_TaskCB_t task, dos_uint16 prio)
+{
+  if(task->TaskStatus & DOS_TASK_STATUS_READY)
+  {
+    /** Remove a task from the corresponding status list */
+    if(Dos_TaskItem_Del(&(task->StateItem)) == 0)
+    {
+      /** If there are no more tasks under the current task priority, the bit corresponding to Dos_Task_Priority will be canceled. */
+      if(Dos_TaskList_IsEmpty(&Dos_TaskPriority_List[task->Priority]) == DOS_TRUE)
+      {
+        DOS_RESET_TASK_PTIORITY(task);
+      }
+    }
+
+    DOS_RESET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
+    task->Priority = prio;
+    _Dos_insert_TaskPriority_List(task);
+  }
+  else
+  {
+    task->Priority = prio;
+  }
+}
+
+
 /**
  * task exit function
  */

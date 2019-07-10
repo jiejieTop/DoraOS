@@ -59,7 +59,7 @@ struct DOS_TaskCB
   dos_uint32                      TaskTick;                 /** TaskTick                    */
   dos_uint32                      TaskInitTick;             /** TaskInitTick                */ 
   dos_void                        *TaskEntry;               /** Task entrance function      */
-  dos_void                        *TaskMux;                 /** Task-held mutex             */
+  dos_void                        *TaskMutex;               /** Task-held mutex             */
   dos_void                        *Parameter;               /** Parameter                   */
   dos_char                        *TaskName;                /** Task name                   */
   Dos_TaskItem_t                  StateItem;
@@ -89,6 +89,7 @@ DOS_TaskCB_t Dos_GetTCB(Dos_TaskList_t *list);
 DOS_TaskCB_t Dos_Get_NextTCB(Dos_TaskList_t *list);
 dos_void Dos_TaskWait(Dos_TaskList_t *dos_list, dos_uint32 timeout);
 dos_void Dos_TaskWake(DOS_TaskCB_t task);
+dos_void Dos_SetTaskPrio(DOS_TaskCB_t task, dos_uint16 prio);
 
 #endif
 
