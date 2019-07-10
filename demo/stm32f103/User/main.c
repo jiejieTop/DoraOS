@@ -11,6 +11,7 @@
 #include "task.h"
 #include "queue.h"
 #include <sem.h>
+#include <mutex.h>
 
 /**
   ******************************************************************
@@ -26,6 +27,7 @@ DOS_TaskCB_t task1 = DOS_NULL;
 
 Dos_Queue_t queue = DOS_NULL;
 Dos_Sem_t sem = DOS_NULL;
+Dos_Mutex_t mutex = DOS_NULL;
 
 /**
   ******************************************************************
@@ -37,86 +39,147 @@ static void BSP_Init(void);
 
 void test_task(void *Parameter)
 {
-  dos_uint8 buff[20];
+  dos_err ret;
+//  dos_uint8 buff[20];
   
-  Dos_TaskSleep(3000);
-  
-  printf("task sem delete\n");
-//  Dos_SemDelete(sem);
-//  sem = DOS_NULL;
-//  Dos_QueueDelete(queue);
-//  queue = DOS_NULL;
-  printf("task sem start\n");
-  
-  Dos_SemWait(sem, 100000);
-  
-  printf("task sem end\n");
-  
-  printf("task queue start\n");
-  
-  Dos_QueueRead(queue,buff,10,55500);
-  
-  printf("task queue end\n");
+//  Dos_TaskSleep(3000);
+//  
+////  printf("task sem delete\n");
+////  Dos_SemDelete(sem);
+////  sem = DOS_NULL;
+////  Dos_QueueDelete(queue);
+////  queue = DOS_NULL;
+//  printf("task sem start\n");
+//  
+//  Dos_SemWait(sem, 1000);
+//  
+//  printf("task sem end\n");
+//  
+//  printf("task queue start\n");
+//  
+//  Dos_QueueRead(queue,buff,10,5500);
+//  
+//  printf("task queue end\n");
   
   while(1)
   {
     Dos_Interrupt_Disable();
-    DOS_PRINT_DEBUG("ABC\n");
+    printf("task pend mutex\n");
     Dos_Interrupt_Enable(0);
-    Delay_ms(1000);
-    Dos_TaskSleep(1000);
+    ret = Dos_MutexPend(mutex, DOS_WAIT_FOREVER);
+    Dos_Interrupt_Disable();
+    if(ret == DOS_OK)
+    {
+      printf("task runing\n");
+    }
+    else
+    {
+      printf("task err\n");
+    }
+    
+//    Dos_Interrupt_Disable();
+//    DOS_PRINT_DEBUG("ABC\n");
+//    Dos_Interrupt_Enable(0);
+//    Delay_ms(1000);
+    
+    printf("task post mutex\n");
+    Dos_Interrupt_Enable(0);
+    ret = Dos_MutexPost(mutex);
+    if(ret != DOS_OK)
+    {
+      Dos_Interrupt_Disable();
+      printf("task err\n");
+      Dos_Interrupt_Enable(0);
+    }
+    
+    Dos_TaskSleep(2000);
     
   }
 }
 void test1_task(void *Parameter)
 {
-  dos_uint8 buff[20] = "ASFASF";
-  
-  Dos_TaskSleep(18000);
-  
-  printf("task1 write queue1\n");
-  
-//  Dos_TaskDelete(task);
-  Dos_QueueWrite(queue,buff,10,0);
-  
-  printf("task1 write queue2\n");
-  
-//  Dos_TaskDelete(task);
-  Dos_QueueWrite(queue,buff,10,0);
+//  dos_uint8 buff[20] = "ASFASF";
+//  
+//  Dos_TaskSleep(1800);
+//  
+//  printf("task1 write queue1\n");
+//  
+////  Dos_TaskDelete(task);
+//  Dos_QueueWrite(queue,buff,10,0);
+//  
+//  printf("task1 write queue2\n");
+//  
+////  Dos_TaskDelete(task);
+//  Dos_QueueWrite(queue,buff,10,0);
 
-  printf("task1 write sem\n");
-  Dos_SemPost(sem);
+//  printf("task1 write sem\n");
+//  Dos_SemPost(sem);
   
   while(1)
   {
     Dos_Interrupt_Disable();
-    DOS_PRINT_DEBUG("123\n");
+//    DOS_PRINT_DEBUG("123\n");
+    printf("task1 runing\n");
     Dos_Interrupt_Enable(0);
 //    Delay_ms(1000);
-    Dos_TaskSleep(500);
+    Dos_TaskSleep(100);
   }
 }
 void test2_task(void *Parameter)
 {
-  dos_uint8 buff[20];
-  
-  Dos_TaskSleep(10000);
-  
-  printf("task2 queue start\n");
-  
-  Dos_QueueRead(queue,buff,10,DOS_WAIT_FOREVER);
+  dos_err ret;
+  static uint32_t i;
+//  dos_uint8 buff[20];
+//  
+//  Dos_TaskSleep(1000);
+//  
+//  printf("task2 queue start\n");
+//  
+//  Dos_QueueRead(queue,buff,10,DOS_WAIT_FOREVER);
 
-  printf("task2 queue end\n");
-  Dos_TaskSleep(500);
-  
-  printf("task2 queue start1\n");
+//  printf("task2 queue end\n");
+//  Dos_TaskSleep(500);
+//  
+//  printf("task2 queue start1\n");
   while(1)
   {
     Dos_Interrupt_Disable();
-    DOS_PRINT_DEBUG("456\n");
+    printf("task2 pend mutex\n");
     Dos_Interrupt_Enable(0);
+    ret = Dos_MutexPend(mutex, DOS_WAIT_FOREVER);
+    Dos_Interrupt_Disable();
+    if(ret == DOS_OK)
+    {
+      printf("task2 runing\n");
+    }
+    else
+    {
+      printf("task2 err\n");
+    }
+    Dos_Interrupt_Enable(0);
+//    Dos_Interrupt_Disable();
+//    DOS_PRINT_DEBUG("456\n");
+//    Dos_Interrupt_Enable(0);
 //    Delay_ms(1000);
-    Dos_TaskSleep(1500);
+    
+    for(i=0;i<2000000;i++)
+		{
+			DOS_TASK_YIELD();
+		}
+    
+    Dos_Interrupt_Disable();
+    printf("task2 post mutex\n");
+    Dos_Interrupt_Enable(0);
+    
+    ret = Dos_MutexPost(mutex);
+    if(ret != DOS_OK)
+    {
+      Dos_Interrupt_Disable();
+      printf("task2 err\n");
+      Dos_Interrupt_Enable(0);
+    }
+
+    Dos_TaskSleep(1000);
   }
 }
 /**
@@ -142,6 +205,11 @@ int main(void)
   
   queue = Dos_QueueCreate(10,10);
   sem = Dos_BinarySem_Create(0);
+  mutex = Dos_MutexCreate();
+  
+//  Dos_MutexDelete(mutex);
+////  mutex = DOS_NULL;
+  
   task = Dos_TaskCreate( "task",
                   &test_task,
                   DOS_NULL,
@@ -236,7 +304,6 @@ static void BSP_Init(void)
   
 //	/* 外部中断初始化 */
 //	EXTI_Key_Config(); 
-	
 	
 	/* 打印信息 */
 	DOS_PRINT_INFO("welcome to learn jiejie stm32 library!\n");

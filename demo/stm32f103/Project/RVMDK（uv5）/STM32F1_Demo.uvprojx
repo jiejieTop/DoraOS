@@ -598,6 +598,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\sem.c</FilePath>
             </File>
+            <File>
+              <FileName>mutex.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\mutex.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
