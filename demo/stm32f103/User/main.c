@@ -42,7 +42,7 @@ void test_task(void *Parameter)
   dos_err ret;
 //  dos_uint8 buff[20];
   
-//  Dos_TaskSleep(3000);
+  Dos_TaskSleep(30);
 //  
 ////  printf("task sem delete\n");
 ////  Dos_SemDelete(sem);
@@ -60,7 +60,9 @@ void test_task(void *Parameter)
 //  Dos_QueueRead(queue,buff,10,5500);
 //  
 //  printf("task queue end\n");
-  
+  printf("task sem start\n");
+  Dos_SemWait(sem, DOS_WAIT_FOREVER);
+  printf("task sem end\n");
   while(1)
   {
     Dos_Interrupt_Disable();
@@ -100,7 +102,7 @@ void test1_task(void *Parameter)
 {
 //  dos_uint8 buff[20] = "ASFASF";
 //  
-//  Dos_TaskSleep(1800);
+  Dos_TaskSleep(1800);
 //  
 //  printf("task1 write queue1\n");
 //  
@@ -113,8 +115,11 @@ void test1_task(void *Parameter)
 //  Dos_QueueWrite(queue,buff,10,0);
 
 //  printf("task1 write sem\n");
-//  Dos_SemPost(sem);
-  
+  printf("task1 sem start\n");
+  Dos_SemPost(sem);
+  Dos_SemPost(sem);
+  printf("task1 sem end\n");
+//  Dos_SemWait(sem, DOS_WAIT_FOREVER);
   while(1)
   {
     Dos_Interrupt_Disable();
@@ -129,6 +134,9 @@ void test2_task(void *Parameter)
 {
   dos_err ret;
   static uint32_t i;
+  printf("task2 sem start\n");
+  Dos_SemWait(sem, DOS_WAIT_FOREVER);
+  printf("task2 sem end\n");
 //  dos_uint8 buff[20];
 //  
 //  Dos_TaskSleep(1000);

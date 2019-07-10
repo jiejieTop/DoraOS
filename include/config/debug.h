@@ -6,7 +6,7 @@
   * @github  https://github.com/jiejieTop
   * @date    2018-xx-xx
   * @version v1.0
-  * @note    此文件用于打印日志信息
+  * @note    printf debug/err/information
   ***********************************************************/
 /**
 * @name Debug print 
@@ -14,9 +14,9 @@
 */
  #include <stdio.h>
  
-#define DOS_PRINT_DEBUG_ENABLE		1		/* 打印调试信息 */
-#define DOS_PRINT_ERR_ENABLE			1 	/* 打印错误信息 */
-#define DOS_PRINT_INFO_ENABLE			1		/* 打印个人信息 */
+#define DOS_PRINT_DEBUG_ENABLE		1		
+#define DOS_PRINT_ERR_ENABLE			1 	
+#define DOS_PRINT_INFO_ENABLE			1		
 
 
 #if DOS_PRINT_DEBUG_ENABLE
@@ -38,29 +38,26 @@
 #endif
 
 /**@} */
-	
-//针对不同的编译器调用不同的stdint.h文件
+
 #if defined(__ICCARM__) || defined(__CC_ARM) || defined(__GNUC__)
     #include <stdint.h>
 #endif
 
-/* 断言 Assert */
+/* Assert */
 #define Dos_AssertCalled(char,int) 	printf("\nError:%s,%d\r\n",char,int)
 #define DOS_ASSERT(x)   if((x)==0)  Dos_AssertCalled(__FILE__,__LINE__)
   
 typedef enum 
 {
-	ASSERT_ERR = 0,								/* 错误 */
-	ASSERT_SUCCESS = !ASSERT_ERR	/* 正确 */
+	ASSERT_ERR = 0,								
+	ASSERT_SUCCESS = !ASSERT_ERR	
 } Assert_ErrorStatus;
 
 typedef enum 
 {
-	FALSE = 0,		/* 假 */
-	TRUE = !FALSE	/* 真 */
+	FALSE = 0,		
+	TRUE = !FALSE	
 }bool;
-
-
 
 #endif /* __DEBUG_H_ */
 
