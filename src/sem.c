@@ -83,7 +83,7 @@ dos_err Dos_SemWait(Dos_Sem_t sem, dos_uint32 timeout)
         return DOS_OK;
     }
 
-    if(timeout == 0)
+    if((timeout == 0) || (Dos_Scheduler_IsLock()))  /** scheduler is lock */
     {
         return DOS_NOK;
     }
@@ -100,8 +100,8 @@ dos_err Dos_SemWait(Dos_Sem_t sem, dos_uint32 timeout)
     /** Task resumes running */
     if(task->TaskStatus & DOS_TASK_STATUS_TIMEOUT)
     {
-        task->TaskStatus &= (~(DOS_TASK_STATUS_TIMEOUT | DOS_TASK_STATUS_SUSPEND));
-        task->TaskStatus |= DOS_TASK_STATUS_READY;
+        DOS_RESET_TASK_STATUS(task, (DOS_TASK_STATUS_TIMEOUT | DOS_TASK_STATUS_SUSPEND));
+        DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
         Dos_TaskItem_Del(&(task->PendItem));
         DOS_PRINT_DEBUG("SEM TIMEOUT\n");
         return DOS_NOK;
