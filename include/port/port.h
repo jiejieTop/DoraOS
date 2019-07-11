@@ -32,9 +32,6 @@
 #define         PEND_SYSTICK_CLEAR_BIT      ( 1UL << 25UL )
 
 
-#define         Dos_Interrupt_Disable       Interrupt_Disable
-#define         Dos_Interrupt_Enable        Interrupt_Enable
-
 #define DOS_TASK_YIELD()            \
 {                                   \
   INT_CTRL_REG |= PENDSVSET_BIT;    \
@@ -48,9 +45,8 @@ dos_uint32 *Dos_StackInit(dos_uint32 *top_of_stack ,
                           
 dos_uint32 Dos_StartScheduler( void );
 dos_bool Dos_ContextIsInt(void);
-__asm dos_uint32 Dos_Interrupt_Disable(void);
-
-__asm void Dos_Interrupt_Enable(dos_uint32 pri);
+__asm dos_uint32 Interrupt_Disable(void);
+__asm void Interrupt_Enable(dos_uint32 pri);
 
 
 #endif
