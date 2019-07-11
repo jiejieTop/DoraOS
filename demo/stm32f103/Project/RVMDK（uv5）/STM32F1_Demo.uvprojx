@@ -613,6 +613,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\..\..\src\event.c</FilePath>
             </File>
+            <File>
+              <FileName>swtmr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\src\swtmr.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
