@@ -103,7 +103,7 @@ dos_err Dos_SemWait(Dos_Sem_t sem, dos_uint32 timeout)
         DOS_RESET_TASK_STATUS(task, (DOS_TASK_STATUS_TIMEOUT | DOS_TASK_STATUS_SUSPEND));
         DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
         Dos_TaskItem_Del(&(task->PendItem));
-        DOS_PRINT_DEBUG("SEM TIMEOUT\n");
+        DOS_PRINT_DEBUG("waiting for sem timeout\n");
         return DOS_NOK;
     }
 

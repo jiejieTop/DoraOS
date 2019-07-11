@@ -3,8 +3,8 @@
 /* double list init */
 void Dos_TaskItem_Init(Dos_TaskItem_t *dos_item)
 {
-  dos_item->Next = DOS_NULL;
-  dos_item->Prev = DOS_NULL;
+  dos_item->Next = dos_item;
+  dos_item->Prev = dos_item;
   dos_item->Dos_TaskValue = 0;
   dos_item->Dos_TCB = DOS_NULL;
   dos_item->Dos_TaskList = DOS_NULL;

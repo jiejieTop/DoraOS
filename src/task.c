@@ -349,7 +349,7 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
     dos_stack = (dos_void *)Dos_MemAlloc(dos_stack_size);
     if(DOS_NULL == dos_stack)
     {
-      DOS_PRINT_DEBUG("system mem DOS_NULL");
+      DOS_PRINT_DEBUG("not enough memory to create a task\n");
 
       /** Failed to alloc memory */
       Dos_MemFree(dos_taskcb);  
@@ -365,7 +365,8 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
     dos_taskcb->StackSize = dos_stack_size;
     /** Insert in ascending order of priority in the pend list */
     dos_taskcb->PendItem.Dos_TaskValue = dos_priority;  
-
+    dos_taskcb->WaitEvent = 0;
+    dos_taskcb->WaitEventOp = 0;
   }
   else
   {
@@ -399,7 +400,7 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
 
   if(DOS_NULL == dos_task)
   {
-    DOS_PRINT_ERR("delete task is null\n");
+    DOS_PRINT_ERR("unable to delete, task is null\n");
     return DOS_NOK;
   }
   
@@ -653,7 +654,7 @@ void Dos_TaskExit(void)
  */
 void Dos_Scheduler(void)
 {
-  if(_Dos_Scheduler() == DOS_TRUE)
+  if((!Dos_Scheduler_IsLock()) && (_Dos_Scheduler() == DOS_TRUE))
   {
     DOS_TASK_YIELD(); 
   }
@@ -800,10 +801,10 @@ void Dos_Update_Tick(void)
         // Dos_Task_Priority |= (0x01 << dos_task->Priority);
         
         /** Determine the priority of the task and decide whether task scheduling is required. */
-        if(dos_task->Priority < Dos_CurrentTCB->Priority)
-        {
-          DOS_TASK_YIELD();
-        }
+//        if(dos_task->Priority < Dos_CurrentTCB->Priority)
+//        {
+//          DOS_TASK_YIELD();
+//        }
       }
     } 
   }

@@ -16,8 +16,8 @@
 
 
 #if DOS_MAX_PRIORITY_NUM > 32U
-#define   DOS_PRIORITY_TAB  (((DOS_MAX_PRIORITY_NUM -1 )/32) + 1)
-#define   DOS_PRIORITY_TAB_INDEX(PRI)  (((PRI -1 )/32))
+#define     DOS_PRIORITY_TAB  (((DOS_MAX_PRIORITY_NUM -1 )/32) + 1)
+#define     DOS_PRIORITY_TAB_INDEX(PRI)  (((PRI -1 )/32))
 
 /** set or reset the task ready priority */
 #define     DOS_SET_TASK_PTIORITY(task)         (Dos_Task_Priority[DOS_PRIORITY_TAB_INDEX(task->Priority)]) |= (0x01 << (task->Priority % 32))
@@ -30,6 +30,9 @@
 
 #define     DOS_SET_TASK_STATUS(task, status)     (task->TaskStatus) |= (status)
 #define     DOS_RESET_TASK_STATUS(task, status)   (task->TaskStatus) &= ~(status)
+
+#define     Dos_Interrupt_Disable       Interrupt_Disable
+#define     Dos_Interrupt_Enable        Interrupt_Enable
 
 /**
  * Task status
@@ -57,14 +60,15 @@ struct DOS_TaskCB
   dos_uint16                      Priority;
   dos_uint32                      StackSize;                /** Task stack size             */
   dos_void                        *TopOfStack;              /** Task stack top              */
-  dos_uint32                      TaskTick;                 /** TaskTick                    */
-  dos_uint32                      TaskInitTick;             /** TaskInitTick                */ 
   dos_void                        *TaskEntry;               /** Task entrance function      */
-  dos_void                        *TaskMutex;               /** Task-held mutex             */
   dos_void                        *Parameter;               /** Parameter                   */
   dos_char                        *TaskName;                /** Task name                   */
-  Dos_TaskItem_t                  StateItem;
-  Dos_TaskItem_t                  PendItem;
+  dos_uint32                      TaskTick;                 /** TaskTick                    */
+  dos_uint32                      TaskInitTick;             /** TaskInitTick                */ 
+  dos_uint32                      WaitEvent;                /** Task wait event             */
+  dos_uint32                      WaitEventOp;              /** Task wait event options     */
+  Dos_TaskItem_t                  StateItem;                /** Task status item            */
+  Dos_TaskItem_t                  PendItem;                 /** Task pend item              */
 };
 typedef struct DOS_TaskCB * DOS_TaskCB_t;
 
