@@ -24,6 +24,8 @@
 
 #define         MEM_HEAP_SIZE                   1024*30
 
-                            
+#define         DOS_IPC_QUEUQ                   1
+
+
 #endif
 
