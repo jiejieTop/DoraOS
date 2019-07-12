@@ -1,4 +1,6 @@
 #include <sys.h>
+#include <task.h>
+#include <swtmr.h>
 #include <dos_config.h>
 
 #define DOS_LOGO_BIG    0
@@ -38,7 +40,7 @@ static dos_char _DoraOS_Logo[] = "\r\n \
   888      888  d88' '88b  `888''8P  `P  )88b   888      888   'Yl8888o.   \r\n \
   888      888  888   888   888       .oP''88   888      888       'Y88lb  \r\n \
   888     d88'  888   888   888      d8(   88   `88b    d88'  oo     .d8P  \r\n \
- o888bood8P'    `Y8bod8P'  d888b     `Y888''8o.   'Y8bood8P'   '8888888P'  \r\n ";
+ o888bood8P'    `Y8bod8P'  d888b     `Y888''8o.  'Y8bood8P'   '8888888P'  \r\n ";
 #endif
 
 #ifdef DOS_LOGO
@@ -59,6 +61,8 @@ void Dos_SystemInit(void)
     Dos_MemHeap_Init();
 
     Dos_TaskInit();
+  
+    Dos_SwtmrInit();
 }
 
 
