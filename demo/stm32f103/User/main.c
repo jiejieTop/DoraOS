@@ -225,25 +225,25 @@ int main(void)
   mutex = Dos_MutexCreate();
   event = Dos_EventCreate();
   
-  task = Dos_TaskCreate( "task",
-                  &test_task,
-                  DOS_NULL,
-                  512,
-                  2);
-  DOS_PRINT_DEBUG("&task = %#x",(dos_uint32)task);
-  DOS_PRINT_DEBUG("&task->StateItem = %#x",(dos_uint32)&(task->StateItem));
-  
-  task1 = Dos_TaskCreate( "task1",
-                &test1_task,
-                DOS_NULL,
-                512,
-                3);
-                
-  task2 = Dos_TaskCreate( "task2",
-                &test2_task,
-                DOS_NULL,
-                512,
-                4);
+//  task = Dos_TaskCreate( "task",
+//                  &test_task,
+//                  DOS_NULL,
+//                  512,
+//                  2);
+//  DOS_PRINT_DEBUG("&task = %#x",(dos_uint32)task);
+//  DOS_PRINT_DEBUG("&task->StateItem = %#x",(dos_uint32)&(task->StateItem));
+//  
+//  task1 = Dos_TaskCreate( "task1",
+//                &test1_task,
+//                DOS_NULL,
+//                512,
+//                3);
+//                
+//  task2 = Dos_TaskCreate( "task2",
+//                &test2_task,
+//                DOS_NULL,
+//                512,
+//                4);
                 
   p1 = Dos_MemAlloc(16);  
   p3 = Dos_MemAlloc(512);

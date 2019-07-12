@@ -56,6 +56,9 @@ dos_uint32 Dos_TaskItem_Del(Dos_TaskItem_t *dos_item)
       dos_list->Dos_TaskItem = dos_item->Prev;
     }
     
+    dos_item->Next = dos_item;
+    dos_item->Prev = dos_item;
+    
     dos_list->Task_ItemValue--;
   }
   
