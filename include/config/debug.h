@@ -14,7 +14,7 @@
 */
  #include <stdio.h>
  
-#define DOS_PRINT_DEBUG_ENABLE		1		
+#define DOS_PRINT_DEBUG_ENABLE		0		
 #define DOS_PRINT_ERR_ENABLE			1 	
 #define DOS_PRINT_INFO_ENABLE			1		
 

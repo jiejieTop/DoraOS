@@ -13,7 +13,7 @@
 #include <sem.h>
 #include <mutex.h>
 #include <event.h>
-
+#include <swtmr.h>
 /**
   ******************************************************************
 													   变量声明
@@ -30,6 +30,22 @@ Dos_Queue_t queue = DOS_NULL;
 Dos_Sem_t sem = DOS_NULL;
 Dos_Mutex_t mutex = DOS_NULL;
 Dos_Event_t event = DOS_NULL;
+
+dos_void Swtmr_CallBacke1(dos_void *Parameter)
+{
+    printf("%d\n",Dos_Get_Tick());
+}
+Dos_Swtmr_t swtmr1;
+dos_void Swtmr_CallBacke2(dos_void *Parameter)
+{
+    printf("%d\n",Dos_Get_Tick());
+}
+Dos_Swtmr_t swtmr2;
+dos_void Swtmr_CallBacke3(dos_void *Parameter)
+{
+    printf("%d\n",Dos_Get_Tick());
+}
+Dos_Swtmr_t swtmr3;
 /**
   ******************************************************************
 														函数声明
@@ -43,7 +59,7 @@ void test_task(void *Parameter)
   dos_err ret;
 //  dos_uint8 buff[20];
 //  Dos_TaskSleep(1800);
-////  Dos_TaskSleep(30);
+  Dos_TaskSleep(30);
 //  Dos_EventWait(event, 1, WAIT_ANY_EVENT, DOS_WAIT_FOREVER - 1);
   
 //  printf("task event end\n");
@@ -105,8 +121,13 @@ void test1_task(void *Parameter)
 {
 //  dos_uint8 buff[20] = "ASFASF";
 //  
-//  Dos_TaskSleep(1800);
+//  Dos_TaskSleep(2800);
   
+  printf("task1 start swtmr\n");
+  
+  Dos_SwtmrStart(swtmr1);
+  Dos_SwtmrStart(swtmr2);
+  Dos_SwtmrStart(swtmr3);
 //  Dos_EventWait(event, 2, WAIT_ANY_EVENT, 5000);
   
   Dos_EventSet(event, 5);
@@ -225,25 +246,28 @@ int main(void)
   mutex = Dos_MutexCreate();
   event = Dos_EventCreate();
   
-//  task = Dos_TaskCreate( "task",
-//                  &test_task,
-//                  DOS_NULL,
-//                  512,
-//                  2);
-//  DOS_PRINT_DEBUG("&task = %#x",(dos_uint32)task);
-//  DOS_PRINT_DEBUG("&task->StateItem = %#x",(dos_uint32)&(task->StateItem));
-//  
-//  task1 = Dos_TaskCreate( "task1",
-//                &test1_task,
-//                DOS_NULL,
-//                512,
-//                3);
-//                
-//  task2 = Dos_TaskCreate( "task2",
-//                &test2_task,
-//                DOS_NULL,
-//                512,
-//                4);
+  swtmr1 = Dos_SwtmrCreate(1000,Dos_Swtmr_PeriodMode,Swtmr_CallBacke1,DOS_NULL);
+  swtmr2 = Dos_SwtmrCreate(1000,Dos_Swtmr_PeriodMode,Swtmr_CallBacke2,DOS_NULL);
+  swtmr3 = Dos_SwtmrCreate(1000,Dos_Swtmr_PeriodMode,Swtmr_CallBacke3,DOS_NULL);
+  task = Dos_TaskCreate( "task",
+                  &test_task,
+                  DOS_NULL,
+                  512,
+                  2);
+  DOS_PRINT_DEBUG("&task = %#x",(dos_uint32)task);
+  DOS_PRINT_DEBUG("&task->StateItem = %#x",(dos_uint32)&(task->StateItem));
+  
+  task1 = Dos_TaskCreate( "task1",
+                &test1_task,
+                DOS_NULL,
+                512,
+                3);
+                
+  task2 = Dos_TaskCreate( "task2",
+                &test2_task,
+                DOS_NULL,
+                512,
+                4);
                 
   p1 = Dos_MemAlloc(16);  
   p3 = Dos_MemAlloc(512);

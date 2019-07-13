@@ -16,6 +16,13 @@ static struct Dos_Swtmr *_Dos_Swtmr_OverFlowPtr;
 static struct Dos_Swtmr *_Dos_SwtmrPtr;
 
 
+dos_void _Dos_SwitchList(void)
+{
+    static struct Dos_Swtmr * swtmr_list;
+    swtmr_list = _Dos_Swtmr_OverFlowPtr;
+    _Dos_Swtmr_OverFlowPtr =_Dos_SwtmrPtr;
+    _Dos_SwtmrPtr = swtmr_list;
+}
 
 static void _Dos_SwtmrStart(Dos_Swtmr_t swtmr)
 {
@@ -28,15 +35,14 @@ static void _Dos_SwtmrStart(Dos_Swtmr_t swtmr)
 
     if(swtmr->WakeTime < cur_time)  /** overflow */
     {
-        swtmr_item = _Dos_Swtmr_OverFlowPtr;
+        for(swtmr_item = _Dos_Swtmr_OverFlowPtr; 
+            (swtmr_item->Next->WakeTime) <= swtmr->WakeTime; 
+            swtmr_item = swtmr_item->Next);
     }
-
     else if(swtmr->WakeTime == 0xFFFFFFFF)  /** Insert the start of the overflow list */
     {
-        swtmr->WakeTime = 0;
-        swtmr_item = _Dos_Swtmr_OverFlowPtr;
+        swtmr_item = _Dos_SwtmrPtr->Prev;
     }
-
     else    /** at normal value */
     {
         for(swtmr_item = _Dos_SwtmrPtr; 
@@ -51,6 +57,7 @@ static void _Dos_SwtmrStart(Dos_Swtmr_t swtmr)
 
     swtmr->Status = DOS_SWTMR_STATUS_RUNNING;
 }
+
 
 static void _Dos_SwtmrStop(Dos_Swtmr_t swtmr)
 {
@@ -67,6 +74,56 @@ static void _Dos_SwtmrStop(Dos_Swtmr_t swtmr)
     swtmr->Next = swtmr;
 }
 
+
+dos_err Dos_SwtmrDelete(Dos_Swtmr_t swtmr)
+{
+   dos_err err = DOS_NOK;
+
+   if(DOS_NULL == swtmr)
+   {
+       DOS_PRINT_ERR("unable to delete, swtmr is null\n");
+       return DOS_NOK;
+   }
+
+   switch (swtmr->Status)
+   {
+       case DOS_SWTMR_STATUS_UNUSED:
+//            goto out;
+           break;
+           
+       case DOS_SWTMR_STATUS_CREATE:
+       case DOS_SWTMR_STATUS_STOP:
+//            goto delete;
+           break;
+
+       default:
+           break;
+   }
+
+//stop:
+////    _Dos_SwtmrStop(swtmr);
+
+//delete:
+
+
+//out:
+   return err;
+}
+
+dos_err _Dos_Swtmr_MakeMsg(Dos_Swtmr_t swtmr, dos_uint32 op)
+{
+    struct Dos_SwtmrMsg swtmr_msg;
+    if((swtmr == DOS_NULL) && (op != Dos_Swtmr_OpOverFlow) )
+    {
+        DOS_PRINT_DEBUG("the software timer to be started is null\n")
+        return DOS_NOK;
+    }
+
+    swtmr_msg.Option = op;
+    swtmr_msg.Swtmr = swtmr;
+
+    return Dos_QueueWrite(_Dos_SwtmrQueue, &swtmr_msg, sizeof(struct Dos_SwtmrMsg), 0);
+}
 
 dos_uint32 _Dos_GetSwtmr_WakeTime(void)
 {
@@ -92,88 +149,78 @@ dos_void _Dos_SwtmrTimeout_Handle(Dos_Swtmr_t swtmr)
 }
 
 
-dos_void Swtmr_CallBacke1(dos_void *Parameter)
+dos_void _Dos_Swtmr_CmdHandle(Dos_SwtmrMsg_t msg)
 {
-    printf("abc1\n");
-}
-Dos_Swtmr_t swtmr1;
-
-dos_void Swtmr_CallBacke2(dos_void *Parameter)
-{
-    printf("abc2\n");
-}
-Dos_Swtmr_t swtmr2;
-
-dos_void Swtmr_CallBacke3(dos_void *Parameter)
-{
-    printf("abc3\n");
-}
-Dos_Swtmr_t swtmr3;
-
-
-dos_err _Dos_Swtmr_Wait(void)
-{
-    dos_err err;
-    Dos_Swtmr_t wake_swtmr;
-    dos_uint32 cur_time, wait_time;
-    struct Dos_SwtmrMsg swtmr_msg;
-  
-    wake_swtmr = _Dos_GetSwtmr();
-    cur_time = Dos_Get_Tick();
-
-    if(wake_swtmr == _Dos_SwtmrPtr)
+    switch (msg->Option)
     {
-        wait_time = DOS_WAIT_FOREVER;
-    }
-    else
-    {
-        wait_time = wake_swtmr->WakeTime-cur_time;
-    }
+        case Dos_Swtmr_OpStart:
+            if(msg->Swtmr->Status == DOS_SWTMR_STATUS_RUNNING)
+            {
+                _Dos_SwtmrStop(msg->Swtmr);
+            }
+            _Dos_SwtmrStart(msg->Swtmr);
+            break;
 
-    err = Dos_QueueRead(_Dos_SwtmrQueue, &swtmr_msg, sizeof(struct Dos_SwtmrMsg), wait_time);
-    return err;
+        case Dos_Swtmr_OpStop:
+            if(msg->Swtmr->Status == DOS_SWTMR_STATUS_RUNNING)
+            {
+                _Dos_SwtmrStop(msg->Swtmr);
+            }
+            break;
+
+        case Dos_Swtmr_OpOverFlow:
+            _Dos_SwitchList();
+            break;
+
+        case Dos_Swtmr_OpDelete:
+            Dos_SwtmrDelete(msg->Swtmr);
+            break;      
+
+        default:
+            break;
+    }
 }
 
 
 static void _Dos_SwtmrTask(void *Parameter)
 {
-//    Dos_TaskSleep(100);
-    swtmr1 = Dos_SwtmrCreate(1000,Dos_Swtmr_PeriodMode,Swtmr_CallBacke1,DOS_NULL);
-    swtmr2 = Dos_SwtmrCreate(2000,Dos_Swtmr_PeriodMode,Swtmr_CallBacke2,DOS_NULL);
-    swtmr3 = Dos_SwtmrCreate(500,Dos_Swtmr_PeriodMode,Swtmr_CallBacke3,DOS_NULL);
-    _Dos_SwtmrStart(swtmr1);
-    // _Dos_SwtmrStart(swtmr2);
-    // _Dos_SwtmrStart(swtmr3);
     dos_err err;
     Dos_Swtmr_t wake_swtmr;
-    dos_uint32 cur_time;
+    dos_uint32 cur_time, wait_time;
+    struct Dos_SwtmrMsg swtmr_msg;
 
     for( ; ; )
     {
-        err = _Dos_Swtmr_Wait();
+        wake_swtmr = _Dos_GetSwtmr();
+        cur_time = Dos_Get_Tick();
+
+        if(wake_swtmr == _Dos_SwtmrPtr)
+        {
+            wait_time = DOS_WAIT_FOREVER;
+        }
+        else
+        {
+            wait_time = wake_swtmr->WakeTime-cur_time;
+        }
+        
+        err = Dos_QueueRead(_Dos_SwtmrQueue, &swtmr_msg, sizeof(struct Dos_SwtmrMsg), wait_time);
         if(err == DOS_NOK)  /** software timer timeout */
         {
-            cur_time = Dos_Get_Tick();
-            wake_swtmr = _Dos_GetSwtmr();
             while (cur_time >= wake_swtmr->WakeTime)
             {
                 _Dos_SwtmrTimeout_Handle(wake_swtmr);
                 wake_swtmr = _Dos_GetSwtmr();
-                Dos_TaskSleep(20);
+                cur_time = Dos_Get_Tick();
             }
         }
         else
         {
-            /* code */
+            _Dos_Swtmr_CmdHandle(&swtmr_msg);
         }
-        
-
-
-//        DOS_PRINT_DEBUG("swtmr task running\n");
-//        Dos_TaskSleep(1000);
     }
 }
 
+/********************************************************************************************************/
 
 dos_void _Dos_Swtmr_ItemInit(Dos_Swtmr_t swtmr)
 {
@@ -251,41 +298,20 @@ Dos_Swtmr_t Dos_SwtmrCreate(dos_uint32 timeout, dos_uint16 mode, Swtmr_CallBacke
 }
 
 
-dos_err Dos_SwtmrDelete(Dos_Swtmr_t swtmr)
+dos_err Dos_SwtmrStart(Dos_Swtmr_t swtmr)
 {
-   dos_err err = DOS_NOK;
-
-   if(DOS_NULL == swtmr)
-   {
-       DOS_PRINT_ERR("unable to delete, swtmr is null\n");
-       return DOS_NOK;
-   }
-
-   switch (swtmr->Status)
-   {
-       case DOS_SWTMR_STATUS_UNUSED:
-//            goto out;
-           break;
-           
-       case DOS_SWTMR_STATUS_CREATE:
-       case DOS_SWTMR_STATUS_STOP:
-//            goto delete;
-           break;
-
-       default:
-           break;
-   }
-
-//stop:
-////    _Dos_SwtmrStop(swtmr);
-
-//delete:
-
-
-//out:
-   return err;
+    return _Dos_Swtmr_MakeMsg(swtmr, Dos_Swtmr_OpStart);
 }
 
+dos_err Dos_SwtmrStop(Dos_Swtmr_t swtmr)
+{
+    return _Dos_Swtmr_MakeMsg(swtmr, Dos_Swtmr_OpStop);    
+}
+
+dos_err Dos_Swtmr_OverFlow(void)
+{
+    return _Dos_Swtmr_MakeMsg(DOS_NULL, Dos_Swtmr_OpOverFlow);    
+}
 
 
 

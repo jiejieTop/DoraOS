@@ -19,8 +19,9 @@ enum Dos_Swtmr_Option
     Dos_Swtmr_OpStart = 0x01,
     Dos_Swtmr_OpStop = 0x02,
     Dos_Swtmr_OpDelete = 0x04,
-    Dos_Swtmr_OpReset = 0x08,     /** This operation option is reserved */
-    Dos_Swtmr_OpMask = 0x0f,
+    Dos_Swtmr_OpOverFlow = 0x08,
+    Dos_Swtmr_OpReset = 0x10,     /** This operation option is reserved */
+    Dos_Swtmr_OpMask = 0xff,
 };
 
 #define     DOS_SWTMR_STATUS_UNUSED     0x00
@@ -53,5 +54,7 @@ typedef struct Dos_SwtmrMsg * Dos_SwtmrMsg_t;
 
 dos_err Dos_SwtmrInit(void);
 Dos_Swtmr_t Dos_SwtmrCreate(dos_uint32 timeout, dos_uint16 mode, Swtmr_CallBacke cb, dos_void *param);
-
+dos_err Dos_SwtmrStart(Dos_Swtmr_t swtmr);
+dos_err Dos_SwtmrStop(Dos_Swtmr_t swtmr);
+dos_err Dos_Swtmr_OverFlow(void);
 #endif // !_SWTMR_H_
