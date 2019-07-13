@@ -533,16 +533,16 @@ DOS_TaskCB_t Dos_Get_NextTCB(Dos_TaskList_t *list)
  */
 dos_uint32 Dos_Get_Tick(void)
 {
-  dos_uint32 dos_cur_tick;
-  dos_uint32 pri;
+  // dos_uint32 dos_cur_tick;
+  // dos_uint32 pri;
 
-  pri = Dos_Interrupt_Disable();
+  // pri = Dos_Interrupt_Disable();
   
-  dos_cur_tick = Dos_TickCount;
+  // dos_cur_tick = Dos_TickCount;
   
-  Dos_Interrupt_Enable(pri);
+  // Dos_Interrupt_Enable(pri);
   
-  return dos_cur_tick;
+  return Dos_TickCount;
 }
 
 /**
@@ -747,6 +747,7 @@ dos_bool Dos_Scheduler_IsLock(void)
 /**
  * update system tick
  */
+extern dos_err Dos_Swtmr_OverFlow(void);
 void Dos_Update_Tick(void)
 {
   DOS_TaskCB_t dos_task;
@@ -758,6 +759,8 @@ void Dos_Update_Tick(void)
   {
     /** When time overflows, switch list */
     _Dos_Switch_SleepList();
+    /** Notify the software timer of overflow */
+    Dos_Swtmr_OverFlow(); 
   }
   
   /** When a timeout event occurs, such as sleep timeout, waiting for message queue, semaphore, mutex, event timeout ect */
