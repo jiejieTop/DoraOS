@@ -128,9 +128,9 @@ void test1_task(void *Parameter)
   
   printf("task1 start swtmr\n");
   
-//  Dos_SwtmrStart(swtmr1);
-//  Dos_SwtmrStart(swtmr2);
-//  Dos_SwtmrStart(swtmr3);
+  Dos_SwtmrStart(swtmr1);
+  Dos_SwtmrStart(swtmr2);
+  Dos_SwtmrStart(swtmr3);
 ////  Dos_EventWait(event, 2, WAIT_ANY_EVENT, 5000);
 //  
 //  Dos_EventSet(event, 5);

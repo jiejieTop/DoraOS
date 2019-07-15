@@ -4,7 +4,7 @@
 #include <dos_config.h>
 
 
-static void _Dos_QueueCopy(Dos_Queue_t queue, void *buff, size_t size, dos_uint8 op)
+static dos_void _Dos_QueueCopy(Dos_Queue_t queue, dos_void *buff, dos_size size, dos_uint8 op)
 {
     switch (op)
     {
@@ -38,7 +38,7 @@ static void _Dos_QueueCopy(Dos_Queue_t queue, void *buff, size_t size, dos_uint8
  * op    : 0 is read, 1 is wirte
  * timeout : tick
  */
-static dos_err _Dos_Queuehandler(Dos_Queue_t queue, void *buff, size_t size, dos_uint8 op, dos_uint32 timeout)
+static dos_err _Dos_Queuehandler(Dos_Queue_t queue, dos_void *buff, dos_size size, dos_uint8 op, dos_uint32 timeout)
 {
     DOS_TaskCB_t task;
     dos_err err;
@@ -194,7 +194,7 @@ dos_err Dos_QueueDelete(Dos_Queue_t queue)
 /**
  * Read data from the queue
  */
-dos_err Dos_QueueRead(Dos_Queue_t queue, void *buff, size_t size, dos_uint32 timeout)
+dos_err Dos_QueueRead(Dos_Queue_t queue, dos_void *buff, dos_size size, dos_uint32 timeout)
 {
     return _Dos_Queuehandler(queue, buff, size, QUEUE_READ, timeout);
 }
@@ -202,7 +202,7 @@ dos_err Dos_QueueRead(Dos_Queue_t queue, void *buff, size_t size, dos_uint32 tim
 /**
  * Write data to the queue
  */
-dos_err Dos_QueueWrite(Dos_Queue_t queue, void *buff, size_t size, dos_uint32 timeout)
+dos_err Dos_QueueWrite(Dos_Queue_t queue, dos_void *buff, dos_size size, dos_uint32 timeout)
 {
     return _Dos_Queuehandler(queue, buff, size, QUEUE_WRITE, timeout);
 }
