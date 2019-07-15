@@ -33,17 +33,17 @@ Dos_Event_t event = DOS_NULL;
 
 dos_void Swtmr_CallBacke1(dos_void *Parameter)
 {
-    printf("%d\n",Dos_Get_Tick());
+    printf("Swtmr_CallBacke1 %d\n",Dos_Get_Tick());
 }
 Dos_Swtmr_t swtmr1;
 dos_void Swtmr_CallBacke2(dos_void *Parameter)
 {
-    printf("%d\n",Dos_Get_Tick());
+    printf("Swtmr_CallBacke2 %d\n",Dos_Get_Tick());
 }
 Dos_Swtmr_t swtmr2;
 dos_void Swtmr_CallBacke3(dos_void *Parameter)
 {
-    printf("%d\n",Dos_Get_Tick());
+    printf("Swtmr_CallBacke3 %d\n",Dos_Get_Tick());
 }
 Dos_Swtmr_t swtmr3;
 /**
@@ -113,7 +113,10 @@ void test_task(void *Parameter)
 //      Dos_Interrupt_Enable(0);
 //    }
 //    
-    Dos_TaskSleep(3000);
+    Dos_TaskSleep(9000);
+    
+    printf("delete swtmr1\n");
+    Dos_SwtmrDelete(swtmr1);
     
   }
 }

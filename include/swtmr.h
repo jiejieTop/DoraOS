@@ -56,5 +56,6 @@ dos_err Dos_SwtmrInit(void);
 Dos_Swtmr_t Dos_SwtmrCreate(dos_uint32 timeout, dos_uint16 mode, Swtmr_CallBacke cb, dos_void *param);
 dos_err Dos_SwtmrStart(Dos_Swtmr_t swtmr);
 dos_err Dos_SwtmrStop(Dos_Swtmr_t swtmr);
+dos_err Dos_SwtmrDelete(Dos_Swtmr_t swtmr);
 dos_err Dos_Swtmr_OverFlow(void);
 #endif // !_SWTMR_H_

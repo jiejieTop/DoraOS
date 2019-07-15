@@ -75,7 +75,7 @@ static void _Dos_SwtmrStop(Dos_Swtmr_t swtmr)
 }
 
 
-dos_err Dos_SwtmrDelete(Dos_Swtmr_t swtmr)
+dos_err _Dos_SwtmrDelete(Dos_Swtmr_t swtmr)
 {
    dos_err err = DOS_NOK;
 
@@ -88,26 +88,25 @@ dos_err Dos_SwtmrDelete(Dos_Swtmr_t swtmr)
    switch (swtmr->Status)
    {
        case DOS_SWTMR_STATUS_UNUSED:
-//            goto out;
-           break;
+            goto out;
            
        case DOS_SWTMR_STATUS_CREATE:
        case DOS_SWTMR_STATUS_STOP:
-//            goto delete;
-           break;
+            goto delete;
 
-       default:
-           break;
+        case DOS_SWTMR_STATUS_RUNNING:
+            goto stop;
    }
 
-//stop:
-////    _Dos_SwtmrStop(swtmr);
+stop:
+   _Dos_SwtmrStop(swtmr);
 
-//delete:
+delete:
+    Dos_MemFree(swtmr);
+    memset(swtmr, 0, sizeof(struct Dos_Swtmr));
+out:
 
-
-//out:
-   return err;
+    return err;
 }
 
 dos_err _Dos_Swtmr_MakeMsg(Dos_Swtmr_t swtmr, dos_uint32 op)
@@ -173,7 +172,7 @@ dos_void _Dos_Swtmr_CmdHandle(Dos_SwtmrMsg_t msg)
             break;
 
         case Dos_Swtmr_OpDelete:
-            Dos_SwtmrDelete(msg->Swtmr);
+            _Dos_SwtmrDelete(msg->Swtmr);
             break;      
 
         default:
@@ -206,6 +205,7 @@ static void _Dos_SwtmrTask(void *Parameter)
         err = Dos_QueueRead(_Dos_SwtmrQueue, &swtmr_msg, sizeof(struct Dos_SwtmrMsg), wait_time);
         if(err == DOS_NOK)  /** software timer timeout */
         {
+            cur_time = Dos_Get_Tick();
             while (cur_time >= wake_swtmr->WakeTime)
             {
                 _Dos_SwtmrTimeout_Handle(wake_swtmr);
@@ -306,6 +306,11 @@ dos_err Dos_SwtmrStart(Dos_Swtmr_t swtmr)
 dos_err Dos_SwtmrStop(Dos_Swtmr_t swtmr)
 {
     return _Dos_Swtmr_MakeMsg(swtmr, Dos_Swtmr_OpStop);    
+}
+
+dos_err Dos_SwtmrDelete(Dos_Swtmr_t swtmr)
+{
+    return _Dos_Swtmr_MakeMsg(swtmr, Dos_Swtmr_OpDelete);    
 }
 
 dos_err Dos_Swtmr_OverFlow(void)
