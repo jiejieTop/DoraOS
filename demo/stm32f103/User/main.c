@@ -14,6 +14,7 @@
 #include <mutex.h>
 #include <event.h>
 #include <swtmr.h>
+#include <fifo.h>
 /**
   ******************************************************************
 													   变量声明
@@ -30,6 +31,8 @@ Dos_Queue_t queue = DOS_NULL;
 Dos_Sem_t sem = DOS_NULL;
 Dos_Mutex_t mutex = DOS_NULL;
 Dos_Event_t event = DOS_NULL;
+Dos_Fifo_t fifo = DOS_NULL;
+
 
 dos_void Swtmr_CallBacke1(dos_void *Parameter)
 {
@@ -57,7 +60,7 @@ static void BSP_Init(void);
 void test_task(void *Parameter)
 {
   dos_err ret;
-//  dos_uint8 buff[20];
+  dos_uint8 buff[20] = "abcdefg";
 //  Dos_TaskSleep(1800);
 //  Dos_TaskSleep(30);
 //  Dos_EventWait(event, 1, WAIT_ANY_EVENT, DOS_WAIT_FOREVER - 1);
@@ -85,7 +88,10 @@ void test_task(void *Parameter)
   while(1)
   {
 //    Dos_Interrupt_Disable();
-    printf("task pend mutex\n");
+    printf("task fifo write\n");
+//    ret = Dos_FifoWrite(fifo, buff, sizeof(buff), 0);
+    
+    printf("ret = %d\n",ret);
 //    Dos_Interrupt_Enable(0);
 //    ret = Dos_MutexPend(mutex, DOS_WAIT_FOREVER);
 //    Dos_Interrupt_Disable();
@@ -122,7 +128,7 @@ void test_task(void *Parameter)
 }
 void test1_task(void *Parameter)
 {
-//  dos_uint8 buff[20] = "ASFASF";
+  dos_uint8 buff[20];
 //  
 //  Dos_TaskSleep(2800);
   
@@ -154,8 +160,13 @@ void test1_task(void *Parameter)
   {
     Dos_Interrupt_Disable();
 ////    DOS_PRINT_DEBUG("123\n");
-    printf("task1 runing\n");
+    printf("task1 fifo read\n");
     Dos_Interrupt_Enable(0);
+    
+    Dos_FifoRead(fifo, buff, sizeof(buff), 0);
+    
+    printf("task1 fifo read : %s\n",buff);
+    
 //    Delay_ms(10);
     Dos_TaskSleep(1000);
   }
@@ -248,6 +259,8 @@ int main(void)
   sem = Dos_BinarySem_Create(0);
   mutex = Dos_MutexCreate();
   event = Dos_EventCreate();
+  
+  fifo = Dos_FifoCreate(1024);
   
   swtmr1 = Dos_SwtmrCreate(1000,Dos_Swtmr_PeriodMode,Swtmr_CallBacke1,DOS_NULL);
   swtmr2 = Dos_SwtmrCreate(1000,Dos_Swtmr_PeriodMode,Swtmr_CallBacke2,DOS_NULL);
