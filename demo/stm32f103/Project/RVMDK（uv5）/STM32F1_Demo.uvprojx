@@ -339,7 +339,7 @@
               <MiscControls>--c99</MiscControls>
               <Define>STM32F10X_HD, USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\bsp;..\..\..\..\include;..\..\..\..\include\config;..\..\..\..\include\mem;..\..\..\..\include\port;..\..\..\..\include\port\cmsis</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\bsp;..\..\..\..\include;..\..\..\..\include\config;..\..\..\..\include\mem;..\..\..\..\include\port;..\..\..\..\include\port\cmsis;..\..\..\..\include\common</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -627,6 +627,16 @@
               <FileName>port.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\port\arm\cortex-m3\port.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>dos/common</GroupName>
+          <Files>
+            <File>
+              <FileName>fifo.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\..\..\common\fifo.c</FilePath>
             </File>
           </Files>
         </Group>
