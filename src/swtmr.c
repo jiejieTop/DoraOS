@@ -244,7 +244,12 @@ dos_err Dos_SwtmrInit(void)
         return DOS_NOK;
     }
 
-    _Dos_SwtmrTCB = Dos_TaskCreate("Swtmr_Task", &_Dos_SwtmrTask, DOS_NULL, 512, 0);
+    _Dos_SwtmrTCB = Dos_TaskCreate("Swtmr_Task",
+                                    &_Dos_SwtmrTask,
+                                    DOS_NULL, 
+                                    DOS_SWTMR_TASK_SIZE, 
+                                    DOS_SWTMR_TASK_PRIORITY, 
+                                    DOS_SWTMR_TASK_TICK);
     if(_Dos_SwtmrTCB == DOS_NULL)
     {
         DOS_PRINT_DEBUG("swtmr task is null\n");

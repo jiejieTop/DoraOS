@@ -225,8 +225,17 @@ static dos_bool _Dos_Cheek_TaskPriority(void)
   
   /** there are more tasks in the current task priority list */
   else if(Dos_Get_TaskListValue(&Dos_TaskPriority_List[Dos_CurrentTCB->Priority]) > 1)
-    return DOS_TRUE;
-
+  {
+    if(--Dos_CurrentTCB->TaskTick == 0)
+    {
+      Dos_CurrentTCB->TaskTick = Dos_CurrentTCB->TaskInitTick;
+      return DOS_TRUE;
+    }
+    else
+    {
+      return DOS_FALSE;
+    }
+  }
   /** No task schedul */
   else
     return DOS_FALSE;
@@ -252,7 +261,8 @@ static void _Dos_Create_IdleTask(void)
                                 &_Dos_IdleTask,
                                 DOS_NULL,
                                 DOS_IDLE_TASK_SIZE,
-                                DOS_IDLE_TASK_PRIORITY);
+                                DOS_IDLE_TASK_PRIORITY,
+                                DOS_IDLE_TASK_TICK);
   if(DOS_NULL == Dos_IdleTCB)
   {
     DOS_PRINT_ERR("Dos_IdleTCB is NULL!\n");
@@ -334,7 +344,8 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
                             void (*dos_task_entry)(void *dos_param),
                             void * const dos_param,
                             dos_uint32 dos_stack_size,
-                            dos_uint16 dos_priority)
+                            dos_uint16 dos_priority,
+                            dos_uint32 dos_tick)
 {
   DOS_TaskCB_t dos_taskcb;
   dos_void *dos_stack;
@@ -356,6 +367,10 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
       return DOS_NULL;
     }
 
+    if(dos_tick == 0)
+    {
+      dos_tick = 1;
+    }
     /** Initialize list item and task control block information */
     Dos_TaskItem_Init(&dos_taskcb->StateItem);
     Dos_TaskItem_Init(&dos_taskcb->PendItem);
@@ -365,6 +380,8 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
     dos_taskcb->StackSize = dos_stack_size;
     /** Insert in ascending order of priority in the pend list */
     dos_taskcb->PendItem.Dos_TaskValue = dos_priority;  
+    dos_taskcb->TaskInitTick = dos_tick;
+    dos_taskcb->TaskTick = dos_tick;
     dos_taskcb->WaitEvent = 0;
     dos_taskcb->WaitEventOp = 0;
   }

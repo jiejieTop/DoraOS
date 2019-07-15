@@ -59,7 +59,7 @@ void test_task(void *Parameter)
   dos_err ret;
 //  dos_uint8 buff[20];
 //  Dos_TaskSleep(1800);
-  Dos_TaskSleep(30);
+//  Dos_TaskSleep(30);
 //  Dos_EventWait(event, 1, WAIT_ANY_EVENT, DOS_WAIT_FOREVER - 1);
   
 //  printf("task event end\n");
@@ -113,10 +113,10 @@ void test_task(void *Parameter)
 //      Dos_Interrupt_Enable(0);
 //    }
 //    
-    Dos_TaskSleep(9000);
+    Dos_TaskSleep(1000);
     
-    printf("delete swtmr1\n");
-    Dos_SwtmrDelete(swtmr1);
+//    printf("delete swtmr1\n");
+//    Dos_SwtmrDelete(swtmr1);
     
   }
 }
@@ -128,12 +128,12 @@ void test1_task(void *Parameter)
   
   printf("task1 start swtmr\n");
   
-  Dos_SwtmrStart(swtmr1);
-  Dos_SwtmrStart(swtmr2);
-  Dos_SwtmrStart(swtmr3);
-//  Dos_EventWait(event, 2, WAIT_ANY_EVENT, 5000);
-  
-  Dos_EventSet(event, 5);
+//  Dos_SwtmrStart(swtmr1);
+//  Dos_SwtmrStart(swtmr2);
+//  Dos_SwtmrStart(swtmr3);
+////  Dos_EventWait(event, 2, WAIT_ANY_EVENT, 5000);
+//  
+//  Dos_EventSet(event, 5);
 //  printf("task1 write queue1\n");
 //  
 ////  Dos_TaskDelete(task);
@@ -152,12 +152,12 @@ void test1_task(void *Parameter)
 //  Dos_SemWait(sem, DOS_WAIT_FOREVER);
   while(1)
   {
-//    Dos_Interrupt_Disable();
+    Dos_Interrupt_Disable();
 ////    DOS_PRINT_DEBUG("123\n");
     printf("task1 runing\n");
-//    Dos_Interrupt_Enable(0);
-////    Delay_ms(1000);
-    Dos_TaskSleep(2000);
+    Dos_Interrupt_Enable(0);
+//    Delay_ms(10);
+    Dos_TaskSleep(1000);
   }
 }
 void test2_task(void *Parameter)
@@ -184,9 +184,9 @@ void test2_task(void *Parameter)
 //  printf("task2 queue start1\n");
   while(1)
   {
-//    Dos_Interrupt_Disable();
+    Dos_Interrupt_Disable();
     printf("task2 pend mutex\n");
-//    Dos_Interrupt_Enable(0);
+    Dos_Interrupt_Enable(0);
 //    ret = Dos_MutexPend(mutex, DOS_WAIT_FOREVER);
 //    Dos_Interrupt_Disable();
 //    if(ret == DOS_OK)
@@ -201,7 +201,7 @@ void test2_task(void *Parameter)
 ////    Dos_Interrupt_Disable();
 ////    DOS_PRINT_DEBUG("456\n");
 ////    Dos_Interrupt_Enable(0);
-////    Delay_ms(1000);
+//    Delay_ms(10);
 //    
 //    for(i=0;i<2000000;i++)
 //		{
@@ -256,7 +256,8 @@ int main(void)
                   &test_task,
                   DOS_NULL,
                   512,
-                  2);
+                  2,
+                  20);
   DOS_PRINT_DEBUG("&task = %#x",(dos_uint32)task);
   DOS_PRINT_DEBUG("&task->StateItem = %#x",(dos_uint32)&(task->StateItem));
   
@@ -264,13 +265,15 @@ int main(void)
                 &test1_task,
                 DOS_NULL,
                 512,
-                3);
+                3,
+                0);
                 
   task2 = Dos_TaskCreate( "task2",
                 &test2_task,
                 DOS_NULL,
                 512,
-                4);
+                4,
+                200);
                 
   p1 = Dos_MemAlloc(16);  
   p3 = Dos_MemAlloc(512);

@@ -80,7 +80,8 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
                             void (*dos_task_entry)(void *dos_param),
                             void * const dos_param,
                             dos_uint32 dos_stack_size,
-                            dos_uint16 dos_priority);
+                            dos_uint16 dos_priority,
+                            dos_uint32 dos_tick);
 dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task);
 dos_uint32 Dos_Get_Tick(void);         
 void Dos_Start( void );
