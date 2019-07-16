@@ -114,7 +114,7 @@ dos_err _Dos_Swtmr_MakeMsg(Dos_Swtmr_t swtmr, dos_uint32 op)
     struct Dos_SwtmrMsg swtmr_msg;
     if((swtmr == DOS_NULL) && (op != Dos_Swtmr_OpOverFlow) )
     {
-        DOS_PRINT_DEBUG("the software timer to be started is null\n")
+        DOS_PRINT_DEBUG("the software timer to be started is null\n");
         return DOS_NOK;
     }
 
