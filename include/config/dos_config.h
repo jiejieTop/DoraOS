@@ -14,7 +14,7 @@
 #define         DOS_LOGO                        DOS_LOGO_BIG    /** Choose big logo or small logo */
 
 #define         DOS_IDLE_TASK_PRIORITY          (DOS_MAX_PRIORITY_NUM - 1U)
-#define         DOS_IDLE_TASK_SIZE              (128U)
+#define         DOS_IDLE_TASK_SIZE              (512U)
 #define         DOS_IDLE_TASK_TICK              (20U)
 
 #define         DOS_SWTMR_TASK_PRIORITY         (0U)

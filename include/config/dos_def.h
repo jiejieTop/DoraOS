@@ -26,6 +26,9 @@ typedef float                           dos_float;
 typedef double                          dos_double;
 typedef char                            dos_char;
 
+//typedef unsigned long                   dos_uint32;
+//typedef signed long                     dos_int32;
+
 typedef unsigned long long              dos_uint64;	/* 64-bit signed integer     */
 typedef signed long long                dos_int64;
 

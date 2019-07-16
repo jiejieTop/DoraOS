@@ -12,29 +12,30 @@
 * @name Debug print 
 * @{
 */
- #include <stdio.h>
- 
-#define DOS_PRINT_DEBUG_ENABLE		0		
-#define DOS_PRINT_ERR_ENABLE			1 	
-#define DOS_PRINT_INFO_ENABLE			1		
+#include <stdio.h>
+#include <salof.h>
+
+#define DOS_PRINT_DEBUG_ENABLE		1		
+#define DOS_PRINT_ERR_ENABLE			0 	
+#define DOS_PRINT_INFO_ENABLE			0		
 
 
 #if DOS_PRINT_DEBUG_ENABLE
-#define DOS_PRINT_DEBUG(fmt, args...)   do{(printf("\n[DEBUG] >> "), printf(fmt, ##args));}while(0)
+#define DOS_PRINT_DEBUG(fmt, args...)   do{(Dos_Salof("\n[DEBUG] >> "), Dos_Salof(fmt, ##args));}while(0)
 #else
-#define DOS_PRINT_DEBUG(fmt, args...)	     
+#define DOS_PRINT_DEBUG(fmt, ...)	     
 #endif
 
 #if DOS_PRINT_ERR_ENABLE
-#define DOS_PRINT_ERR(fmt, args...)     do{(printf("\n[ERR] >> "), printf(fmt, ##args));}while(0)     
+#define DOS_PRINT_ERR(fmt, ...)     do{(printf("\n[ERR] >> "), printf(fmt, ##args));}while(0)     
 #else
-#define DOS_PRINT_ERR(fmt, args...)	       
+#define DOS_PRINT_ERR(fmt, ...)	       
 #endif
 
 #if DOS_PRINT_INFO_ENABLE
-#define DOS_PRINT_INFO(fmt, args...)    do{(printf("\n[INFO] >> "), printf(fmt, ##args));}while(0)  
+#define DOS_PRINT_INFO(fmt, ...)    do{(printf("\n[INFO] >> "), printf(fmt, ##args));}while(0)  
 #else
-#define DOS_PRINT_INFO(fmt, args...)	       
+#define DOS_PRINT_INFO(fmt, ...)	       
 #endif
 
 /**@} */

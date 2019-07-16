@@ -246,9 +246,21 @@ static dos_bool _Dos_Cheek_TaskPriority(void)
  */
 static void _Dos_IdleTask(void *Parameter)
 {
+#if DOS_USE_SALOF
+  #include <fifo.h>
+  #include <string.h>
+  extern Dos_Fifo_t Dos_Salof_Fifo;
+  dos_int32 len;
+  dos_uint8 buff[256];
+#endif
   while(1)
   {
-    ;
+    len = Dos_FifoRead(Dos_Salof_Fifo, buff, sizeof(buff), 0);
+    if(len > 0)
+    {
+      printf("%s",buff);
+      memset(buff, 0, sizeof(buff));
+    }
   }
 }
 

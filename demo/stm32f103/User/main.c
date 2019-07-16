@@ -15,6 +15,7 @@
 #include <event.h>
 #include <swtmr.h>
 #include <fifo.h>
+#include <salof.h>
 /**
   ******************************************************************
 													   变量声明
@@ -33,20 +34,22 @@ Dos_Mutex_t mutex = DOS_NULL;
 Dos_Event_t event = DOS_NULL;
 Dos_Fifo_t fifo = DOS_NULL;
 
+extern Dos_Fifo_t Dos_Salof_Fifo;
+
 
 dos_void Swtmr_CallBacke1(dos_void *Parameter)
 {
-    printf("Swtmr_CallBacke1 %d\n",Dos_Get_Tick());
+    DOS_PRINT_DEBUG("Swtmr_CallBacke1 %d\n",Dos_Get_Tick());
 }
 Dos_Swtmr_t swtmr1;
 dos_void Swtmr_CallBacke2(dos_void *Parameter)
 {
-    printf("Swtmr_CallBacke2 %d\n",Dos_Get_Tick());
+    DOS_PRINT_DEBUG("Swtmr_CallBacke2 %d\n",Dos_Get_Tick());
 }
 Dos_Swtmr_t swtmr2;
 dos_void Swtmr_CallBacke3(dos_void *Parameter)
 {
-    printf("Swtmr_CallBacke3 %d\n",Dos_Get_Tick());
+    DOS_PRINT_DEBUG("Swtmr_CallBacke3 %d\n",Dos_Get_Tick());
 }
 Dos_Swtmr_t swtmr3;
 /**
@@ -84,19 +87,21 @@ void test_task(void *Parameter)
 //  printf("task queue end\n");
 //  printf("task sem start\n");
 //  Dos_SemWait(sem, DOS_WAIT_FOREVER);
-  printf("task sem end\n");
+  DOS_PRINT_DEBUG("task sem end\n");
   while(1)
   {
     Dos_Interrupt_Disable();
-    printf("task fifo write\n");
+    DOS_PRINT_DEBUG("task fifo write\n");
     
     Dos_Interrupt_Enable(0);
 //    Dos_TaskSleep(10);
-    ret = Dos_FifoWrite(fifo, buff, sizeof(buff), 0);
+//    ret = 1123;
+
+//    Dos_Salof("abcd %012d \n \r asfa, %s\n ",ret, buff);
     
-    Dos_Interrupt_Disable();
-    printf("writeable = %d\n",Dos_Fifo_WriteAble(fifo));
-    Dos_Interrupt_Enable(0);
+//    Dos_Interrupt_Disable();
+//    DOS_PRINT_DEBUG("writeable = %d\n",Dos_Fifo_WriteAble(Dos_Salof_Fifo));
+//    Dos_Interrupt_Enable(0);
     
 //    ret = Dos_MutexPend(mutex, DOS_WAIT_FOREVER);
 //    Dos_Interrupt_Disable();
@@ -133,11 +138,12 @@ void test_task(void *Parameter)
 }
 void test1_task(void *Parameter)
 {
-  dos_uint8 buff[20];
+  dos_int32 len;
+  dos_uint8 buff[200];
 //  
 //  Dos_TaskSleep(2800);
   
-  printf("task1 start swtmr\n");
+  DOS_PRINT_DEBUG("task1 start swtmr\n");
   
   Dos_SwtmrStart(swtmr1);
   Dos_SwtmrStart(swtmr2);
@@ -163,18 +169,28 @@ void test1_task(void *Parameter)
 //  Dos_SemWait(sem, DOS_WAIT_FOREVER);
   while(1)
   {
-    Dos_Interrupt_Disable();
-////    DOS_PRINT_DEBUG("123\n");
-    printf("task1 fifo read\n");
-    Dos_Interrupt_Enable(0);
-    
-    Dos_FifoRead(fifo, buff, sizeof(buff), 0);
-    
-    printf("readable = %d\n",Dos_Fifo_ReadAble(fifo));
-    printf("task1 fifo read : %s\n",buff);
-    memset(buff, 0, sizeof(buff));
+//    Dos_Interrupt_Disable();
+//////    DOS_PRINT_DEBUG("123\n");
+////    printf("task1 fifo read\n");
+//    Dos_Interrupt_Enable(0);
+//    
+//    len = Dos_FifoRead(Dos_Salof_Fifo, buff, sizeof(buff), 0);
+//    
+////    printf("readable = %d\n",Dos_Fifo_ReadAble(Dos_Salof_Fifo));
+
+//    Dos_Interrupt_Disable();
+//    if(len > 0)
+//    {
+//      printf("%s",buff);
+//      memset(buff, 0, sizeof(buff));
+//    }
+//    Dos_Interrupt_Enable(0);
 //    Delay_ms(10);
-    Dos_TaskSleep(500);
+    
+    Dos_Interrupt_Disable();
+    DOS_PRINT_DEBUG("task1 test\n");
+    Dos_Interrupt_Enable(0);
+    Dos_TaskSleep(2000);
   }
 }
 void test2_task(void *Parameter)
@@ -202,7 +218,7 @@ void test2_task(void *Parameter)
   while(1)
   {
     Dos_Interrupt_Disable();
-    printf("task2 pend mutex\n");
+    DOS_PRINT_DEBUG("task2 pend mutex\n");
     Dos_Interrupt_Enable(0);
 //    ret = Dos_MutexPend(mutex, DOS_WAIT_FOREVER);
 //    Dos_Interrupt_Disable();
@@ -267,7 +283,7 @@ int main(void)
   event = Dos_EventCreate();
   
   fifo = Dos_FifoCreate(1024);
-  
+  Dos_SalofInit();
   swtmr1 = Dos_SwtmrCreate(1000,Dos_Swtmr_PeriodMode,Swtmr_CallBacke1,DOS_NULL);
   swtmr2 = Dos_SwtmrCreate(1000,Dos_Swtmr_PeriodMode,Swtmr_CallBacke2,DOS_NULL);
   swtmr3 = Dos_SwtmrCreate(1000,Dos_Swtmr_PeriodMode,Swtmr_CallBacke3,DOS_NULL);
