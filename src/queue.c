@@ -21,7 +21,7 @@ static dos_void _Dos_QueueCopy(Dos_Queue_t queue, dos_void *buff, dos_size size,
         break;
     }
 
-    queue->QueueRWPtr[op] = (uint8_t *)queue->QueueRWPtr[op] + queue->QueueSize;
+    queue->QueueRWPtr[op] = (dos_uint8 *)queue->QueueRWPtr[op] + queue->QueueSize;
     if(queue->QueueRWPtr[op] == queue->QueueTPtr)
     {
         queue->QueueRWPtr[op] = queue->QueueHPtr;

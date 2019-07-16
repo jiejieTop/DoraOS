@@ -60,7 +60,7 @@ static void BSP_Init(void);
 void test_task(void *Parameter)
 {
   dos_err ret;
-  dos_uint8 buff[20] = "abcdefg";
+  dos_uint8 buff[] = "qwertyuiopasdfghjklzxcvbnm";
 //  Dos_TaskSleep(1800);
 //  Dos_TaskSleep(30);
 //  Dos_EventWait(event, 1, WAIT_ANY_EVENT, DOS_WAIT_FOREVER - 1);
@@ -84,15 +84,20 @@ void test_task(void *Parameter)
 //  printf("task queue end\n");
 //  printf("task sem start\n");
 //  Dos_SemWait(sem, DOS_WAIT_FOREVER);
-//  printf("task sem end\n");
+  printf("task sem end\n");
   while(1)
   {
-//    Dos_Interrupt_Disable();
+    Dos_Interrupt_Disable();
     printf("task fifo write\n");
-//    ret = Dos_FifoWrite(fifo, buff, sizeof(buff), 0);
     
-    printf("ret = %d\n",ret);
-//    Dos_Interrupt_Enable(0);
+    Dos_Interrupt_Enable(0);
+//    Dos_TaskSleep(10);
+    ret = Dos_FifoWrite(fifo, buff, sizeof(buff), 0);
+    
+    Dos_Interrupt_Disable();
+    printf("writeable = %d\n",Dos_Fifo_WriteAble(fifo));
+    Dos_Interrupt_Enable(0);
+    
 //    ret = Dos_MutexPend(mutex, DOS_WAIT_FOREVER);
 //    Dos_Interrupt_Disable();
 //    if(ret == DOS_OK)
@@ -119,7 +124,7 @@ void test_task(void *Parameter)
 //      Dos_Interrupt_Enable(0);
 //    }
 //    
-    Dos_TaskSleep(1000);
+    Dos_TaskSleep(2000);
     
 //    printf("delete swtmr1\n");
 //    Dos_SwtmrDelete(swtmr1);
@@ -165,10 +170,11 @@ void test1_task(void *Parameter)
     
     Dos_FifoRead(fifo, buff, sizeof(buff), 0);
     
+    printf("readable = %d\n",Dos_Fifo_ReadAble(fifo));
     printf("task1 fifo read : %s\n",buff);
-    
+    memset(buff, 0, sizeof(buff));
 //    Delay_ms(10);
-    Dos_TaskSleep(1000);
+    Dos_TaskSleep(500);
   }
 }
 void test2_task(void *Parameter)

@@ -54,15 +54,10 @@ Dos_Fifo_t Dos_FifoCreate(dos_size size)
 		size = _Dos_FifoAlign(size);
 	}
 
-    fifo = (Dos_Fifo_t)Dos_MemAlloc(sizeof(struct Dos_Fifo));
+    fifo = (Dos_Fifo_t)Dos_MemAlloc((sizeof(struct Dos_Fifo) + size));
     if(DOS_NULL != fifo)
     {
-        fifo->Buffer = (dos_void *)Dos_MemAlloc(size);
-        if(DOS_NULL == fifo->Buffer)
-        {
-            Dos_MemFree(fifo);  
-            return DOS_NULL;
-        }
+        fifo->Buffer = (dos_uint8 *)fifo + sizeof(struct Dos_Fifo);
 
         fifo->Mutex[FIFO_READ] = Dos_MutexCreate();
         if(DOS_NULL == fifo->Mutex[FIFO_READ])
@@ -155,3 +150,4 @@ dos_uint32 Dos_Fifo_WriteAble(Dos_Fifo_t fifo)
 {
     return (fifo->Size - Dos_Fifo_ReadAble(fifo));
 }
+
