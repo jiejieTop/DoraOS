@@ -174,7 +174,7 @@ dos_err Dos_MutexPost(Dos_Mutex_t mutex)
         mutex->MutexOwner = DOS_NULL;
     }
 
-    pri = Dos_Interrupt_Disable();
+     Dos_Interrupt_Enable(pri);
 
      return DOS_OK;
 }
