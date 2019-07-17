@@ -17,23 +17,22 @@ dos_void Dos_SalofInit(dos_void)
 dos_void Dos_Salof(const dos_char *fmt, ...)
 {
     va_list args;
+    va_start(args, fmt);
+#if DOS_USE_SALOF
     dos_int32 len;
     dos_char buff[DOS_SALOF_BUFF_SIZE];
 
-    va_start(args, fmt);
-
-    len = Dos_FormatNStr(buff, sizeof(buff), fmt, args);
+    len = Dos_FormatNStr(buff, DOS_SALOF_BUFF_SIZE - 1, fmt, args);
 
     if(len > DOS_SALOF_BUFF_SIZE)
         len = DOS_SALOF_BUFF_SIZE - 1;
-
-#if DOS_USE_SALOF
-    Dos_FifoWrite(Dos_Salof_Fifo, buff, len, 10);
+    
+    Dos_FifoWrite(Dos_Salof_Fifo, buff, len, 100);
 #else
-    printf("%s",buff);
+    Dos_FormatNStr(DOS_NULL, 0, fmt, args);
 #endif
 
-    va_end(args);
+  va_end(args);
 }
 
 

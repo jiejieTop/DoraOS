@@ -18,7 +18,7 @@
 #define         DOS_IDLE_TASK_TICK              (20U)
 
 #define         DOS_SWTMR_TASK_PRIORITY         (0U)
-#define         DOS_SWTMR_TASK_SIZE             (512U)
+#define         DOS_SWTMR_TASK_SIZE             (1024U)
 #define         DOS_SWTMR_TASK_TICK             (20U)
 
 #define         DOS_SYSTEM_CLOCK_HZ             (SystemCoreClock)
@@ -30,6 +30,8 @@
 #define         MEM_HEAP_SIZE                   (1024*30)
 
 #define         DOS_IPC_QUEUQ                   (1U)
+
+#define         DOS_LOG_COLOR                   (0U)
 
 
 #endif

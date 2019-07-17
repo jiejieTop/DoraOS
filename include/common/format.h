@@ -29,9 +29,11 @@
 #define F_SIGNED    0040    // is an unsigned number?
 #define F_SMALL     0100    // use lowercase for hex?
 
+#define is_digit(c) (c >= '0' && c <= '9')
 
-dos_int32 Dos_Format(const dos_char *format, ...);
-dos_int32 Dos_FormatStr(dos_char *buf, const dos_char *format, ...);
+extern int outputchar(char c);
+
+dos_int32 Dos_FormatOut(const dos_char *format, ...);
 dos_int32 Dos_FormatNStr(dos_char *buf, dos_size size, const dos_char *fmt, va_list ap);
 
 
