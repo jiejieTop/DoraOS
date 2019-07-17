@@ -248,6 +248,7 @@ static void _Dos_IdleTask(void *Parameter)
 {
 #if DOS_USE_SALOF
   #include <fifo.h>
+  #include <format.h>
   #include <string.h>
   extern Dos_Fifo_t Dos_Salof_Fifo;
   dos_int32 len;
@@ -255,12 +256,14 @@ static void _Dos_IdleTask(void *Parameter)
 #endif
   while(1)
   {
+#if DOS_USE_SALOF
     len = Dos_FifoRead(Dos_Salof_Fifo, buff, sizeof(buff), 0);
     if(len > 0)
     {
-      printf("%s",buff);
+      Dos_FormatOut("%s",buff);
       memset(buff, 0, sizeof(buff));
     }
+#endif
   }
 }
 

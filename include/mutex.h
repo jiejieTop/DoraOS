@@ -6,6 +6,7 @@
 #include <list.h>
 #include <task.h>
 
+
 struct Dos_Mutex
 {
     dos_uint16      MutexCnt;     /** pend mutex count */

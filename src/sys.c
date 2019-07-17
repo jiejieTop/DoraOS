@@ -1,6 +1,7 @@
 #include <sys.h>
 #include <task.h>
 #include <swtmr.h>
+#include <format.h>
 #include <dos_config.h>
 
 #define DOS_LOGO_BIG    0
@@ -46,7 +47,7 @@ static dos_char _DoraOS_Logo[] = "\r\n \
 #ifdef DOS_LOGO
 static void _Dos_PrintfLogo(void)
 {
-    printf("%s",_DoraOS_Logo);
+    Dos_FormatOut("%s",_DoraOS_Logo);
 }
 #endif 
 

@@ -7,9 +7,9 @@
 #include <sys.h>
 #include <dos_config.h>
 
-#ifndef     DOS_MAX_PRIORITY_NUM
-#define     DOS_MAX_PRIORITY_NUM        32U
-#endif
+//#ifndef     DOS_MAX_PRIORITY_NUM
+//#define     DOS_MAX_PRIORITY_NUM        32U
+//#endif
 
 #define     DOS_GET_STRUCT(ptr, type, member)   ((type *)((char *)(ptr) - (unsigned long)(&((type *)0)->member)))
 #define     DOS_GET_TCB(node)    DOS_GET_STRUCT(node, struct DOS_TaskCB, StateItem)

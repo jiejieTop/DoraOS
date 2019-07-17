@@ -16,6 +16,7 @@
 #include <swtmr.h>
 #include <fifo.h>
 #include <salof.h>
+#include <log.h>
 /**
   ******************************************************************
 													   变量声明
@@ -39,17 +40,20 @@ extern Dos_Fifo_t Dos_Salof_Fifo;
 
 dos_void Swtmr_CallBacke1(dos_void *Parameter)
 {
-    DOS_PRINT_DEBUG("Swtmr_CallBacke1 %d\n",Dos_Get_Tick());
+////  DOS_PRINT_DEBUG("T1- %d\n",Dos_Get_Tick());
+    DOS_LOG_ERR("Swtmr1 CallBack, tick = %d\n",Dos_Get_Tick());
 }
 Dos_Swtmr_t swtmr1;
 dos_void Swtmr_CallBacke2(dos_void *Parameter)
 {
-    DOS_PRINT_DEBUG("Swtmr_CallBacke2 %d\n",Dos_Get_Tick());
+//  DOS_PRINT_DEBUG("T2- %d\n",Dos_Get_Tick());
+    DOS_LOG_WARN("Swtmr2 CallBack, tick = %d\n",Dos_Get_Tick());
 }
 Dos_Swtmr_t swtmr2;
 dos_void Swtmr_CallBacke3(dos_void *Parameter)
 {
-    DOS_PRINT_DEBUG("Swtmr_CallBacke3 %d\n",Dos_Get_Tick());
+//  DOS_PRINT_DEBUG("T3- %d\n",Dos_Get_Tick());
+    DOS_LOG_INFO("Swtmr3 CallBack, tick = %d\n",Dos_Get_Tick());
 }
 Dos_Swtmr_t swtmr3;
 /**
@@ -87,13 +91,14 @@ void test_task(void *Parameter)
 //  printf("task queue end\n");
 //  printf("task sem start\n");
 //  Dos_SemWait(sem, DOS_WAIT_FOREVER);
-  DOS_PRINT_DEBUG("task sem end\n");
+//  DOS_PRINT_DEBUG("task sem end\n");
   while(1)
   {
-    Dos_Interrupt_Disable();
-    DOS_PRINT_DEBUG("task fifo write\n");
-    
-    Dos_Interrupt_Enable(0);
+//    Dos_Interrupt_Disable();
+//    DOS_PRINT_DEBUG("1- %d\n",Dos_Get_Tick());
+//    DOS_PRINT_DEBUG("task running, buff = %s \n",buff);
+    DOS_LOG_ERR("task running, tick = %d\n",Dos_Get_Tick());
+//    Dos_Interrupt_Enable(0);
 //    Dos_TaskSleep(10);
 //    ret = 1123;
 
@@ -129,7 +134,7 @@ void test_task(void *Parameter)
 //      Dos_Interrupt_Enable(0);
 //    }
 //    
-    Dos_TaskSleep(2000);
+    Dos_TaskSleep(1000);
     
 //    printf("delete swtmr1\n");
 //    Dos_SwtmrDelete(swtmr1);
@@ -143,7 +148,7 @@ void test1_task(void *Parameter)
 //  
 //  Dos_TaskSleep(2800);
   
-  DOS_PRINT_DEBUG("task1 start swtmr\n");
+//  DOS_PRINT_DEBUG("task1 start swtmr\n");
   
   Dos_SwtmrStart(swtmr1);
   Dos_SwtmrStart(swtmr2);
@@ -186,11 +191,11 @@ void test1_task(void *Parameter)
 //    }
 //    Dos_Interrupt_Enable(0);
 //    Delay_ms(10);
-    
-    Dos_Interrupt_Disable();
-    DOS_PRINT_DEBUG("task1 test\n");
-    Dos_Interrupt_Enable(0);
-    Dos_TaskSleep(2000);
+//    DOS_PRINT_DEBUG("2- %d\n",Dos_Get_Tick());
+//    Dos_Interrupt_Disable();
+    DOS_LOG_WARN("task1 running, tick = %d\n", Dos_Get_Tick());
+//    Dos_Interrupt_Enable(0);
+    Dos_TaskSleep(1000);
   }
 }
 void test2_task(void *Parameter)
@@ -217,9 +222,11 @@ void test2_task(void *Parameter)
 //  printf("task2 queue start1\n");
   while(1)
   {
-    Dos_Interrupt_Disable();
-    DOS_PRINT_DEBUG("task2 pend mutex\n");
-    Dos_Interrupt_Enable(0);
+//    DOS_PRINT_DEBUG("3- %d\n",Dos_Get_Tick());
+//    Dos_Interrupt_Disable();
+    DOS_LOG_INFO("task2 running, tick = %d\n", Dos_Get_Tick());
+    DOS_LOG_DEBUG("task2 running, tick = %d\n", Dos_Get_Tick());
+//    Dos_Interrupt_Enable(0);
 //    ret = Dos_MutexPend(mutex, DOS_WAIT_FOREVER);
 //    Dos_Interrupt_Disable();
 //    if(ret == DOS_OK)
@@ -290,7 +297,7 @@ int main(void)
   task = Dos_TaskCreate( "task",
                   &test_task,
                   DOS_NULL,
-                  512,
+                  1024,
                   2,
                   20);
   DOS_PRINT_DEBUG("&task = %#x",(dos_uint32)task);
@@ -299,14 +306,14 @@ int main(void)
   task1 = Dos_TaskCreate( "task1",
                 &test1_task,
                 DOS_NULL,
-                512,
+                1024,
                 3,
                 0);
                 
   task2 = Dos_TaskCreate( "task2",
                 &test2_task,
                 DOS_NULL,
-                512,
+                1024,
                 4,
                 200);
                 
