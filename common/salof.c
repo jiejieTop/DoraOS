@@ -5,8 +5,9 @@
 #include <fifo.h>
 #include <stdio.h>
 
-Dos_Fifo_t Dos_Salof_Fifo = DOS_NULL;
 
+Dos_Fifo_t Dos_Salof_Fifo = DOS_NULL;
+dos_char buff[DOS_SALOF_BUFF_SIZE];
 
 dos_void Dos_SalofInit(dos_void)
 {
@@ -17,22 +18,27 @@ dos_void Dos_SalofInit(dos_void)
 dos_void Dos_Salof(const dos_char *fmt, ...)
 {
     va_list args;
-    va_start(args, fmt);
-#if DOS_USE_SALOF
     dos_int32 len;
-    dos_char buff[DOS_SALOF_BUFF_SIZE];
+    // dos_char buff[DOS_SALOF_BUFF_SIZE];
+    va_start(args, fmt);
 
     len = Dos_FormatNStr(buff, DOS_SALOF_BUFF_SIZE - 1, fmt, args);
 
     if(len > DOS_SALOF_BUFF_SIZE)
         len = DOS_SALOF_BUFF_SIZE - 1;
-    
+
+#if DOS_USE_SALOF
     Dos_FifoWrite(Dos_Salof_Fifo, buff, len, 100);
 #else
-    Dos_FormatNStr(DOS_NULL, 0, fmt, args);
+    Dos_SalofOut(buff, len);
 #endif
 
   va_end(args);
+}
+
+dos_int32 Dos_SalofOut(dos_char *buf, dos_int32 len)
+{
+    return SendBuff(buf, len);
 }
 
 

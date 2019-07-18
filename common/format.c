@@ -1,5 +1,6 @@
 #include <format.h>
 
+
 static dos_int32 _Dos_Get_AtoI(const dos_char **str)
 {
     dos_int32 n;
@@ -10,17 +11,9 @@ static dos_int32 _Dos_Get_AtoI(const dos_char **str)
 
 static dos_void _Dos_Buff_Put_Char(dos_char *buf, dos_size *pos, dos_size max, dos_char c)
 {
-    if(buf)
-    {
-        if (*pos < max)
-            buf[(*pos)] = c;
-        (*pos)++;
-    }
-    else
-    {
-        if(c != '\0')
-            (void)outputchar(c);
-    }
+    if (*pos < max)
+        buf[(*pos)] = c;
+    (*pos)++;
 }
 
 

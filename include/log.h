@@ -30,6 +30,10 @@
 #include <salof.h>
 #include <dos_config.h>
 
+#if DOS_LOG_TS || DOS_LOG_TAR
+#include <task.h>
+#endif
+
 //#define     BGC_BLACK   40      /** background color */
 //#define     BGC_RED     41
 //#define     BGC_GREEN   42
@@ -61,10 +65,22 @@
 #define DOS_LOG_E       
 #endif
 
+#if DOS_LOG_TS && DOS_LOG_TAR
+    #define DOS_LOG_T   Dos_Salof("[TS: %ld] [TAR: %s] ",Dos_Get_Tick(), Dos_Get_TaskName())
+#elif DOS_LOG_TS
+    #define DOS_LOG_T   Dos_Salof("[TS: %ld] ", Dos_Get_Tick())
+#elif DOS_LOG_TAR
+    #define DOS_LOG_T   Dos_Salof("[TAR: %s] ", Dos_Get_TaskName())
+#else
+    #define DOS_LOG_T
+#endif
+
+
 #define DOS_LOG_LINE(l, c, fmt, ...)        \
     do                                      \
     {                                       \
         DOS_LOG_S(l, c);                    \
+        DOS_LOG_T;                          \
         Dos_Salof(fmt, ##__VA_ARGS__);      \
         DOS_LOG_E;                          \
     }                                       \
@@ -72,41 +88,51 @@
 
 
 #define DOS_BASE_LEVEL  (0)
+    
+#define DOS_ASSERT_LEVEL  (DOS_BASE_LEVEL + 1)
+    
+#define DOS_ERR_LEVEL     (DOS_ASSERT_LEVEL + 1)
 
-#define DOS_ERR_LEVEL   (DOS_BASE_LEVEL + 1)
+#define DOS_WARN_LEVEL    (DOS_ERR_LEVEL + 1)
 
-#define DOS_WARN_LEVEL  (DOS_ERR_LEVEL + 1)
+#define DOS_INFO_LEVEL    (DOS_WARN_LEVEL + 1)
 
-#define DOS_INFO_LEVEL  (DOS_WARN_LEVEL + 1)
-
-#define DOS_DEBUG_LEVEL (DOS_INFO_LEVEL + 1)
+#define DOS_DEBUG_LEVEL   (DOS_INFO_LEVEL + 1)
 
 #ifndef DOS_LOG_LEVEL
-    #define DOS_LOG_LEVEL   DOS_DEBUG_LEVEL
-#endif // !DOS_LOG_LEVEL
+    #define DOS_LOG_LEVEL   DOS_WARN_LEVEL
+#endif 
 
 #if DOS_LOG_LEVEL < DOS_DEBUG_LEVEL
 #define DOS_LOG_DEBUG(fmt, ...)
 #else
-#define DOS_LOG_DEBUG(fmt, ...)     DOS_LOG_LINE(DEBUG, 0, fmt, ##__VA_ARGS__)
+#define DOS_LOG_DEBUG(fmt, ...)     DOS_LOG_LINE(D, 0, fmt, ##__VA_ARGS__)
 #endif
 
 #if DOS_LOG_LEVEL < DOS_INFO_LEVEL
 #define DOS_LOG_INFO(fmt, ...)
 #else
-#define DOS_LOG_INFO(fmt, ...)      DOS_LOG_LINE(INFO, FC_GREEN, fmt, ##__VA_ARGS__)
+#define DOS_LOG_INFO(fmt, ...)      DOS_LOG_LINE(I, FC_GREEN, fmt, ##__VA_ARGS__)
 #endif
 
 #if DOS_LOG_LEVEL < DOS_WARN_LEVEL
 #define DOS_LOG_WARN(fmt, ...)
 #else
-#define DOS_LOG_WARN(fmt, ...)      DOS_LOG_LINE(WARN, FC_YELLOW, fmt, ##__VA_ARGS__)
+#define DOS_LOG_WARN(fmt, ...)      DOS_LOG_LINE(W, FC_YELLOW, fmt, ##__VA_ARGS__)
 #endif
 
 #if DOS_LOG_LEVEL < DOS_ERR_LEVEL
 #define DOS_LOG_ERR(fmt, ...)
 #else
-#define DOS_LOG_ERR(fmt, ...)       DOS_LOG_LINE(ERR, FC_RED, fmt, ##__VA_ARGS__)
+#define DOS_LOG_ERR(fmt, ...)       DOS_LOG_LINE(E, FC_RED, fmt, ##__VA_ARGS__)
+#endif
+
+#if DOS_LOG_LEVEL < DOS_ASSERT_LEVEL
+#define DOS_LOG_ASSERT(fmt, ...)
+DOS_ASSERT(x)
+#else
+#define DOS_LOG_ASSERT(fmt, ...)    DOS_LOG_LINE(A, FC_RED, fmt, ##__VA_ARGS__)
+#define DOS_ASSERT(x)     if((x)==0) DOS_LOG_ASSERT("%s, %d\n",__FILE__,__LINE__)
 #endif
 
 #if DOS_LOG_LEVEL < DOS_BASE_LEVEL

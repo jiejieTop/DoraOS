@@ -27,13 +27,13 @@
 #endif
 
 #if DOS_PRINT_ERR_ENABLE
-#define DOS_PRINT_ERR(fmt, ...)     do{(printf("\n[ERR] >> "), printf(fmt, ##args));}while(0)     
+#define DOS_PRINT_ERR(fmt, ...)     do{(Dos_Salof("\n[ERR] >> "), Dos_Salof(fmt, ##args));}while(0)     
 #else
 #define DOS_PRINT_ERR(fmt, ...)	       
 #endif
 
 #if DOS_PRINT_INFO_ENABLE
-#define DOS_PRINT_INFO(fmt, ...)    do{(printf("\n[INFO] >> "), printf(fmt, ##args));}while(0)  
+#define DOS_PRINT_INFO(fmt, ...)    do{(Dos_Salof("\n[INFO] >> "), Dos_Salof(fmt, ##args));}while(0)  
 #else
 #define DOS_PRINT_INFO(fmt, ...)	       
 #endif
@@ -44,10 +44,7 @@
     #include <stdint.h>
 #endif
 
-/* Assert */
-#define Dos_AssertCalled(char,int) 	printf("\nError:%s,%d\r\n",char,int)
-#define DOS_ASSERT(x)   if((x)==0)  Dos_AssertCalled(__FILE__,__LINE__)
-  
+
 typedef enum 
 {
 	ASSERT_ERR = 0,								
