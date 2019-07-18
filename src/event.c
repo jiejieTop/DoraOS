@@ -26,6 +26,7 @@ static dos_bool _Dos_CheckEvent(Dos_Event_t event, dos_uint32 want_event, dos_ui
             break;
 
         default:
+            DOS_LOG_ERR("op is fail\n");
             break;
     }
 
@@ -34,7 +35,6 @@ got:
     if(!(op & NO_CLR_EVENT))
     {
         event->EventSet &= ~(want_event);
-        
     }
     return DOS_TRUE;
 }
@@ -135,14 +135,12 @@ dos_uint32 Dos_EventWait(Dos_Event_t event, dos_uint32 wait_event, dos_uint32 op
         DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
         Dos_TaskItem_Del(&(task->PendItem));
         DOS_LOG_INFO("waiting for event timeout\n");
+        task->WaitEvent &= (~wait_event);
+        task->WaitEventOp = 0;
+        return 0;
     }
 
-    if(_Dos_CheckEvent(event, wait_event, op) == DOS_TRUE)
-    {
-        return wait_event;  /** waiting for the event to succeed */
-    }
-
-    return 0;
+    return task->EventGet;
 }
 
 /**
@@ -171,6 +169,7 @@ dos_uint32 Dos_EventSet(Dos_Event_t event, dos_uint32 set_event)
 
             if(_Dos_CheckEvent(event, task->WaitEvent, task->WaitEventOp) == DOS_TRUE)
             {
+                task->EventGet = task->WaitEvent;
                 Dos_TaskWake(task);
             }
         }

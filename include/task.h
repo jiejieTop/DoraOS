@@ -67,6 +67,7 @@ struct DOS_TaskCB
   dos_uint32                      TaskInitTick;             /** TaskInitTick                */ 
   dos_uint32                      WaitEvent;                /** Task wait event             */
   dos_uint32                      WaitEventOp;              /** Task wait event options     */
+  dos_uint32                      EventGet;                 /** Task Get event              */
   Dos_TaskItem_t                  StateItem;                /** Task status item            */
   Dos_TaskItem_t                  PendItem;                 /** Task pend item              */
 };
