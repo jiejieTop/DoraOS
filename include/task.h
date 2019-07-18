@@ -90,6 +90,7 @@ void Dos_Scheduler(void);
 void Dos_Scheduler_Lock(void);
 void Dos_Scheduler_Unlock(void);
 dos_bool Dos_Scheduler_IsLock(void);
+dos_char *Dos_Get_TaskName(void);
 DOS_TaskCB_t Dos_Get_CurrentTCB(void);
 DOS_TaskCB_t Dos_GetTCB(Dos_TaskList_t *list);
 DOS_TaskCB_t Dos_Get_NextTCB(Dos_TaskList_t *list);

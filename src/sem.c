@@ -1,4 +1,5 @@
 #include <sem.h>
+#include <log.h>
 #include <mem.h>
 #include <string.h>
 #include <dos_config.h>
@@ -16,13 +17,13 @@ Dos_Sem_t Dos_SemCreate(dos_uint32 cnt, dos_uint32 max_cnt)
 
     if(cnt > max_cnt)
     {
-        DOS_PRINT_ERR("the cnt of the semaphore cannot exceed the max cnt\n");
+        DOS_LOG_WARN("the cnt of the semaphore cannot exceed the max cnt\n");
     }
 
     sem = (Dos_Sem_t)Dos_MemAlloc(sizeof(struct Dos_Sem));
     if(sem == DOS_NULL)
     {
-        DOS_PRINT_DEBUG("sem is null\n");
+        DOS_LOG_ERR("unable to create sem\n");
         return DOS_NULL;
     }
 
@@ -53,13 +54,13 @@ dos_err Dos_SemDelete(Dos_Sem_t sem)
         }
         else
         {
-            DOS_PRINT_DEBUG("there are tasks in the semaphore pend list\n");
+            DOS_LOG_WARN("there are tasks in the semaphore pend list\n");
             return DOS_NOK;
         }
     }
     else
     {
-        DOS_PRINT_DEBUG("sem is null\n");
+        DOS_LOG_WARN("sem is null\n");
         return DOS_NOK;
     }
 }
@@ -73,7 +74,7 @@ dos_err Dos_SemWait(Dos_Sem_t sem, dos_uint32 timeout)
 
     if(sem == DOS_NULL)
     {
-        DOS_PRINT_DEBUG("sem is null\n");
+        DOS_LOG_WARN("sem is null\n");
         return DOS_NOK;
     }
 
@@ -90,7 +91,7 @@ dos_err Dos_SemWait(Dos_Sem_t sem, dos_uint32 timeout)
 
     if(Dos_ContextIsInt())
     {
-        DOS_PRINT_ERR("sem wait time is not 0, and the context is in an interrupt\n");
+        DOS_LOG_ERR("sem wait time is not 0, and the context is in an interrupt\n");
         return DOS_NOK;
     }
 
@@ -103,7 +104,7 @@ dos_err Dos_SemWait(Dos_Sem_t sem, dos_uint32 timeout)
         DOS_RESET_TASK_STATUS(task, (DOS_TASK_STATUS_TIMEOUT | DOS_TASK_STATUS_SUSPEND));
         DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
         Dos_TaskItem_Del(&(task->PendItem));
-        DOS_PRINT_DEBUG("waiting for sem timeout\n");
+        DOS_LOG_INFO("waiting for sem timeout\n");
         return DOS_NOK;
     }
 
@@ -119,7 +120,7 @@ dos_err Dos_SemPost(Dos_Sem_t sem)
 
     if(sem == DOS_NULL)
     {
-        DOS_PRINT_DEBUG("sem is null\n");
+        DOS_LOG_WARN("sem is null\n");
         return DOS_NOK;
     }
     

@@ -1,4 +1,5 @@
 #include <mutex.h>
+#include <log.h>
 #include <mem.h>
 #include <string.h>
 #include <dos_config.h>
@@ -16,7 +17,7 @@ Dos_Mutex_t Dos_MutexCreate(void)
     mutex = Dos_MemAlloc(sizeof(struct Dos_Mutex));
     if(mutex == DOS_NULL)
     {
-        DOS_PRINT_DEBUG("mutex is null\n");
+        DOS_LOG_ERR("mutex is null\n");
         return DOS_NULL;
     }
 
@@ -47,13 +48,13 @@ dos_err Dos_MutexDelete(Dos_Mutex_t mutex)
         }
         else
         {
-            DOS_PRINT_DEBUG("there are tasks in the mutex pend list\n");
+            DOS_LOG_WARN("there are tasks in the mutex pend list\n");
             return DOS_NOK;
         }
     }
     else
     {
-        DOS_PRINT_DEBUG("mutex is null\n");
+        DOS_LOG_WARN("the mutex to be deleted is null\n");
         return DOS_NOK;
     }
 }
@@ -68,7 +69,7 @@ dos_err Dos_MutexPend(Dos_Mutex_t mutex, dos_uint32 timeout)
 
     if((mutex == DOS_NULL) || (Dos_ContextIsInt()))
     {
-        DOS_PRINT_DEBUG("unable to continue to pend the mutex, the mutex is null or is currently in the interrupt context\n");
+        DOS_LOG_WARN("unable to continue to pend the mutex, the mutex is null or is currently in the interrupt context\n");
         return DOS_NOK;
     }
 
@@ -115,7 +116,7 @@ dos_err Dos_MutexPend(Dos_Mutex_t mutex, dos_uint32 timeout)
         DOS_RESET_TASK_STATUS(task, (DOS_TASK_STATUS_TIMEOUT | DOS_TASK_STATUS_SUSPEND));
         DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
         Dos_TaskItem_Del(&(task->PendItem));
-        DOS_PRINT_DEBUG("waiting for mutex timeout\n");
+        DOS_LOG_INFO("waiting for mutex timeout\n");
         return DOS_NOK;
     }
 
@@ -130,7 +131,7 @@ dos_err Dos_MutexPost(Dos_Mutex_t mutex)
 
     if((mutex == DOS_NULL) || (Dos_ContextIsInt()))
     {
-        DOS_PRINT_DEBUG("unable to continue to post the mutex, the mutex is null or is currently in the interrupt context\n");
+        DOS_LOG_WARN("unable to continue to post the mutex, the mutex is null or is currently in the interrupt context\n");
         return DOS_NOK;
     }
 
@@ -142,7 +143,7 @@ dos_err Dos_MutexPost(Dos_Mutex_t mutex)
 
     if((mutex->MutexCnt == 0) || (mutex->MutexOwner != task))
     {
-        DOS_PRINT_DEBUG("unable to continue to post the mutex, the mutex is not be held, or the owner is not the current task\n");
+        DOS_LOG_WARN("unable to continue to post the mutex, the mutex is not be held, or the owner is not the current task\n");
         return DOS_NOK;
     }
 

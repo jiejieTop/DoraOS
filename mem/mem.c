@@ -1,4 +1,5 @@
 #include <mem.h>
+#include <log.h>
 #include <task.h>
 #include <string.h>
 #include <dos_config.h>
@@ -81,7 +82,7 @@ void* Dos_MemAlloc(dos_uint32 size)
 
   if (!best_node) /*alloc failed*/
   {
-    DOS_PRINT_ERR("there's not enough whole to alloc %x Bytes!\n",size);
+    DOS_LOG_ERR("there's not enough whole to alloc %x Bytes!\n",size);
     
     /* Scheduler unlock */
     Dos_Scheduler_Unlock();
@@ -140,14 +141,14 @@ dos_err Dos_MemFree(void *dos_mem)
 
   if(dos_mem == DOS_NULL)
   {
-    DOS_PRINT_ERR("mem is null!\n");
+    DOS_LOG_ERR("mem is null!\n");
     return DOS_NOK;
   }
     
   memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;    /** get the memory management structure from the memory heap start address */
   if(DOS_NULL == memheap_info)
   {
-    DOS_PRINT_ERR("mem info struct is null!\n");
+    DOS_LOG_ERR("mem info struct is null!\n");
     return DOS_NOK;
   }  
   
@@ -156,7 +157,7 @@ dos_err Dos_MemFree(void *dos_mem)
 
   if(0 == free_node->MemUsed)   /** determine if the memory node is already in use */
   {
-    DOS_PRINT_ERR("mem is unused\n");
+    DOS_LOG_ERR("mem is unused\n");
     return DOS_NOK;
   }
 

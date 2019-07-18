@@ -1,4 +1,5 @@
 #include <queue.h>
+#include <log.h>
 #include <mem.h>
 #include <string.h>
 #include <dos_config.h>
@@ -17,7 +18,7 @@ static dos_void _Dos_QueueCopy(Dos_Queue_t queue, dos_void *buff, dos_size size,
         break;
 
     default:
-        DOS_PRINT_ERR("invalid queue operate type!\n");
+        DOS_LOG_ERR("invalid queue operate type!\n");
         break;
     }
 
@@ -45,7 +46,7 @@ static dos_err _Dos_Queuehandler(Dos_Queue_t queue, dos_void *buff, dos_size siz
 
     if((!queue) || (!buff) || (!size) || (op > QUEUE_WRITE))
     {
-        DOS_PRINT_DEBUG("queue does not satisfy the condition\n");
+        DOS_LOG_WARN("queue does not satisfy the condition\n");
         err =  DOS_NOK;
         goto OUT;
     }
@@ -62,7 +63,7 @@ static dos_err _Dos_Queuehandler(Dos_Queue_t queue, dos_void *buff, dos_size siz
 
         if(Dos_ContextIsInt())
         {
-            DOS_PRINT_ERR("queue wait time is not 0, and the context is in an interrupt\n");
+            DOS_LOG_ERR("queue wait time is not 0, and the context is in an interrupt\n");
             err = DOS_NOK;
             goto OUT;
         }
@@ -82,7 +83,7 @@ static dos_err _Dos_Queuehandler(Dos_Queue_t queue, dos_void *buff, dos_size siz
             DOS_RESET_TASK_STATUS(task, (DOS_TASK_STATUS_TIMEOUT | DOS_TASK_STATUS_SUSPEND));
             DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
             Dos_TaskItem_Del(&(task->PendItem));
-//            DOS_PRINT_DEBUG("waiting for queue timeout\n");
+            DOS_LOG_INFO("waiting for queue timeout\n");
             err = DOS_NOK;
             goto OUT;
         }
@@ -127,7 +128,7 @@ Dos_Queue_t Dos_QueueCreate(dos_uint16 len, dos_uint16 size)
 
     if((len <= 0) || (size <= 0))
     {
-       DOS_PRINT_DEBUG("queue len or size is 0\n");
+       DOS_LOG_WARN("queue len or size is 0\n");
         return DOS_NULL;
     }
 
@@ -136,7 +137,7 @@ Dos_Queue_t Dos_QueueCreate(dos_uint16 len, dos_uint16 size)
     queue = (Dos_Queue_t)Dos_MemAlloc(sizeof(struct Dos_Queue) + queue_size);
     if(queue == DOS_NULL)
     {
-        DOS_PRINT_DEBUG("queue is null\n");
+        DOS_LOG_ERR("unable to create queue\n");
         return DOS_NULL;
     }
 
@@ -180,13 +181,13 @@ dos_err Dos_QueueDelete(Dos_Queue_t queue)
         }
         else
         {
-            DOS_PRINT_DEBUG("there are tasks in the queue pend list\n");
+            DOS_LOG_WARN("there are tasks in the queue pend list\n");
             return DOS_NOK;
         }
     }
     else
     {
-        DOS_PRINT_DEBUG("queue is null\n");
+        DOS_LOG_WARN("queue is null\n");
         return DOS_NOK;
     }
 }

@@ -1,4 +1,5 @@
 #include <event.h>
+#include <log.h>
 #include <mem.h>
 #include <string.h>
 #include <dos_config.h>
@@ -48,7 +49,7 @@ Dos_Event_t Dos_EventCreate(void)
     event = (Dos_Event_t)Dos_MemAlloc(sizeof(struct Dos_Event));
     if(event == DOS_NULL)
     {
-        DOS_PRINT_DEBUG("event is null\n");
+        DOS_LOG_ERR("event is null\n");
         return DOS_NULL;
     }
     
@@ -75,13 +76,13 @@ dos_err Dos_EventDelete(Dos_Event_t event)
         }
         else
         {
-            DOS_PRINT_DEBUG("there are tasks in the event pend list\n");
+            DOS_LOG_WARN("there are tasks in the event pend list\n");
             return DOS_NOK;
         }
     }
     else
     {
-        DOS_PRINT_DEBUG("event is null\n");
+        DOS_LOG_WARN("event is null\n");
         return DOS_NOK;
     }
 }
@@ -95,13 +96,13 @@ dos_uint32 Dos_EventWait(Dos_Event_t event, dos_uint32 wait_event, dos_uint32 op
 
     if((event == DOS_NULL) ||(wait_event == 0))
     {
-        DOS_PRINT_DEBUG("event is null or the waiting event is 0\n");
+        DOS_LOG_WARN("event is null or the waiting event is 0\n");
         return 0;
     }
 
     if((op & WAIT_EVENT_OP) == WAIT_EVENT_OP)
     {
-        DOS_PRINT_DEBUG("waiting for event option is invalid\n");
+        DOS_LOG_WARN("waiting for event option is invalid\n");
         return 0;
     }
     
@@ -117,7 +118,7 @@ dos_uint32 Dos_EventWait(Dos_Event_t event, dos_uint32 wait_event, dos_uint32 op
 
     if(Dos_ContextIsInt())
     {
-        DOS_PRINT_ERR("event wait time is not 0, and the context is in an interrupt\n");
+        DOS_LOG_ERR("event wait time is not 0, and the context is in an interrupt\n");
         return 0;
     }
 
@@ -133,7 +134,7 @@ dos_uint32 Dos_EventWait(Dos_Event_t event, dos_uint32 wait_event, dos_uint32 op
         DOS_RESET_TASK_STATUS(task, (DOS_TASK_STATUS_TIMEOUT | DOS_TASK_STATUS_SUSPEND));
         DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
         Dos_TaskItem_Del(&(task->PendItem));
-        DOS_PRINT_DEBUG("waiting for event timeout\n");
+        DOS_LOG_INFO("waiting for event timeout\n");
     }
 
     if(_Dos_CheckEvent(event, wait_event, op) == DOS_TRUE)
@@ -154,7 +155,7 @@ dos_uint32 Dos_EventSet(Dos_Event_t event, dos_uint32 set_event)
 
     if((event == DOS_NULL) ||(set_event == 0))
     {
-        DOS_PRINT_DEBUG("event is null or the setting event is 0\n");
+        DOS_LOG_WARN("event is null or the setting event is 0\n");
         return 0;
     }
 

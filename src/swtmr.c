@@ -1,4 +1,5 @@
 #include <swtmr.h>
+#include <log.h>
 #include <mem.h>
 #include <string.h>
 #include <dos_config.h>
@@ -81,7 +82,7 @@ dos_err _Dos_SwtmrDelete(Dos_Swtmr_t swtmr)
 
    if(DOS_NULL == swtmr)
    {
-       DOS_PRINT_ERR("unable to delete, swtmr is null\n");
+       DOS_LOG_ERR("unable to delete, swtmr is null\n");
        return DOS_NOK;
    }
 
@@ -114,7 +115,7 @@ dos_err _Dos_Swtmr_MakeMsg(Dos_Swtmr_t swtmr, dos_uint32 op)
     struct Dos_SwtmrMsg swtmr_msg;
     if((swtmr == DOS_NULL) && (op != Dos_Swtmr_OpOverFlow) )
     {
-        DOS_PRINT_DEBUG("the software timer to be started is null\n");
+        DOS_LOG_WARN("the software timer to be started is null\n");
         return DOS_NOK;
     }
 
@@ -240,7 +241,7 @@ dos_err Dos_SwtmrInit(void)
     _Dos_SwtmrQueue = Dos_QueueCreate(3, sizeof(struct Dos_SwtmrMsg));
     if(_Dos_SwtmrQueue == DOS_NULL)
     {
-        DOS_PRINT_DEBUG("swtmr queue is null\n");
+        DOS_LOG_ERR("unable to create software timer queue\n");
         return DOS_NOK;
     }
 
@@ -252,7 +253,7 @@ dos_err Dos_SwtmrInit(void)
                                     DOS_SWTMR_TASK_TICK);
     if(_Dos_SwtmrTCB == DOS_NULL)
     {
-        DOS_PRINT_DEBUG("swtmr task is null\n");
+        DOS_LOG_ERR("Unable to create software timer task\n");
         return DOS_NOK;
     }
 
@@ -274,19 +275,19 @@ Dos_Swtmr_t Dos_SwtmrCreate(dos_uint32 timeout, dos_uint16 mode, Swtmr_CallBacke
     swtmr = (Dos_Swtmr_t)Dos_MemAlloc(sizeof(struct Dos_Swtmr));
     if(swtmr == DOS_NULL)
     {
-        DOS_PRINT_DEBUG("not enough memory to create a software timer\n");
+        DOS_LOG_ERR("not enough memory to create a software timer\n");
         return DOS_NULL;
     }
 
     if((cb == DOS_NULL) || (timeout == 0))
     {
-        DOS_PRINT_DEBUG("parameter is is invalid\n");
+        DOS_LOG_WARN("parameter is is invalid\n");
         return DOS_NULL;
     }
 
     if((!(mode & Dos_Swtmr_ModeMask)) || ((mode & Dos_Swtmr_ModeMask) == Dos_Swtmr_ModeMask))
     {
-        DOS_PRINT_DEBUG("parameter is is invalid\n");
+        DOS_LOG_WARN("parameter is is invalid\n");
         return DOS_NULL;
     }
 

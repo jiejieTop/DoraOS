@@ -563,6 +563,11 @@
               <FileType>5</FileType>
               <FilePath>..\..\..\..\include\task.h</FilePath>
             </File>
+            <File>
+              <FileName>log.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\..\include\log.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -647,11 +652,6 @@
               <FileName>salof.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\..\..\common\salof.c</FilePath>
-            </File>
-            <File>
-              <FileName>dos_lib.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\..\..\common\dos_lib.c</FilePath>
             </File>
           </Files>
         </Group>

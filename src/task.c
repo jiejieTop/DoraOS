@@ -1,5 +1,5 @@
 #include <task.h>
-
+#include <log.h>
 
 #if DOS_MAX_PRIORITY_NUM > 32U
 static dos_uint32 Dos_Task_Priority[DOS_PRIORITY_TAB];
@@ -165,7 +165,7 @@ static void _Dos_insert_TaskSleep_List(dos_uint32 dos_sleep_tick)
 
   if(Dos_IdleTCB == cur_task)
   {
-    DOS_PRINT_ERR("Idle tasks are not allowed to sleep!\n");
+    DOS_LOG_ERR("Idle tasks are not allowed to sleep!\n");
     return;
   }
   
@@ -260,8 +260,8 @@ static void _Dos_IdleTask(void *Parameter)
     len = Dos_FifoRead(Dos_Salof_Fifo, buff, sizeof(buff), 0);
     if(len > 0)
     {
-      Dos_FormatOut("%s",buff);
-      memset(buff, 0, sizeof(buff));
+      Dos_SalofOut((dos_char *)buff, len);
+      memset(buff, 0, len);
     }
 #endif
   }
@@ -280,7 +280,7 @@ static void _Dos_Create_IdleTask(void)
                                 DOS_IDLE_TASK_TICK);
   if(DOS_NULL == Dos_IdleTCB)
   {
-    DOS_PRINT_ERR("Dos_IdleTCB is NULL!\n");
+    DOS_LOG_ERR("Dos_IdleTCB is NULL!\n");
   }
 }
 
@@ -316,7 +316,7 @@ static void _Dos_Switch_SleepList(void)
     }
   }
   else
-    DOS_PRINT_ERR("Task sleep list is not empty!\n");
+    DOS_LOG_DEBUG("Task sleep list is not empty!\n");
 }
 
 /**
@@ -375,7 +375,7 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
     dos_stack = (dos_void *)Dos_MemAlloc(dos_stack_size);
     if(DOS_NULL == dos_stack)
     {
-      DOS_PRINT_DEBUG("not enough memory to create a task\n");
+      DOS_LOG_ERR("not enough memory to create a task\n");
 
       /** Failed to alloc memory */
       Dos_MemFree(dos_taskcb);  
@@ -432,7 +432,7 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
 
   if(DOS_NULL == dos_task)
   {
-    DOS_PRINT_ERR("unable to delete, task is null\n");
+    DOS_LOG_ERR("unable to delete, task is null\n");
     return DOS_NOK;
   }
   
@@ -440,13 +440,13 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
 
   if(DOS_TASK_STATUS_UNUSED == dos_status)  /** task is unused status */
   {
-    DOS_PRINT_ERR("task status is unused\n");
+    DOS_LOG_ERR("task status is unused\n");
     return DOS_NOK;
   }
 
   if(Dos_SchedulerLock != 0)
   {
-    DOS_PRINT_ERR("scheduler is lock\n");
+    DOS_LOG_ERR("scheduler is lock\n");
     return DOS_NOK;
   }
 
@@ -527,6 +527,14 @@ void Dos_TaskSleep(dos_uint32 dos_sleep_tick)
 DOS_TaskCB_t Dos_Get_CurrentTCB(void)
 {
   return Dos_CurrentTCB;
+}
+
+/**
+ * get current task control block 
+ */
+dos_char *Dos_Get_TaskName(void)
+{
+  return Dos_CurrentTCB->TaskName;
 }
 
 
@@ -701,8 +709,6 @@ void Dos_Start( void )
   _Dos_Cheek_TaskPriority();
   
   Dos_CurrentTCB = Dos_GetTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
-
-  DOS_PRINT_DEBUG("TaskPriority = %d\n",Dos_CurPriority);
   
   /** Update Dos_TickCount and Dos_IsRun to indicate that the system starts to boot */
   Dos_TickCount = 0U;
