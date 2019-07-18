@@ -31,8 +31,6 @@
 
 #define is_digit(c) (c >= '0' && c <= '9')
 
-
-dos_int32 Dos_FormatOut(const dos_char *format, ...);
 dos_int32 Dos_FormatNStr(dos_char *buf, dos_size size, const dos_char *fmt, va_list ap);
 
 

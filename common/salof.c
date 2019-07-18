@@ -11,7 +11,9 @@ dos_char buff[DOS_SALOF_BUFF_SIZE];
 
 dos_void Dos_SalofInit(dos_void)
 {
+#if DOS_USE_SALOF
     Dos_Salof_Fifo = Dos_FifoCreate(DOS_SALOF_FIFO_SIZE);
+ #endif
 }
 
 

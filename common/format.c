@@ -147,16 +147,6 @@ static dos_void _Dos_Format_Str(dos_char *buf, dos_size *pos, dos_size max, dos_
 
 /***********************************************************************************************************************/
 
-
-dos_int32 Dos_FormatOut(const dos_char *format, ...)
-{
-	va_list args;
-
-	va_start( args, format );
-	return Dos_FormatNStr(DOS_NULL, 0, format, args);
-}
-
-
 /**
  * Shrinked down, vsnprintf implementation.
  *  This will not handle floating numbers (yet).
