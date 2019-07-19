@@ -462,9 +462,6 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
       if(Dos_TaskList_IsEmpty(&Dos_TaskPriority_List[dos_task->Priority]) == DOS_TRUE)
       {
         DOS_RESET_TASK_PTIORITY(dos_task);
-        // Dos_Task_Priority &= ~(0x01 << dos_task->Priority); 
-        DOS_TASK_YIELD();
-//        Dos_Scheduler();
       }
     }
     Dos_Interrupt_Enable(pri);
@@ -683,8 +680,9 @@ dos_void Dos_SetTaskPrio(DOS_TaskCB_t task, dos_uint16 prio)
  */
 void Dos_TaskExit(void)
 {
-  DOS_ASSERT(0);
-  while(1);
+  DOS_LOG_WARN("task exit\n");
+  Dos_TaskDelete(Dos_Get_CurrentTCB());
+  Dos_Scheduler();
 }
 
 
@@ -725,9 +723,7 @@ void Dos_Start( void )
  * Choose the right task to run
  */
 void Dos_SwitchTask( void )
-{    
-//  _Dos_Cheek_TaskPriority();
-
+{  
   /** Get the control block for the highest priority task  */
   Dos_CurrentTCB = Dos_Get_NextTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
 }
@@ -797,8 +793,10 @@ void Dos_Update_Tick(void)
   {
     /** When time overflows, switch list */
     _Dos_Switch_SleepList();
+#if DOS_SWTMR
     /** Notify the software timer of overflow */
     Dos_Swtmr_OverFlow(); 
+#endif
   }
   
   /** When a timeout event occurs, such as sleep timeout, waiting for message queue, semaphore, mutex, event timeout ect */
