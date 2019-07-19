@@ -50,7 +50,7 @@ void event_wait_task(void *Parameter)
     if(res &= (EVENT1 | EVENT2))
       DOS_LOG_DEBUG("wait event 1 and 2 success");
 
-    DOS_LOG_DEBUG("wait event 3 and 4 1000 tick\n");
+    DOS_LOG_DEBUG("wait event 1 and 2 1000 tick\n");
     res = Dos_EventWait(event, EVENT1 | EVENT2, WAIT_ALL_EVENT, DOS_WAIT_FOREVER);
     if(res &= (EVENT1 | EVENT2))
       DOS_LOG_DEBUG("wait event 1 and 2 success");
@@ -106,7 +106,6 @@ int main(void)
  */ 
 static void BSP_Init(void)
 {
-	/* ´®¿Ú³õÊ¼»¯ */
 	USART_Config();
 }
 
