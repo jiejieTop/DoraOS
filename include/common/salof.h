@@ -4,14 +4,6 @@
 #include <dos_def.h>
 #include <dos_config.h>
 
-
-#ifndef DOS_SALOF_BUFF_SIZE
-    #define     DOS_SALOF_BUFF_SIZE     (256U)
-#endif 
-#ifndef DOS_SALOF_FIFO_SIZE
-    #define     DOS_SALOF_FIFO_SIZE     (4096U)
-#endif 
-
 extern int SendBuff(char *buf, int len);
 
 dos_void Dos_SalofInit(dos_void);

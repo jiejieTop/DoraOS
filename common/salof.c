@@ -5,10 +5,19 @@
 #include <fifo.h>
 #include <stdio.h>
 
+#ifndef DOS_SALOF_BUFF_SIZE
+    #define     DOS_SALOF_BUFF_SIZE     (256U)
+#endif 
+#ifndef DOS_SALOF_FIFO_SIZE
+    #define     DOS_SALOF_FIFO_SIZE     (2048U)
+#endif 
 
+#if DOS_USE_SALOF
 Dos_Fifo_t Dos_Salof_Fifo = DOS_NULL;
-dos_char buff[DOS_SALOF_BUFF_SIZE];
+#endif
 
+dos_char buff[DOS_SALOF_BUFF_SIZE];
+ 
 dos_void Dos_SalofInit(dos_void)
 {
 #if DOS_USE_SALOF
