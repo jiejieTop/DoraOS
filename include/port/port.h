@@ -39,14 +39,15 @@
 
 typedef void (*Dos_TaskFunction)( void * );
 
-dos_uint32 *Dos_StackInit(dos_uint32 *top_of_stack , 
-                          void *dos_task_entry,
+dos_uint32 *Dos_StackInit(dos_uint32 *sp , 
+                          void *task_entry,
                           dos_void *parameter);
                           
 dos_uint32 Dos_StartScheduler( void );
 dos_bool Dos_ContextIsInt(void);
-__asm dos_uint32 Interrupt_Disable(void);
-__asm void Interrupt_Enable(dos_uint32 pri);
+dos_uint32 Interrupt_Disable(void);
+void Interrupt_Enable(dos_uint32 pri);
+void Dos_StartFirstTask( void );   
 
 
 #endif
