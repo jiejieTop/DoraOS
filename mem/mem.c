@@ -82,7 +82,7 @@ void* Dos_MemAlloc(dos_uint32 size)
 
   if (!best_node) /*alloc failed*/
   {
-    DOS_LOG_ERR("there's not enough whole to alloc %x Bytes!\n",size);
+    DOS_LOG_ERR("there's not enough whole to alloc %d Bytes!\n", size);
     
     /* Scheduler unlock */
     Dos_Scheduler_Unlock();

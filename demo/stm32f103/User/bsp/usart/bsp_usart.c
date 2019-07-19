@@ -339,7 +339,7 @@ void DEBUG_USART_IRQHandler(void)
   /* Ω” ’÷–∂œ */
 	if(USART_GetITStatus(DEBUG_USARTx,USART_IT_RXNE)!=RESET)
 	{		
-//    Receive_DataPack();
+    USART_ReceiveData(DEBUG_USARTx);
 	}
 #endif
 }
