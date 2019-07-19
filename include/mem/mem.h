@@ -37,7 +37,7 @@ typedef struct MemHeapInfo
 dos_bool Dos_MemHeap_Init(void);
 void* Dos_MemAlloc(dos_uint32 size);
 dos_err Dos_MemFree(void *dos_mem);
-
+dos_uint32 Dos_MemInfoGet(void);
 
 #endif /* __REDEF_H */
 

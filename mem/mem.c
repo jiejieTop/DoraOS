@@ -115,6 +115,8 @@ FIND_BEST_MEM:              /** find best memory node */
   best_node->MemNode_Size = size;   /** set memory node info */
   result = best_node->UserMem;
   
+  memheap_info->MemHeap_Size -= size;
+
   /* Scheduler unlock */
   Dos_Scheduler_Unlock();
 
@@ -162,6 +164,8 @@ dos_err Dos_MemFree(void *dos_mem)
   }
 
   free_node->MemUsed = 0;   /** can free memory node , MemUsed flag is set to 0 */
+
+  memheap_info->MemHeap_Size += free_node->MemNode_Size;
 
   while((DOS_NULL != free_node->Prev) && (0 == free_node->Prev->MemUsed))
   {
@@ -221,18 +225,31 @@ dos_bool Dos_MemHeap_Init(void)
   
   /* Init  */
   memheap_info->MemHeap_Addr = _Align_MemHeap_Begin;
-  memheap_info->MemHeap_Size = align_memheap_size;
+  memheap_info->MemHeap_Size = align_memheap_size - MEM_INFO_SIZE - MEM_NODE_SIZE;
   memheap_info->MemHead = (DOS_MemHeap_Node_t *)(_Align_MemHeap_Begin + MEM_INFO_SIZE);
   memheap_node = memheap_info->MemHead;
   memheap_info->MemTail = memheap_node;
   
   /* Init memory node information control block */
   memheap_node->MemUsed = 0;
-  memheap_node->MemNode_Size = align_memheap_size - MEM_INFO_SIZE - MEM_NODE_SIZE;
+  memheap_node->MemNode_Size = memheap_info->MemHeap_Size;
   memheap_node->Prev = DOS_NULL;
-  
+
   return DOS_TRUE;
 }
 
+
+/**
+ * get the remaining memory information of the current system
+ */
+dos_uint32 Dos_MemInfoGet(void)
+{
+  DOS_MemHeap_Info_t *memheap_info = (DOS_MemHeap_Info_t *)DOS_NULL;
+  
+  /* Memory heap management information control block */
+  memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;
+
+  return memheap_info->MemHeap_Size;
+}
 
 
