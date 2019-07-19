@@ -4,6 +4,7 @@
 #include <salof.h>
 #include <dos_config.h>
 
+#if DOS_LOGO_PRINT
 #define DOS_LOGO_BIG    0
 #define DOS_LOGO_SMALL  1
 
@@ -51,9 +52,11 @@ static void _Dos_PrintfLogo(void)
 }
 #endif 
 
+#endif
+
 void Dos_SystemInit(void)
 {
-#ifdef DOS_LOGO
+#if DOS_LOGO_PRINT
     /** printf DoraOS logo */
     _Dos_PrintfLogo();
 #endif
@@ -65,7 +68,9 @@ void Dos_SystemInit(void)
 
     Dos_TaskInit();
   
+#if DOS_SWTMR
     Dos_SwtmrInit();
+#endif
 }
 
 

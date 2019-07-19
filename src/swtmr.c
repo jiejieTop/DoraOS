@@ -7,6 +7,7 @@
 #include <port.h>
 #include <queue.h>
 
+#if DOS_SWTMR
 
 static Dos_Queue_t _Dos_SwtmrQueue = DOS_NULL;
 static DOS_TaskCB_t _Dos_SwtmrTCB = DOS_NULL;
@@ -325,8 +326,7 @@ dos_err Dos_Swtmr_OverFlow(void)
 }
 
 
-
-
+#endif
 
 
 
