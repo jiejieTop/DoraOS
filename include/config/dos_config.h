@@ -32,7 +32,7 @@
 
 #define         MEM_HEAP_SIZE                   (1024*30)
 
-#define         DOS_IPC_QUEUQ                   (0U)
+#define         DOS_IPC_QUEUQ                   (1U)
 
 #define         DOS_LOG_LEVEL                   DOS_DEBUG_LEVEL
 #define         DOS_LOG_COLOR                   (1U)

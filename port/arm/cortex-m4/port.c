@@ -1,4 +1,5 @@
 #include <port.h>
+#include <arm_cmsis.h>
 #include <dos_config.h>
 
 #ifndef DOS_SYSTEM_CLOCK_HZ
