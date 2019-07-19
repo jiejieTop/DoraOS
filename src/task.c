@@ -20,6 +20,8 @@ static Dos_TaskList_t _Dos_Sleep_List2;
 static Dos_TaskList_t *_Dos_TaskSleep_List;
 static Dos_TaskList_t *_Dos_TaskSleep_OverFlow_List;
 
+static Dos_TaskList_t _Dos_RecycleList;
+
 static dos_uint32 Dos_NextWake_Tick = DOS_UINT32_MAX;
 
 /**
@@ -101,8 +103,8 @@ static void _Dos_TaskSleep_List_Init(void)
  */
 static void _Dos_Task_List_Init(void)
 {
+  Dos_TaskList_Init(&_Dos_RecycleList);
   _Dos_TaskPriority_List_Init();
-  
   _Dos_TaskSleep_List_Init();
 }
 
@@ -246,6 +248,7 @@ static dos_bool _Dos_Cheek_TaskPriority(void)
  */
 static void _Dos_IdleTask(void *Parameter)
 {
+  DOS_TaskCB_t task;
 #if DOS_USE_SALOF
   #include <fifo.h>
   #include <format.h>
@@ -264,6 +267,13 @@ static void _Dos_IdleTask(void *Parameter)
       memset(buff, 0, len);
     }
 #endif
+    if(Dos_TaskList_IsEmpty(&_Dos_RecycleList) != DOS_TRUE)
+    {
+      task = Dos_GetTCB(&_Dos_RecycleList);
+      Dos_TaskItem_Del(&(task->StateItem));
+      Dos_MemFree(task);
+      Dos_MemFree(task->StackAddr);
+    }
   }
 }
 
@@ -487,7 +497,7 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task)
   else
   {
     /* Insert recycle list, Reserved not implemented*/
-
+    Dos_TaskItem_insert(&_Dos_RecycleList, &(dos_task->StateItem));
     return DOS_OK;
   }
 
@@ -570,15 +580,6 @@ DOS_TaskCB_t Dos_Get_NextTCB(Dos_TaskList_t *list)
  */
 dos_uint32 Dos_Get_Tick(void)
 {
-  // dos_uint32 dos_cur_tick;
-  // dos_uint32 pri;
-
-  // pri = Dos_Interrupt_Disable();
-  
-  // dos_cur_tick = Dos_TickCount;
-  
-  // Dos_Interrupt_Enable(pri);
-  
   return Dos_TickCount;
 }
 
@@ -620,9 +621,9 @@ dos_void Dos_TaskWait(Dos_TaskList_t *dos_list, dos_uint32 timeout)
       {
         DOS_RESET_TASK_PTIORITY(task);
         // Dos_Task_Priority &= ~(0x01 << task->Priority); 
-        Dos_Scheduler();
       }
     }
+    Dos_Scheduler();
   }
   
 }
@@ -835,15 +836,6 @@ void Dos_Update_Tick(void)
 
         /** Insert the task into the ready list and set the task status to aaa */
         _Dos_insert_TaskPriority_List(dos_task);
-        // dos_task->TaskStatus |= DOS_TASK_STATUS_READY;
-        // Dos_TaskItem_insert(&Dos_TaskPriority_List[dos_task->Priority], &dos_task->StateItem);
-        // Dos_Task_Priority |= (0x01 << dos_task->Priority);
-        
-        /** Determine the priority of the task and decide whether task scheduling is required. */
-//        if(dos_task->Priority < Dos_CurrentTCB->Priority)
-//        {
-//          DOS_TASK_YIELD();
-//        }
       }
     } 
   }
@@ -865,32 +857,5 @@ void SysTick_Handler(void)
   
   Interrupt_Enable(pri);
 }
-
-
-/*************************************************************************************************************************/
-
-/**
- * Check if the tick of the task has arrived, Reserved!
- */
-dos_bool Dos_CheekTaskTick(Dos_TaskList_t *list)
-{
-  DOS_TaskCB_t taskcb = (DOS_TaskCB_t)&(list->Dos_TaskItem->Dos_TCB);
-  
-  if(taskcb->TaskTick >= Dos_TickCount)   
-  {
-    taskcb->TaskTick += taskcb->TaskInitTick; 
-    return DOS_TRUE;
-  }
-  else
-  {
-    taskcb->TaskTick++;
-    if(taskcb->TaskTick == 0)   
-    {
-      
-    }
-  }
-  return DOS_FALSE;
-}
-
 
 
