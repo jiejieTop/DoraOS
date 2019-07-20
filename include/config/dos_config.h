@@ -9,6 +9,10 @@
 
 #include "stm32f10x.h"
 
+#if defined(__ICCARM__) || defined(__CC_ARM) || defined(__GNUC__)
+    extern uint32_t SystemCoreClock;
+#endif
+
 #define         DOS_MAX_PRIORITY_NUM            (32U)
 
 #define         DOS_LOGO_PRINT                  (0U)
@@ -18,11 +22,13 @@
 #define         DOS_IDLE_TASK_SIZE              (512U)
 #define         DOS_IDLE_TASK_TICK              (20U)
 
-#define         DOS_SWTMR                       (0U)
+#define         DOS_SWTMR                       (1U)
 #define         DOS_SWTMR_TASK_PRIORITY         (0U)
 #define         DOS_SWTMR_TASK_SIZE             (1024U)
 #define         DOS_SWTMR_TASK_TICK             (20U)
 
+
+#define         DOS_HW_CLZ_SUPT                 (1U)
 
 #define         DOS_SYSTEM_CLOCK_HZ             (SystemCoreClock)
 #define         DOS_SYSTICK_CLOCK_HZ            (1000U)
