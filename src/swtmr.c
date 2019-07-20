@@ -102,12 +102,11 @@ dos_err _Dos_SwtmrDelete(Dos_Swtmr_t swtmr)
 
 stop:
    _Dos_SwtmrStop(swtmr);
-
 delete:
     Dos_MemFree(swtmr);
     memset(swtmr, 0, sizeof(struct Dos_Swtmr));
+    err = DOS_OK;
 out:
-
     return err;
 }
 
@@ -146,12 +145,21 @@ dos_void _Dos_SwtmrTimeout_Handle(Dos_Swtmr_t swtmr)
         {
             _Dos_SwtmrStart(swtmr);
         }
+        else
+        {
+            _Dos_SwtmrDelete(swtmr);
+        }
     }
 }
 
 
 dos_void _Dos_Swtmr_CmdHandle(Dos_SwtmrMsg_t msg)
 {
+    if(msg->Swtmr->Status == DOS_SWTMR_STATUS_UNUSED)
+    {
+        DOS_LOG_WARN("the software timer to be operated is unused\n");
+        return;
+    }
     switch (msg->Option)
     {
         case Dos_Swtmr_OpStart:

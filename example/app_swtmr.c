@@ -42,13 +42,13 @@ dos_void Swtmr_CallBacke3(dos_void *Parameter)
 
 void swtmr_stop_task1(void *Parameter)
 {
-    DOS_LOG_WARN("start swtmr1 2\n");
+    DOS_LOG_WARN("start swtmr 1 2\n");
     Dos_SwtmrStart(swtmr1);
     Dos_SwtmrStart(swtmr2);
 
 
     Dos_TaskSleep(10000);
-    DOS_LOG_WARN("stop swtmr1\n");
+    DOS_LOG_WARN("stop swtmr 1\n");
     Dos_SwtmrStop(swtmr1);
 
     while(1)
@@ -63,10 +63,10 @@ void swtmr_stop_task1(void *Parameter)
 void swtmr_stop_task2(void *Parameter)
 {
     Dos_TaskSleep(20000);
-    DOS_LOG_WARN("stop swtmr2 \n");
+    DOS_LOG_WARN("stop swtmr 2 \n");
     Dos_SwtmrStop(swtmr2);
     
-    DOS_LOG_WARN("start swtmr3\n");
+    DOS_LOG_WARN("start swtmr 3\n");
     Dos_SwtmrStart(swtmr3);
     while(1)
     {
