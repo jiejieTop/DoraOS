@@ -35,8 +35,8 @@ typedef struct MemHeapInfo
 #define DOS_ALIGN_DOWN(addr, size)      ((addr) & ~((size) - 1))
 
 dos_bool Dos_MemHeap_Init(void);
-void* Dos_MemAlloc(dos_uint32 size);
-dos_err Dos_MemFree(void *dos_mem);
+dos_void* Dos_MemAlloc(dos_uint32 size);
+dos_err Dos_MemFree(void *mem);
 dos_uint32 Dos_MemInfoGet(void);
 
 #endif /* __REDEF_H */

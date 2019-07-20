@@ -77,16 +77,16 @@ typedef struct DOS_TaskCB * DOS_TaskCB_t;
 
 
 void Dos_TaskInit(void);
-DOS_TaskCB_t Dos_TaskCreate(const dos_char *dos_name,
-                            void (*dos_task_entry)(void *dos_param),
-                            void * const dos_param,
-                            dos_uint32 dos_stack_size,
-                            dos_uint16 dos_priority,
-                            dos_uint32 dos_tick);
-dos_err Dos_TaskDelete(DOS_TaskCB_t dos_task);
+DOS_TaskCB_t Dos_TaskCreate(const dos_char *name,
+                            void (*task_entry)(void *param),
+                            void * const param,
+                            dos_uint32 stack_size,
+                            dos_uint16 priority,
+                            dos_uint32 tick);
+dos_err Dos_TaskDelete(DOS_TaskCB_t task);
 dos_uint32 Dos_Get_Tick(void);         
 void Dos_Start( void );
-void Dos_TaskSleep(dos_uint32 dos_sleep_tick);
+void Dos_TaskSleep(dos_uint32 sleep_tick);
 void Dos_Scheduler(void);
 void Dos_Scheduler_Lock(void);
 void Dos_Scheduler_Unlock(void);

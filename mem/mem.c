@@ -44,14 +44,14 @@ static DOS_MemHeap_Node_t* _Dos_Get_NextNode(DOS_MemHeap_Node_t* node)
  * @version     v1.0
  * @note        alloc system mem , reference from LiteOS
  */
-void* Dos_MemAlloc(dos_uint32 size)
+dos_void* Dos_MemAlloc(dos_uint32 size)
 {
   DOS_MemHeap_Info_t *memheap_info = (DOS_MemHeap_Info_t *)DOS_NULL;
   DOS_MemHeap_Node_t *mem_node = (DOS_MemHeap_Node_t *)DOS_NULL;
   DOS_MemHeap_Node_t *best_node = (DOS_MemHeap_Node_t *)DOS_NULL;
   DOS_MemHeap_Node_t *node = (DOS_MemHeap_Node_t *)DOS_NULL;
   
-  void* result;
+  dos_void* result;
   
   /* Scheduler lock */
   Dos_Scheduler_Lock();
@@ -135,13 +135,13 @@ FIND_BEST_MEM:              /** find best memory node */
  * @note        free mem , reference from LiteOS
  */
 
-dos_err Dos_MemFree(void *dos_mem)
+dos_err Dos_MemFree(void *mem)
 {  
   DOS_MemHeap_Info_t *memheap_info = (DOS_MemHeap_Info_t *)DOS_NULL;
   DOS_MemHeap_Node_t *free_node = (DOS_MemHeap_Node_t *)DOS_NULL;
   DOS_MemHeap_Node_t *node = (DOS_MemHeap_Node_t *)DOS_NULL;
 
-  if(dos_mem == DOS_NULL)
+  if(mem == DOS_NULL)
   {
     DOS_LOG_ERR("mem is null!\n");
     return DOS_NOK;
@@ -155,7 +155,7 @@ dos_err Dos_MemFree(void *dos_mem)
   }  
   
   /** Find the real address of the memory node by offset */
-  free_node = (DOS_MemHeap_Node_t *)((dos_uint32)dos_mem - MEM_NODE_SIZE);
+  free_node = (DOS_MemHeap_Node_t *)((dos_uint32)mem - MEM_NODE_SIZE);
 
   if(0 == free_node->MemUsed)   /** determine if the memory node is already in use */
   {
