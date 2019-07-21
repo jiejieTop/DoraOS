@@ -10,6 +10,7 @@
 
 struct MempNode {
     dos_uint32 Status;
+    dos_void *Memp;
     struct MempNode *Next;
 };
 typedef struct MempNode * Dos_MempNode_t;
@@ -39,6 +40,7 @@ Dos_Memp_t Dos_MempCreate(
     dos_uint32 memp_size,
     dos_uint32 blk_size);
 dos_void *Dos_MempAlloc(Dos_Memp_t memp);
+dos_void Dos_MempFree(dos_void * ptr);
 
 #endif // !_MEMP_H
 

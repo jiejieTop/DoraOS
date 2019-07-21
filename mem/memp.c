@@ -52,17 +52,19 @@ Dos_Memp_t Dos_MempCreate(
     memp->Size = memp_size;
     memp->TotalCnt = memp_cnt;
     memp->FreeCnt = memp_cnt;
-
+    
     node = (Dos_MempNode_t)memp->Base;
+    node->Memp = (Dos_Memp_t)memp;
     memp->Free.Next = node;
-    for(i = 0; i <= memp->TotalCnt; i++)
+    for(i = 1; i < memp->TotalCnt; i++)
     {
         next_node = (Dos_MempNode_t)((dos_uint32)node + sizeof(struct MempNode) + blk_size);
         node->Next = next_node;
+        node->Memp = (Dos_Memp_t)memp;
         node = next_node;
     }
     node->Next = DOS_NULL;
-
+    node->Memp = (Dos_Memp_t)memp;
     return memp;
 }
 
@@ -71,7 +73,7 @@ dos_void *Dos_MempAlloc(Dos_Memp_t memp)
 {
     Dos_MempNode_t node;
     
-    if((memp->FreeCnt <= 0) || (memp->Free.Next == DOS_NULL) || (memp->Free.Next->Status == DOS_MEMP_STATUS_USED))
+    if((memp->FreeCnt <= 0) || (memp->Free.Next == DOS_NULL))
     {
         DOS_LOG_WARN("the number of free memory blocks in the memory pool is 0\n");
         return DOS_NULL;
@@ -86,6 +88,30 @@ dos_void *Dos_MempAlloc(Dos_Memp_t memp)
     
     return (dos_void*)((dos_uint32)node + sizeof(struct MempNode));
 }
+
+dos_void Dos_MempFree(dos_void * ptr)
+{
+    Dos_Memp_t memp;
+    Dos_MempNode_t node;
+    Dos_MempNode_t next_node;
+    
+    node = (Dos_MempNode_t)((dos_uint32)ptr - sizeof(struct MempNode));
+    memp = (Dos_Memp_t)(node->Memp);
+    
+    if((node->Status == DOS_MEMP_STATUS_UNUSED) || (memp == DOS_NULL) || (memp->FreeCnt >= memp->TotalCnt))
+    {
+        DOS_LOG_WARN("the memory block to be free is not in the correct format\n");
+        return;
+    }
+    
+    next_node = memp->Free.Next;
+    memp->Free.Next = node;
+    node->Next = next_node;
+    
+    memp->FreeCnt++;
+    node->Status = DOS_MEMP_STATUS_UNUSED;
+}
+
 
 
 
