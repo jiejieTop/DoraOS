@@ -8,11 +8,11 @@
 #include "include.h"
 #include <task.h>
 #include <log.h>
-
+#include <memp.h>
 /** Variable declaration */
 DOS_TaskCB_t task1 = DOS_NULL;
 DOS_TaskCB_t task2 = DOS_NULL;
-
+Dos_Memp_t  testmemp = DOS_NULL;
 
 /** Macro definition */
 
@@ -27,18 +27,20 @@ void test_task1(void *Parameter)
     {
         DOS_LOG_INFO("task1 running\n");
 
-        Dos_TaskSleep(2000);
+        Dos_TaskSleep(1000);
     }
 }
 
 
 void test_task2(void *Parameter)
 {
+    dos_uint8 *p;
     while(1)
     {
         DOS_LOG_INFO("task2 running\n");
-
-        Dos_TaskSleep(2000);
+        p = (dos_uint8 *)Dos_MempAlloc(testmemp);
+        DOS_LOG_DEBUG("memp addr is %p\n", p);
+        Dos_TaskSleep(1000);
     }
 }
 
@@ -46,10 +48,17 @@ void test_task2(void *Parameter)
 
 int main(void)
 {
+    dos_uint8 *p;
+    int i;
     BSP_Init();
 
     Dos_SystemInit();
-
+    testmemp = Dos_MempCreate(160,16);
+    for(i=0; i<10; i++)
+    {
+        p = (dos_uint8 *)Dos_MempAlloc(testmemp);
+        DOS_LOG_DEBUG("memp addr is %p\n", p);
+    }
     task1 = Dos_TaskCreate( "test_task1",
                             &test_task1,
                             DOS_NULL,
