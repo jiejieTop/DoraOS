@@ -9,14 +9,14 @@
 #define DOS_ALIGN_SIZE		(8)
 #endif 
 
-#ifndef MEM_HEAP_SIZE
-#define MEM_HEAP_SIZE   1024*10
+#ifndef DOS_MEM_HEAP_SIZE
+#define DOS_MEM_HEAP_SIZE   1024*10
 #endif 
 
 static dos_uint8 *_Align_MemHeap_Begin = DOS_NULL;
 static dos_uint8 *_Align_MemHeap_End = DOS_NULL;
 
-static dos_uint8 _MemHeap[MEM_HEAP_SIZE];
+static dos_uint8 _MemHeap[DOS_MEM_HEAP_SIZE];
 
 
 /**
@@ -209,7 +209,7 @@ dos_bool Dos_MemHeap_Init(void)
   dos_uint32 memheap_addr = (dos_uint32) _MemHeap;
   _Align_MemHeap_Begin = (dos_uint8 *) DOS_ALIGN(memheap_addr,DOS_ALIGN_SIZE);
   
-  _Align_MemHeap_End = (dos_uint8 *)memheap_addr + MEM_HEAP_SIZE;
+  _Align_MemHeap_End = (dos_uint8 *)memheap_addr + DOS_MEM_HEAP_SIZE;
   _Align_MemHeap_End = (dos_uint8 *) DOS_ALIGN_DOWN((dos_uint32)_Align_MemHeap_End,DOS_ALIGN_SIZE);
   
   /* Get the actual size of the memory heap */
