@@ -99,46 +99,6 @@ typedef dos_int32              			    dos_err;       /**< Type for error number 
 #endif
 #define typeof                      __typeof__
 
-
-
-/* Compiler Related Definitions */
-#ifdef __CC_ARM                         /* ARM Compiler */
-
-  #ifndef   ASM
-    #define ASM                     __asm
-  #endif
-
-  #ifndef   INLINE
-    #define INLINE                  __inline
-  #endif
-
-  #ifndef   STATIC_INLINE
-    #define STATIC_INLINE           static __inline
-  #endif
-    
-  #ifndef   UNUSED
-    #define UNUSED                   __attribute__((unused))
-  #endif  
-    
-  #ifndef   USED
-    #define USED                    __attribute__((used))
-  #endif
-
-  #ifndef   WEAK
-    #define WEAK                    __attribute__((weak))
-  #endif
-
-  #ifndef   CLZ
-  #define   CLZ                     __clz
-  #endif
-
-#else
-  #error not supported 
-#endif
-
-/************************************************************ 
-  * @note    下面是记录ERR返回值的�?
-  ***********************************************************/
 #define ERR_OK        ( 0 )
 #define ERR_NOK       ( -1 )
 #define ERR_NULL      ( -2 )
