@@ -6,7 +6,7 @@
 
 
 #ifndef DOS_ALIGN_SIZE
-#define DOS_ALIGN_SIZE		(8)
+#define DOS_ALIGN_SIZE		(4)
 #endif 
 
 #ifndef DOS_MEM_HEAP_SIZE

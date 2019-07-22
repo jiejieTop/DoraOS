@@ -27,7 +27,6 @@ Dos_Memp_t Dos_MempCreate(
         return DOS_NULL;
     }
     
-    memp_cnt = (memp_size / blk_size);
 #if (DOS_HEAP_TO_MEMP == 0U)
     if(base == DOS_NULL)
     {
@@ -35,7 +34,9 @@ Dos_Memp_t Dos_MempCreate(
         return DOS_NULL;
     }
     memp = (Dos_Memp_t)Dos_MemAlloc(sizeof(struct Memp));
+    memp_cnt = (memp_size / (blk_size + sizeof(struct MempNode)));
 #else
+    memp_cnt = (memp_size / blk_size);
     memp = (Dos_Memp_t)Dos_MemAlloc((sizeof(struct Memp)) +(sizeof(struct MempNode) * memp_cnt) + memp_size);
 #endif 
     if(memp == DOS_NULL)

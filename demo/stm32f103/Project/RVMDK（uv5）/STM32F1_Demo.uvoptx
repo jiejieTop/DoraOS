@@ -103,7 +103,7 @@
         <bEvRecOn>1</bEvRecOn>
         <bSchkAxf>0</bSchkAxf>
         <bTchkAxf>0</bTchkAxf>
-        <nTsel>6</nTsel>
+        <nTsel>3</nTsel>
         <sDll></sDll>
         <sDllPa></sDllPa>
         <sDlgDll></sDlgDll>
@@ -114,7 +114,7 @@
         <tDlgDll></tDlgDll>
         <tDlgPa></tDlgPa>
         <tIfile></tIfile>
-        <pMon>STLink\ST-LINKIII-KEIL_SWO.dll</pMon>
+        <pMon>BIN\CMSIS_AGDI.dll</pMon>
       </DebugOpt>
       <TargetDriverDllRegistry>
         <SetRegEntry>
@@ -1063,6 +1063,18 @@
       <bDave2>0</bDave2>
       <PathWithFileName>..\..\..\..\example\app_swtmr.c</PathWithFileName>
       <FilenameWithoutPath>app_swtmr.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>10</GroupNumber>
+      <FileNumber>55</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\..\..\..\example\app_memp.c</PathWithFileName>
+      <FilenameWithoutPath>app_memp.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
