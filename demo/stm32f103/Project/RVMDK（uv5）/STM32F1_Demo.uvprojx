@@ -339,7 +339,7 @@
               <MiscControls>--c99</MiscControls>
               <Define>STM32F10X_HD, USE_STDPERIPH_DRIVER</Define>
               <Undefine></Undefine>
-              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\bsp;..\..\..\..\include;..\..\..\..\include\config;..\..\..\..\include\mem;..\..\..\..\include\port;..\..\..\..\include\port\cmsis;..\..\..\..\include\common</IncludePath>
+              <IncludePath>..\..\Libraries\CMSIS;..\..\User;..\..\Libraries\FWlib\inc;..\..\User\bsp;..\..\User\config;..\..\..\..\include;..\..\..\..\include\mem;..\..\..\..\include\port;..\..\..\..\include\port\arm\cortex-m3;..\..\..\..\include\common</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -784,29 +784,9 @@
           <GroupName>dos/inc</GroupName>
           <Files>
             <File>
-              <FileName>debug.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\include\config\debug.h</FilePath>
-            </File>
-            <File>
-              <FileName>dos_config.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\include\config\dos_config.h</FilePath>
-            </File>
-            <File>
-              <FileName>dos_def.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\include\config\dos_def.h</FilePath>
-            </File>
-            <File>
               <FileName>mem.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\..\include\mem\mem.h</FilePath>
-            </File>
-            <File>
-              <FileName>port.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\..\..\include\port\port.h</FilePath>
             </File>
             <File>
               <FileName>list.h</FileName>
@@ -822,6 +802,31 @@
               <FileName>log.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\..\..\include\log.h</FilePath>
+            </File>
+            <File>
+              <FileName>debug.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\User\config\debug.h</FilePath>
+            </File>
+            <File>
+              <FileName>dos_config.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\User\config\dos_config.h</FilePath>
+            </File>
+            <File>
+              <FileName>dos_def.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\User\config\dos_def.h</FilePath>
+            </File>
+            <File>
+              <FileName>port.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\..\include\port\arm\cortex-m3\port.h</FilePath>
+            </File>
+            <File>
+              <FileName>arm_cmsis.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\..\..\include\port\arm\cortex-m3\arm_cmsis.h</FilePath>
             </File>
           </Files>
         </Group>
