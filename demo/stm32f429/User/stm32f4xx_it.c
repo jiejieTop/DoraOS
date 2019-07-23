@@ -75,13 +75,13 @@ void NMI_Handler(void)
   * @param  None
   * @retval None
   */
-//void HardFault_Handler(void)
-//{
-//  /* Go to infinite loop when Hard Fault exception occurs */
-//  while (1)
-//  {
-//  }
-//}
+void HardFault_Handler(void)
+{
+  /* Go to infinite loop when Hard Fault exception occurs */
+  while (1)
+  {
+  }
+}
 
 /**
   * @brief  This function handles Memory Manage exception.

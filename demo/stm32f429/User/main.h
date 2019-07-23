@@ -42,8 +42,13 @@
 #include "debug.h"
 #include "./usart/bsp_debug_usart.h"
 #include "./led/bsp_led.h" 
+#include "./eth/bsp_eth.h" 
 
-
+#include <task.h>
+#include <sem.h>
+#include <mutex.h>
+#include <queue.h>
+#include <log.h>
 
 extern void BSP_Init(void);
 

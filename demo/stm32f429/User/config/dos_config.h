@@ -43,12 +43,13 @@
 #define         DOS_IPC_QUEUQ                   (1U)
 
 #define         DOS_LOG_LEVEL                   DOS_DEBUG_LEVEL
-#define         DOS_LOG_COLOR                   (1U)
-#define         DOS_LOG_TS                      (1U)
-#define         DOS_LOG_TAR                     (1U)
+#define         DOS_LOG_COLOR                   (0U)
+#define         DOS_LOG_TS                      (0U)
+#define         DOS_LOG_TAR                     (0U)
 
+#define         DOS_TICK_PERIOD_MS			    (1000U / DOS_SYSTICK_CLOCK_HZ )
 
-#define         DOS_USE_SALOF                   (1U)
+#define         DOS_USE_SALOF                   (0U)
 #define         DOS_SALOF_BUFF_SIZE             (256U)
 #define         DOS_SALOF_FIFO_SIZE             (1024*4U)
 

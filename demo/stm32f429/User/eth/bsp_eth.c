@@ -205,12 +205,12 @@ void ETH_IRQHandler(void)
 {
   uint32_t ulReturn;
   /* 进入临界段，临界段可以嵌套 */
-  ulReturn = taskENTER_CRITICAL_FROM_ISR();
+  ulReturn = Dos_Interrupt_Disable();
   
   HAL_ETH_IRQHandler(&heth);
   
   /* 退出临界段 */
-  taskEXIT_CRITICAL_FROM_ISR( ulReturn );
+  Dos_Interrupt_Enable( ulReturn );
 }
 
 /**
@@ -218,13 +218,13 @@ void ETH_IRQHandler(void)
   * @param  heth: ETH handle
   * @retval None
   */
-extern xSemaphoreHandle s_xSemaphore;
+extern Dos_Sem_t s_xSemaphore;
 void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *heth)
 {
-//  LED2_TOGGLE;
-  portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
-  xSemaphoreGiveFromISR( s_xSemaphore, &xHigherPriorityTaskWoken );
-  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+  LED2_TOGGLE;
+
+  Dos_SemPost(s_xSemaphore);
+
 }
 
 void HAL_ETH_TxCpltCallback(ETH_HandleTypeDef *heth)

@@ -58,7 +58,7 @@ static void client(void *thread_param)
     if (conn == NULL)
     {
       PRINT_DEBUG("create conn failed!\n");
-      vTaskDelay(10);
+      Dos_TaskSleep(10);
       continue;
     }
     
@@ -69,7 +69,7 @@ static void client(void *thread_param)
     {
         PRINT_DEBUG("Connect failed!\n");
         netconn_close(conn);
-        vTaskDelay(10);
+        Dos_TaskSleep(10);
         continue;
     }
 
@@ -79,7 +79,7 @@ static void client(void *thread_param)
     {
       ret = netconn_write(conn,send_buf,sizeof(send_buf),0);
    
-      vTaskDelay(1000);
+      Dos_TaskSleep(1000);
     }
   }
 
