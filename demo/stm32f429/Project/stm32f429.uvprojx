@@ -338,7 +338,7 @@
               <MiscControls>--c99</MiscControls>
               <Define>USE_HAL_DRIVER,STM32F429xx,USE_STM32F429I_DISCO</Define>
               <Undefine></Undefine>
-              <IncludePath>..\Libraries\CMSIS\Include;..\Libraries\CMSIS\Device\ST\STM32F4xx\Include;..\Libraries\STM32F4xx_HAL_Driver\Inc;..\User;..\User\usart;..\User\led;..\User\config;..\..\..\include;..\..\..\include\mem;..\..\..\include\port;..\..\..\include\port\arm\cortex-m4;..\..\..\include\common</IncludePath>
+              <IncludePath>..\Libraries\CMSIS\Include;..\Libraries\CMSIS\Device\ST\STM32F4xx\Include;..\Libraries\STM32F4xx_HAL_Driver\Inc;..\User;..\User\usart;..\User\led;..\User\config;..\..\..\include;..\..\..\include\mem;..\..\..\include\port;..\..\..\include\port\arm\cortex-m4;..\..\..\include\common\salof</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -725,17 +725,17 @@
             <File>
               <FileName>fifo.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\common\fifo.c</FilePath>
+              <FilePath>..\..\..\common\salof\fifo.c</FilePath>
             </File>
             <File>
               <FileName>format.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\common\format.c</FilePath>
+              <FilePath>..\..\..\common\salof\format.c</FilePath>
             </File>
             <File>
               <FileName>salof.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\..\common\salof.c</FilePath>
+              <FilePath>..\..\..\common\salof\salof.c</FilePath>
             </File>
           </Files>
         </Group>

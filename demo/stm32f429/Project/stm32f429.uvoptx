@@ -1012,7 +1012,7 @@
 
   <Group>
     <GroupName>dos/common</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -1023,7 +1023,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\common\fifo.c</PathWithFileName>
+      <PathWithFileName>..\..\..\common\salof\fifo.c</PathWithFileName>
       <FilenameWithoutPath>fifo.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -1035,7 +1035,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\common\format.c</PathWithFileName>
+      <PathWithFileName>..\..\..\common\salof\format.c</PathWithFileName>
       <FilenameWithoutPath>format.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -1047,7 +1047,7 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\..\..\common\salof.c</PathWithFileName>
+      <PathWithFileName>..\..\..\common\salof\salof.c</PathWithFileName>
       <FilenameWithoutPath>salof.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
@@ -1056,7 +1056,7 @@
 
   <Group>
     <GroupName>dos/example</GroupName>
-    <tvExp>1</tvExp>
+    <tvExp>0</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
