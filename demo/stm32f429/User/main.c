@@ -53,11 +53,7 @@ int main(void)
 
     Dos_SystemInit();
     
-//    DOS_LOG_INFO("sysclk:%d\n", HAL_RCC_GetSysClockFreq());
-//    DOS_LOG_INFO("hclk:%d\n", HAL_RCC_GetHCLKFreq());
-//    DOS_LOG_INFO("pclk1:%d\n", HAL_RCC_GetPCLK1Freq());
-//    DOS_LOG_INFO("pclk2:%d\n", HAL_RCC_GetPCLK2Freq());
-    
+   
     task1 = Dos_TaskCreate( "test_task1",
                             &test_task1,
                             DOS_NULL,

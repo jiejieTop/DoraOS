@@ -18,6 +18,10 @@
     #define     SYSTICK_CLOCK_HZ            1000
 #endif
 
+/* Constants required to manipulate the VFP. */
+#define portFPCCR					( ( volatile uint32_t * ) 0xe000ef34 ) /* Floating point context control register. */
+#define portASPEN_AND_LSPEN_BITS	( 0x3UL << 30UL )
+
 #define         SYSTICK_CTRL_REG            ( * ( ( volatile dos_uint32 * ) 0xe000e010 ) )
 #define         SYSTICK_LOAD_REG            ( * ( ( volatile dos_uint32 * ) 0xe000e014 ) )
 #define         SYSTICK_VAL_REG             ( * ( ( volatile dos_uint32 * ) 0xe000e018 ) )
@@ -43,12 +47,18 @@ dos_uint32 *Dos_StackInit(dos_uint32 *sp ,
                           void *task_entry,
                           dos_void *parameter);
                           
-dos_uint32 Dos_StartScheduler( dos_void );
+dos_uint32 Dos_StartScheduler(dos_void);
 dos_bool Dos_ContextIsInt(dos_void);
 dos_uint32 Interrupt_Disable(dos_void);
 dos_void Interrupt_Enable(dos_uint32 pri);
 dos_uint32 HardWare_Clz(dos_uint32 pri);
-dos_void Dos_StartFirstTask( dos_void );   
+dos_void Dos_EnableVFP(dos_void);
+dos_uint32 Dos_GetIPSR(dos_void);
+dos_uint32 Dos_GetAPSR(dos_void);
+dos_uint32 Dos_GetXPSR(dos_void);
+dos_uint32 Dos_GetPSP(dos_void);
+dos_uint32 Dos_GetMSP(dos_void);
+dos_void Dos_StartFirstTask(dos_void);   
 
 
 #endif
