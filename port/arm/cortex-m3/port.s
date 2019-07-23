@@ -19,13 +19,13 @@
 		
 
 Interrupt_Disable
-	mrs     r0, PRIMASK
+	mrs     r0, primask
 	CPSID   I
 	bx      lr
 
 
 Interrupt_Enable
-	msr     PRIMASK, r0
+	msr     primask, r0
 	bx      lr
 
 
@@ -69,7 +69,7 @@ SVC_Handler
 
 
 PendSV_Handler
-    mrs	r1, PRIMASK
+    mrs	r1, primask
     CPSID   I
 	mrs r0, psp
 	ldr	r2, =Dos_CurrentTCB
@@ -83,7 +83,7 @@ PendSV_Handler
 	ldr r0, [r3]
 	ldmia r0!, {r4-r11}
 	msr psp, r0
-	msr	PRIMASK, r1
+	msr	primask, r1
 	orr	lr, lr, #0x04
 	bx lr
 

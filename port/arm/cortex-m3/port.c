@@ -28,7 +28,7 @@ dos_uint32 *Dos_StackInit(dos_uint32 *sp ,
 
 dos_uint32 Dos_StartScheduler( void )
 {
-	/* 配置PendSV 和 SysTick 的中断优先级为最低 */
+	/* Configure PendSV and SysTick with the lowest interrupt priority */
 	SYSPRI2_REG |= (PENDSV_PRI | SYSTICK_PRI);
 
 
@@ -38,7 +38,7 @@ dos_uint32 Dos_StartScheduler( void )
                        SYSTICK_INT_BIT |
                        SYSTICK_ENABLE_BIT );
 
-	/* 启动第一个任务，不再返回 */
+	/* Start the first task, no longer return */
 	Dos_StartFirstTask();
 
 	return 0;
