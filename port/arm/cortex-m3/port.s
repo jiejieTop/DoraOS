@@ -5,6 +5,11 @@
 	EXPORT  Interrupt_Disable
 	EXPORT  Interrupt_Enable
 	EXPORT  HardWare_Clz
+	EXPORT  Dos_GetIPSR
+	EXPORT  Dos_GetAPSR	
+	EXPORT  Dos_GetXPSR
+	EXPORT  Dos_GetPSP	
+	EXPORT  Dos_GetMSP
 	EXPORT  SVC_Handler
 	EXPORT  PendSV_Handler
 	EXPORT  Dos_StartFirstTask
@@ -18,14 +23,38 @@ Interrupt_Disable
 	CPSID   I
 	bx      lr
 
+
 Interrupt_Enable
 	msr     PRIMASK, r0
 	bx      lr
-	
+
+
 HardWare_Clz
 	rbit	r0,	r0
 	clz 	r0,	r0
 	bx      lr
+
+
+Dos_GetIPSR
+	mrs r0, ipsr
+	bx lr
+	
+Dos_GetAPSR
+	mrs r0, apsr
+	bx lr
+	
+Dos_GetXPSR
+	mrs r0, xpsr
+	bx lr
+
+Dos_GetPSP
+	mrs r0, psp
+	bx lr
+
+Dos_GetMSP
+	mrs r0, msp
+	bx lr
+
 
 SVC_Handler
 	ldr	r2, =Dos_CurrentTCB
@@ -37,6 +66,7 @@ SVC_Handler
 	msr	basepri, r0
 	orr lr, #0xd
 	bx lr
+
 
 PendSV_Handler
     mrs	r1, PRIMASK
@@ -66,4 +96,6 @@ Dos_StartFirstTask
 	cpsie i
 	cpsie f
 	svc 0
+	nop
 	END
+		

@@ -71,102 +71,24 @@
 #endif
 
 
-/**
- * Get IPSR Register 
- * Returns the content of the IPSR Register.
- * return IPSR Register value
- */
-__STATIC_INLINE dos_uint32 __get_IPSR(void)
-{
-  register dos_uint32 __regIPSR          __ASM("ipsr");
-  return(__regIPSR);
-}
-
-
-/**
- * Get APSR Register
- * Returns the content of the APSR Register.
- * return APSR Register value
- */
-__STATIC_INLINE dos_uint32 __get_APSR(void)
-{
-  register dos_uint32 __regAPSR          __ASM("apsr");
-  return(__regAPSR);
-}
-
-
-/**
- * Get xPSR Register
- * Returns the content of the xPSR Register.
- * return xPSR Register value
- */
-__STATIC_INLINE dos_uint32 __get_xPSR(void)
-{
-  register dos_uint32 __regXPSR          __ASM("xpsr");
-  return(__regXPSR);
-}
-
-
-/**
- * Get Process Stack Pointer
- * Returns the current value of the Process Stack Pointer (PSP).
- * return PSP Register value
- */
-__STATIC_INLINE dos_uint32 __get_PSP(void)
-{
-  register dos_uint32 __regProcessStackPointer  __ASM("psp");
-  return(__regProcessStackPointer);
-}
-
-
-/**
- * Set Process Stack Pointer
- * Assigns the given value to the Process Stack Pointer (PSP).
- * @param [in]  topOfProcStack  Process Stack Pointer value to set
- */
-__STATIC_INLINE void __set_PSP(dos_uint32 topOfProcStack)
-{
-  register dos_uint32 __regProcessStackPointer  __ASM("psp");
-  __regProcessStackPointer = topOfProcStack;
-}
-
-
-/**
- * Get Main Stack Pointer
- * Returns the current value of the Main Stack Pointer (MSP).
- * return MSP Register value
- */
-__STATIC_INLINE dos_uint32 __get_MSP(void)
-{
-  register dos_uint32 __regMainStackPointer     __ASM("msp");
-  return(__regMainStackPointer);
-}
-
-
-/**
- * Set Main Stack Pointer
- * Assigns the given value to the Main Stack Pointer (MSP).
- * @param [in] topOfMainStack  Main Stack Pointer value to set
- */
-__STATIC_INLINE void __set_MSP(dos_uint32 topOfMainStack)
-{
-  register dos_uint32 __regMainStackPointer     __ASM("msp");
-  __regMainStackPointer = topOfMainStack;
-}
-
 
 typedef dos_void (*Dos_TaskFunction)( dos_void * );
 
 dos_uint32 *Dos_StackInit(dos_uint32 *sp , 
                           void *task_entry,
                           dos_void *parameter);
-                          
-dos_uint32 Dos_StartScheduler( dos_void );
+
+dos_uint32 Dos_StartScheduler(dos_void);
 dos_bool Dos_ContextIsInt(dos_void);
 dos_uint32 Interrupt_Disable(dos_void);
 dos_void Interrupt_Enable(dos_uint32 pri);
 dos_uint32 HardWare_Clz(dos_uint32 pri);
-dos_void Dos_StartFirstTask( dos_void );   
+dos_uint32 Dos_GetIPSR(dos_void);
+dos_uint32 Dos_GetAPSR(dos_void);
+dos_uint32 Dos_GetXPSR(dos_void);
+dos_uint32 Dos_GetPSP(dos_void);
+dos_uint32 Dos_GetMSP(dos_void);
+dos_void Dos_StartFirstTask(dos_void);   
 
 
 #endif

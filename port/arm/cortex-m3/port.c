@@ -50,7 +50,7 @@ dos_uint32 Dos_StartScheduler( void )
  */
 dos_bool Dos_ContextIsInt(void)
 {
-	return (__get_IPSR() != 0) ? DOS_TRUE : DOS_FALSE; 
+	return (Dos_GetIPSR() != 0) ? DOS_TRUE : DOS_FALSE; 
 }
 
 
