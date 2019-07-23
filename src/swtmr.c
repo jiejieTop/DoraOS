@@ -247,7 +247,7 @@ dos_err Dos_SwtmrInit(void)
     #error "message queue must be turned on when using software timer"
 #endif // !DOS_IPC_QUEUQ
 
-    _Dos_SwtmrQueue = Dos_QueueCreate(3, sizeof(struct Dos_SwtmrMsg));
+    _Dos_SwtmrQueue = Dos_QueueCreate(DOS_SWTMR_QUEUE_SIZE, sizeof(struct Dos_SwtmrMsg));
     if(_Dos_SwtmrQueue == DOS_NULL)
     {
         DOS_LOG_ERR("unable to create software timer queue\n");

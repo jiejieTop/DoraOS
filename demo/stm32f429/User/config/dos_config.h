@@ -23,12 +23,13 @@
 #define         DOS_IDLE_TASK_TICK              (20U)
 
 #define         DOS_SWTMR                       (1U)
+#define         DOS_SWTMR_QUEUE_SIZE            (4U)
 #define         DOS_SWTMR_TASK_PRIORITY         (0U)
 #define         DOS_SWTMR_TASK_SIZE             (1024U)
 #define         DOS_SWTMR_TASK_TICK             (20U)
 
 
-#define         DOS_HW_CLZ_SUPT                 (1U)
+#define         DOS_HW_CLZ_SUPT                 (0U)
 
 #define         DOS_SYSTEM_CLOCK_HZ             (SystemCoreClock)
 #define         DOS_SYSTICK_CLOCK_HZ            (1000U)
@@ -47,7 +48,7 @@
 #define         DOS_LOG_TAR                     (1U)
 
 
-#define         DOS_USE_SALOF                   (0U)
+#define         DOS_USE_SALOF                   (1U)
 #define         DOS_SALOF_BUFF_SIZE             (256U)
 #define         DOS_SALOF_FIFO_SIZE             (1024*4U)
 

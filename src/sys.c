@@ -15,7 +15,6 @@
 #if (DOS_LOGO == DOS_LOGO_BIG)
 /* This logo contains 2097 characters */
 static dos_char _DoraOS_Logo[] = "\r\n \
-  Welcome to DoraOS real-time operating system -- jiejie \r\n\n \
   DDDDDDDDDDDDD                                                                     OOOOOOOOO         SSSSSSSSSSSSSSS   \r\n \
   D::::::::::::DDD                                                                OO:::::::::OO     SS:::::::::::::::S  \r\n \
   D:::::::::::::::DD                                                            OO:::::::::::::OO  S:::::SSSSSS::::::S  \r\n \
@@ -71,6 +70,7 @@ void Dos_SystemInit(void)
 #if DOS_SWTMR
     Dos_SwtmrInit();
 #endif
+    
 }
 
 

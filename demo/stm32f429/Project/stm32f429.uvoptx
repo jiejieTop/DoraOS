@@ -152,36 +152,32 @@
         <Bp>
           <Number>0</Number>
           <Type>0</Type>
-          <LineNumber>393</LineNumber>
+          <LineNumber>40</LineNumber>
           <EnabledFlag>1</EnabledFlag>
-          <Address>134284864</Address>
+          <Address>134218826</Address>
           <ByteObject>0</ByteObject>
           <HtxType>0</HtxType>
           <ManyObjects>0</ManyObjects>
           <SizeOfObject>0</SizeOfObject>
           <BreakByAccess>0</BreakByAccess>
           <BreakIfRCount>1</BreakIfRCount>
-          <Filename>D:\LwIP-Demo\demo - 鍓湰\FreeRTOS\src\queue.c</Filename>
+          <Filename>..\User\usart\bsp_debug_usart.c</Filename>
           <ExecCommand></ExecCommand>
-          <Expression>\\YH_F429\../FreeRTOS/src/queue.c\393</Expression>
-        </Bp>
-        <Bp>
-          <Number>1</Number>
-          <Type>0</Type>
-          <LineNumber>210</LineNumber>
-          <EnabledFlag>1</EnabledFlag>
-          <Address>134219768</Address>
-          <ByteObject>0</ByteObject>
-          <HtxType>0</HtxType>
-          <ManyObjects>0</ManyObjects>
-          <SizeOfObject>0</SizeOfObject>
-          <BreakByAccess>0</BreakByAccess>
-          <BreakIfRCount>1</BreakIfRCount>
-          <Filename>D:\LwIP-Demo\demo - 鍓湰\User\eth\bsp_eth.c</Filename>
-          <ExecCommand></ExecCommand>
-          <Expression>\\YH_F429\../User/eth/bsp_eth.c\210</Expression>
+          <Expression>\\YH_F429\../User/usart/bsp_debug_usart.c\40</Expression>
         </Bp>
       </Breakpoint>
+      <WatchWindow1>
+        <Ww>
+          <count>0</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>Dos_TickCount</ItemText>
+        </Ww>
+        <Ww>
+          <count>1</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>Dos_TickCount</ItemText>
+        </Ww>
+      </WatchWindow1>
       <Tracepoint>
         <THDelay>0</THDelay>
       </Tracepoint>
@@ -612,7 +608,7 @@
 
   <Group>
     <GroupName>dos/inc</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -868,7 +864,7 @@
 
   <Group>
     <GroupName>dos/src</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

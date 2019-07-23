@@ -23,6 +23,7 @@
 #define         DOS_IDLE_TASK_TICK              (20U)
 
 #define         DOS_SWTMR                       (1U)
+#define         DOS_SWTMR_QUEUE_SIZE            (4U)
 #define         DOS_SWTMR_TASK_PRIORITY         (0U)
 #define         DOS_SWTMR_TASK_SIZE             (1024U)
 #define         DOS_SWTMR_TASK_TICK             (20U)
