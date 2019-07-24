@@ -68,6 +68,6 @@ void iperf_server(void *thread_param)
 void
 iperf_server_init(void)
 {
-  sys_thread_new("iperf_server", iperf_server, NULL, 2048*3, 3);
+  sys_thread_new("iperf_server", iperf_server, NULL, 2048*4, 3);
 }
 

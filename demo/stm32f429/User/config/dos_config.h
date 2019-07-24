@@ -42,7 +42,7 @@
 
 #define         DOS_IPC_QUEUQ                   (1U)
 
-#define         DOS_LOG_LEVEL                   DOS_DEBUG_LEVEL
+#define         DOS_LOG_LEVEL                   DOS_WARN_LEVEL
 #define         DOS_LOG_COLOR                   (0U)
 #define         DOS_LOG_TS                      (1U)
 #define         DOS_LOG_TAR                     (1U)

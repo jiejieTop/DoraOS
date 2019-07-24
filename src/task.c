@@ -539,7 +539,13 @@ void Dos_TaskSleep(dos_uint32 sleep_tick)
  */
 DOS_TaskCB_t Dos_Get_CurrentTCB(void)
 {
-    return Dos_CurrentTCB;
+    dos_uint32 pri;
+    DOS_TaskCB_t task;
+    
+    pri = Dos_Interrupt_Disable();
+    task = Dos_CurrentTCB;
+    Dos_Interrupt_Enable(pri);
+    return task;
 }
 
 /**
@@ -596,7 +602,6 @@ dos_uint32 Dos_Get_Tick(void)
 dos_void Dos_TaskWait(Dos_TaskList_t *list, dos_uint32 timeout)
 {
     DOS_TaskCB_t task = Dos_CurrentTCB;
-    dos_uint32 pri;
 
     /** set task status is suspend, insert pend list */
     DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_SUSPEND);
@@ -604,15 +609,10 @@ dos_void Dos_TaskWait(Dos_TaskList_t *list, dos_uint32 timeout)
 
     if(timeout != DOS_WAIT_FOREVER)
     {
-        pri = Dos_Interrupt_Disable();
-
         /** Insert a task into the sleep list based on the wait timeout */
         _Dos_insert_TaskSleep_List(timeout);
-
+        
         /** After the task sleeps, perform a task scheduling */
-        Dos_Scheduler();
-
-        Dos_Interrupt_Enable(pri);
     }
     else
     {
@@ -626,10 +626,8 @@ dos_void Dos_TaskWait(Dos_TaskList_t *list, dos_uint32 timeout)
             if(Dos_TaskList_IsEmpty(&Dos_TaskPriority_List[task->Priority]) == DOS_TRUE)
             {
                 DOS_RESET_TASK_PTIORITY(task);
-                // Dos_Task_Priority &= ~(0x01 << task->Priority); 
             }
         }
-        Dos_Scheduler();
     }
 
 }
@@ -640,9 +638,6 @@ dos_void Dos_TaskWait(Dos_TaskList_t *list, dos_uint32 timeout)
  */
 dos_void Dos_TaskWake(DOS_TaskCB_t task)
 {
-    dos_uint32 pri;
-    pri = Dos_Interrupt_Disable();
-
     Dos_TaskItem_Del(&(task->PendItem));
     Dos_TaskItem_Del(&(task->StateItem));
 
@@ -650,10 +645,6 @@ dos_void Dos_TaskWake(DOS_TaskCB_t task)
 
     /** insert task priority list, and set the priority position corresponding to the Dos_Task_Priority variable is 1*/
     _Dos_insert_TaskPriority_List(task);
-
-    Dos_Scheduler();
-
-    Dos_Interrupt_Enable(pri);
 }
 
 
@@ -804,7 +795,7 @@ void Dos_Update_Tick(void)
         /** Notify the software timer of overflow */
         Dos_Swtmr_OverFlow(); 
 #endif
-  }
+    }
   
     /** When a timeout event occurs, such as sleep timeout, waiting for message queue, semaphore, mutex, event timeout ect */
     if(Dos_TickCount >= Dos_NextWake_Tick)
@@ -845,7 +836,9 @@ void Dos_Update_Tick(void)
                 _Dos_insert_TaskPriority_List(task);
             }
         } 
-  }
+    }
+    
+    Dos_Scheduler();
 }
 
 
@@ -859,9 +852,7 @@ void SysTick_Handler(void)
     HAL_IncTick();
     /** update system tick */
     Dos_Update_Tick();
-
-    Dos_Scheduler();
-
+    
     Interrupt_Enable(pri);
 }
 

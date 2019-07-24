@@ -70,41 +70,52 @@ dos_err Dos_SemDelete(Dos_Sem_t sem)
  */
 dos_err Dos_SemWait(Dos_Sem_t sem, dos_uint32 timeout)
 {
+    dos_uint32 pri;
     DOS_TaskCB_t task;
-
+    
+    pri = Dos_Interrupt_Disable();
+    
     if(sem == DOS_NULL)
     {
         DOS_LOG_WARN("sem is null\n");
+        Dos_Interrupt_Enable(pri);
         return DOS_NOK;
     }
 
     if(sem->SemCnt > 0)
     {
         sem->SemCnt--;
+        Dos_Interrupt_Enable(pri);
         return DOS_OK;
     }
 
     if((timeout == 0) || (Dos_Scheduler_IsLock()))  /** scheduler is lock */
     {
+        Dos_Interrupt_Enable(pri);
         return DOS_NOK;
     }
 
     if(Dos_ContextIsInt())
     {
         DOS_LOG_ERR("sem wait time is not 0, and the context is in an interrupt\n");
+        Dos_Interrupt_Enable(pri);
         return DOS_NOK;
     }
 
     Dos_TaskWait(&sem->SemPend, timeout);
-
+    Dos_Interrupt_Enable(pri);
+    Dos_Scheduler();
+    
     task = (DOS_TaskCB_t)Dos_Get_CurrentTCB();
     /** Task resumes running */
     if(task->TaskStatus & DOS_TASK_STATUS_TIMEOUT)
     {
+        pri = Dos_Interrupt_Disable();
         DOS_RESET_TASK_STATUS(task, (DOS_TASK_STATUS_TIMEOUT | DOS_TASK_STATUS_SUSPEND));
         DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
         Dos_TaskItem_Del(&(task->PendItem));
         DOS_LOG_INFO("waiting for sem timeout\n");
+        Dos_Interrupt_Enable(pri);
         return DOS_NOK;
     }
 
@@ -116,16 +127,21 @@ dos_err Dos_SemWait(Dos_Sem_t sem, dos_uint32 timeout)
  */
 dos_err Dos_SemPost(Dos_Sem_t sem)
 {
+    dos_uint32 pri;
     DOS_TaskCB_t task;
+    
+    pri = Dos_Interrupt_Disable();
 
     if(sem == DOS_NULL)
     {
         DOS_LOG_WARN("sem is null\n");
+        Dos_Interrupt_Enable(pri);
         return DOS_NOK;
     }
     
     if(sem->SemCnt == sem->SemMaxCnt)
     {
+        Dos_Interrupt_Enable(pri);
         return DOS_NOK; /** overflow */
     }
 
@@ -133,11 +149,14 @@ dos_err Dos_SemPost(Dos_Sem_t sem)
     if(Dos_TaskList_IsEmpty(&(sem->SemPend)))
     {
         sem->SemCnt++;  
+        Dos_Interrupt_Enable(pri);
     }
     else
     {
         task = Dos_GetTCB(&(sem->SemPend));
         Dos_TaskWake(task);
+        Dos_Interrupt_Enable(pri);
+        Dos_Scheduler();
     }
 
     return DOS_OK;

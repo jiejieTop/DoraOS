@@ -73,11 +73,9 @@ dos_err Dos_MutexPend(Dos_Mutex_t mutex, dos_uint32 timeout)
         return DOS_NOK;
     }
 
-    pri = Dos_Interrupt_Disable();
-
     task = (DOS_TaskCB_t)Dos_Get_CurrentTCB();
-
-
+    
+    pri = Dos_Interrupt_Disable();
     /** can pend the mutex */
     if(mutex->MutexCnt == 0)
     {
@@ -95,11 +93,10 @@ dos_err Dos_MutexPend(Dos_Mutex_t mutex, dos_uint32 timeout)
         return DOS_OK;
     }
 
-    Dos_Interrupt_Enable(pri);
-
     /** time is be set 0 or scheduler is lock */
     if((timeout == 0) || (Dos_Scheduler_IsLock()))  
     {
+        Dos_Interrupt_Enable(pri);
         return DOS_NOK;
     }
 
@@ -110,13 +107,18 @@ dos_err Dos_MutexPend(Dos_Mutex_t mutex, dos_uint32 timeout)
     }
 
     Dos_TaskWait(&mutex->MutexPend, timeout);
+    Dos_Interrupt_Enable(pri);
+    Dos_Scheduler();
+    
     /** Task resumes running */
     if(task->TaskStatus & DOS_TASK_STATUS_TIMEOUT)
     {
+        pri = Dos_Interrupt_Disable();
         DOS_RESET_TASK_STATUS(task, (DOS_TASK_STATUS_TIMEOUT | DOS_TASK_STATUS_SUSPEND));
         DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
         Dos_TaskItem_Del(&(task->PendItem));
         DOS_LOG_INFO("waiting for mutex timeout\n");
+        Dos_Interrupt_Enable(pri);
         return DOS_NOK;
     }
 
@@ -135,21 +137,21 @@ dos_err Dos_MutexPost(Dos_Mutex_t mutex)
         return DOS_NOK;
     }
 
-    pri = Dos_Interrupt_Disable();
-
     task = (DOS_TaskCB_t)Dos_Get_CurrentTCB();
-
-    Dos_Interrupt_Enable(pri);
+    
+    pri = Dos_Interrupt_Disable();
 
     if((mutex->MutexCnt == 0) || (mutex->MutexOwner != task))
     {
         DOS_LOG_WARN("unable to continue to post the mutex, the mutex is not be held, or the owner is not the current task\n");
+        Dos_Interrupt_Enable(pri);
         return DOS_NOK;
     }
 
 
     if(--(mutex->MutexCnt) != 0)
     {
+        Dos_Interrupt_Enable(pri);
         return DOS_OK;
     }
 
@@ -159,8 +161,6 @@ dos_err Dos_MutexPost(Dos_Mutex_t mutex)
         Dos_SetTaskPrio(mutex->MutexOwner, mutex->Priority);
     }
 
-    pri = Dos_Interrupt_Disable();
-
     if(!Dos_TaskList_IsEmpty(&(mutex->MutexPend)))
     {
         task = Dos_GetTCB(&(mutex->MutexPend));
@@ -168,6 +168,8 @@ dos_err Dos_MutexPost(Dos_Mutex_t mutex)
         mutex->MutexCnt++;
         mutex->MutexOwner = task;
         Dos_TaskWake(task);
+        Dos_Interrupt_Enable(pri);
+        Dos_Scheduler();
     }
     else
     {

@@ -472,7 +472,7 @@ TRY_GET_NEXT_FRAGMENT:
       /* points to packet payload, which starts with an Ethernet header */
       if(p != NULL)
       {
-//        pri = Dos_Interrupt_Disable();
+        pri = Dos_Interrupt_Disable();
         /* full packet send to tcpip_thread to process */
         if (netif->input(p, netif) != ERR_OK)
         {
@@ -485,7 +485,7 @@ TRY_GET_NEXT_FRAGMENT:
           Dos_SemWait( s_xSemaphore, 0);
           goto TRY_GET_NEXT_FRAGMENT;
         }
-//        Dos_Interrupt_Enable(pri);
+        Dos_Interrupt_Enable(pri);
       }
     }
 	}

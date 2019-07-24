@@ -58,10 +58,10 @@
 /* USER CODE BEGIN 0 */
 #define NETIF_MTU								      ( 1500 )
 
-#define NETIF_IN_TASK_STACK_SIZE			( 1024 )
+#define NETIF_IN_TASK_STACK_SIZE			( 1024*4 )
 #define NETIF_IN_TASK_PRIORITY			  ( 3 )
 
-#define NETIF_OUT_TASK_STACK_SIZE			( 1024 )
+#define NETIF_OUT_TASK_STACK_SIZE			( 1024*4 )
 #define NETIF_OUT_TASK_PRIORITY			  ( 3 )
 
 /* USER CODE END 0 */

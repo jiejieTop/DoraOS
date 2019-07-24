@@ -7,6 +7,10 @@
 
 static dos_void _Dos_QueueCopy(Dos_Queue_t queue, dos_void *buff, dos_size size, dos_uint8 op)
 {
+    dos_uint32 pri;
+    
+    pri = Dos_Interrupt_Disable();
+    
     switch (op)
     {
     case QUEUE_READ:
@@ -27,7 +31,7 @@ static dos_void _Dos_QueueCopy(Dos_Queue_t queue, dos_void *buff, dos_size size,
     {
         queue->QueueRWPtr[op] = queue->QueueHPtr;
     }
-
+    Dos_Interrupt_Enable(pri);
 }
 
 
@@ -41,14 +45,16 @@ static dos_void _Dos_QueueCopy(Dos_Queue_t queue, dos_void *buff, dos_size size,
  */
 static dos_err _Dos_Queuehandler(Dos_Queue_t queue, dos_void *buff, dos_size size, dos_uint8 op, dos_uint32 timeout)
 {
+    dos_uint32 pri;
     DOS_TaskCB_t task;
-    dos_err err;
 
+    pri = Dos_Interrupt_Disable();
+    
     if((!queue) || (!buff) || (!size) || (op > QUEUE_WRITE))
     {
         DOS_LOG_WARN("queue does not satisfy the condition\n");
-        err =  DOS_NOK;
-        goto OUT;
+        Dos_Interrupt_Enable(pri);
+        return DOS_NOK;
     }
 
     size = DOS_MIN(size, queue->QueueSize);
@@ -57,24 +63,26 @@ static dos_err _Dos_Queuehandler(Dos_Queue_t queue, dos_void *buff, dos_size siz
     {
         if(0 == timeout)
         {
-            err =  DOS_NOK;
-            goto OUT;
+            Dos_Interrupt_Enable(pri);
+            return DOS_NOK;
         }
 
         if(Dos_ContextIsInt())
         {
             DOS_LOG_ERR("queue wait time is not 0, and the context is in an interrupt\n");
-            err = DOS_NOK;
-            goto OUT;
+            Dos_Interrupt_Enable(pri);
+            return DOS_NOK;
         }
 
         if(Dos_Scheduler_IsLock())  /** scheduler is lock */
         {
-            err = DOS_NOK;
-            goto OUT;
+            Dos_Interrupt_Enable(pri);
+            return DOS_NOK;
         }
 
         Dos_TaskWait(&queue->QueuePend[op], timeout);
+        Dos_Interrupt_Enable(pri);
+        Dos_Scheduler();
         
         task = (DOS_TaskCB_t)Dos_Get_CurrentTCB();
         /** Task resumes running */
@@ -84,35 +92,31 @@ static dos_err _Dos_Queuehandler(Dos_Queue_t queue, dos_void *buff, dos_size siz
             DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
             Dos_TaskItem_Del(&(task->PendItem));
             DOS_LOG_INFO("waiting for queue timeout\n");
-            err = DOS_NOK;
-            goto OUT;
+            return DOS_NOK;
         }
     }
     else
     {
         queue->QueueRWCnt[op]--;
+        Dos_Interrupt_Enable(pri);
     }
-
+    
     _Dos_QueueCopy(queue, buff, size, op);
-
+    
     if(!Dos_TaskList_IsEmpty(&(queue->QueuePend[1-op])))
     {
+        pri = Dos_Interrupt_Disable();
         task = Dos_GetTCB(&(queue->QueuePend[1-op]));
         Dos_TaskWake(task);
+        Dos_Interrupt_Enable(pri);
+        Dos_Scheduler();
     }
     else
     {
         queue->QueueRWCnt[1-op]++;
     }
-
-    err = DOS_OK;
-
-OUT:
-    // if(queue->QueueRWLock[op])
-    // {
-    //     queue->QueueRWLock[op]--;
-    // }
-    return err;
+    
+    return DOS_OK;
 }
 
 
