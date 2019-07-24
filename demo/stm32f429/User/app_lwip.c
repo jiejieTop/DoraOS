@@ -8,7 +8,8 @@
 #include <task.h>
 #include <log.h>
 #include <memp.h>
-#include "client.h"
+#include "iperf.h"
+//#include "client.h"
 /** Variable declaration */
 DOS_TaskCB_t task1 = DOS_NULL;
 DOS_TaskCB_t task2 = DOS_NULL;
@@ -22,11 +23,12 @@ extern void TCPIP_Init(void);
 
 void test_task1(void *Parameter)
 {
-    dos_uint32 pri;
+//    dos_uint32 pri;
     
     TCPIP_Init();
 
-    client_init();
+    iperf_server_init();
+//    client_init();
 
     printf("本例程演示开发板发送数据到服务器\n\n");
 
@@ -40,10 +42,10 @@ void test_task1(void *Parameter)
     
     while(1)
     {
-        pri = Dos_Interrupt_Disable();
-        DOS_LOG_INFO("task1\n");
-        Dos_Interrupt_Enable(pri);
-        Dos_TaskSleep(1000);
+//        pri = Dos_Interrupt_Disable();
+////        printf("task1\n");
+//        Dos_Interrupt_Enable(pri);
+        Dos_TaskSleep(100000);
         
     }
 }
@@ -55,7 +57,7 @@ void test_task2(void *Parameter)
     while(1)
     {
         pri = Dos_Interrupt_Disable();
-        DOS_LOG_INFO("task2\n");
+        printf("mem:%d\n",Dos_MemInfoGet());
         Dos_Interrupt_Enable(pri);
         Dos_TaskSleep(1000);
         
@@ -74,15 +76,15 @@ int main(void)
     task1 = Dos_TaskCreate( "test_task1",
                             &test_task1,
                             DOS_NULL,
-                            512,
-                            2,
+                            2048,
+                            6,
                             20);
 
     task2 = Dos_TaskCreate( "test_task2",
                             &test_task2,
                             DOS_NULL,
-                            512,
-                            3,
+                            2048,
+                            7,
                             0);
                 
     Dos_Start();

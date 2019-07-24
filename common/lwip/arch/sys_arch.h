@@ -44,7 +44,7 @@
 #define DEST_IP_ADDR0               192
 #define DEST_IP_ADDR1               168
 #define DEST_IP_ADDR2                 0
-#define DEST_IP_ADDR3               181
+#define DEST_IP_ADDR3               195
 
 #define DEST_PORT                  5001
 
@@ -72,10 +72,10 @@
 #define GW_ADDR3                      1
 /* USER CODE END 0 */
 
-#define SYS_MBOX_NULL  (Dos_Queue_t)0
-#define SYS_SEM_NULL   (Dos_Sem_t)0
-#define SYS_MRTEX_NULL (Dos_Mutex_t)0
-#define SYS_DEFAULT_THREAD_STACK_DEPTH	1024
+#define SYS_MBOX_NULL  (Dos_Queue_t)DOS_NULL
+#define SYS_SEM_NULL   (Dos_Sem_t)DOS_NULL
+#define SYS_MRTEX_NULL (Dos_Mutex_t)DOS_NULL
+#define SYS_DEFAULT_THREAD_STACK_DEPTH	1024*8
 
 typedef Dos_Sem_t sys_sem_t;
 typedef Dos_Mutex_t sys_mutex_t;

@@ -856,7 +856,7 @@ void SysTick_Handler(void)
 {
     dos_uint32 pri; 
     pri = Interrupt_Disable();
-
+    HAL_IncTick();
     /** update system tick */
     Dos_Update_Tick();
 
