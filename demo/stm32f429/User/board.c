@@ -20,9 +20,13 @@
 #include "./usart/bsp_debug_usart.h"
 #include "./led/bsp_led.h"  
 
+#include <cm_backtrace.h>
 
 static void SystemClock_Config(void);
 static void GPIO_CLK_Init(void);
+
+#define HARDWARE_VERSION               "V1.0.0"
+#define SOFTWARE_VERSION               "V0.1.0"
 
 void BSP_Init(void)
 {
@@ -34,6 +38,11 @@ void BSP_Init(void)
   LED_GPIO_Config(); 
   /*初始化USART 配置模式为 115200 8-N-1，中断接收*/
   DEBUG_USART_Config();
+    
+  /* CmBacktrace initialize */
+  cm_backtrace_init("YH-F429", HARDWARE_VERSION, SOFTWARE_VERSION);
+  
+  printf("----------- Lwip demo ------------\n");
 }
 
 /**
@@ -126,5 +135,15 @@ static void GPIO_CLK_Init(void)
 }
 
 
+void assert_failed(uint8_t* file, uint32_t line)
+{
+    /* User can add his own implementation to report the file name and line number,
+     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+    /* Infinite loop */
+    cm_backtrace_assert(cmb_get_sp());
+    printf("assert failed at %s:%d \n", file, line);
+    while (1) {
+    }
+}
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

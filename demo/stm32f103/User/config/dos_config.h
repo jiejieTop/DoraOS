@@ -33,7 +33,7 @@
 
 #define         DOS_SYSTEM_CLOCK_HZ             (SystemCoreClock)
 #define         DOS_SYSTICK_CLOCK_HZ            (1000U)
-
+#define         DOS_TICK_PERIOD_MS			    (1000U / DOS_SYSTICK_CLOCK_HZ )
 
 #define         DOS_ALIGN_SIZE                  (4U)
 

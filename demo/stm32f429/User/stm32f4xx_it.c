@@ -39,7 +39,7 @@
 #include "main.h"
 #include "stm32f4xx_it.h"
 #include "./usart/bsp_debug_usart.h"
-
+#include "task.h"
 
 
 /** @addtogroup STM32F4xx_HAL_Examples
@@ -75,15 +75,15 @@ void NMI_Handler(void)
   * @param  None
   * @retval None
   */
-void HardFault_Handler(void)
-{
-  DOS_LOG_ERR("HardFault\n");
-  /* Go to infinite loop when Hard Fault exception occurs */
-  while (1)
-  {
-      
-  }
-}
+//void HardFault_Handler(void)
+//{
+//  DOS_LOG_ERR("HardFault\n");
+//  /* Go to infinite loop when Hard Fault exception occurs */
+//  while (1)
+//  {
+//      
+//  }
+//}
 
 /**
   * @brief  This function handles Memory Manage exception.
@@ -134,7 +134,19 @@ void DebugMon_Handler(void)
 }
 
 
-
+/**
+ * system tick handler
+ */
+dos_void SysTick_Handler(dos_void)
+{
+    dos_uint32 pri; 
+    pri = Interrupt_Disable();
+    HAL_IncTick();
+    /** update system tick */
+    Dos_Update_Tick();
+    
+    Interrupt_Enable(pri);
+}
 
 /******************************************************************************/
 /*                 STM32F4xx Peripherals Interrupt Handlers                   */

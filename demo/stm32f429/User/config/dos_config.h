@@ -29,29 +29,29 @@
 #define         DOS_SWTMR_TASK_TICK             (20U)
 
 
-#define         DOS_HW_CLZ_SUPT                 (0U)
+#define         DOS_HW_CLZ_SUPT                 (1U)
 
 #define         DOS_SYSTEM_CLOCK_HZ             (SystemCoreClock)
 #define         DOS_SYSTICK_CLOCK_HZ            (1000U)
-
+#define         DOS_TICK_PERIOD_MS			    (1000U / DOS_SYSTICK_CLOCK_HZ )
 
 #define         DOS_ALIGN_SIZE                  (4U)
 
-#define         DOS_MEM_HEAP_SIZE               (1024*30)
+#define         DOS_MEM_HEAP_SIZE               (1024*35)
 #define         DOS_HEAP_TO_MEMP                (1U)    /** memory heap to create memory pool */
 
 #define         DOS_IPC_QUEUQ                   (1U)
 
-#define         DOS_LOG_LEVEL                   DOS_WARN_LEVEL
-#define         DOS_LOG_COLOR                   (0U)
+#define         DOS_LOG_LEVEL                   DOS_DEBUG_LEVEL
+#define         DOS_LOG_COLOR                   (1U)
 #define         DOS_LOG_TS                      (1U)
 #define         DOS_LOG_TAR                     (1U)
 
-#define         DOS_TICK_PERIOD_MS			    (1000U / DOS_SYSTICK_CLOCK_HZ )
-
+#define         DOS_USE_LOG                     (1U)
 #define         DOS_USE_SALOF                   (0U)
+
+
 #define         DOS_SALOF_BUFF_SIZE             (256U)
 #define         DOS_SALOF_FIFO_SIZE             (1024*4U)
 
 #endif
-

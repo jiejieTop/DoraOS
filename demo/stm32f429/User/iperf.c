@@ -53,7 +53,7 @@ void iperf_server(void *thread_param)
         /*printf("Recved\n");*/
         do {
              netbuf_data(buf, &recv_data, &len);
-             err = netconn_write(newconn, buf, len, NETCONN_COPY);
+//             err = netconn_write(newconn, buf, len, NETCONN_COPY);
         } while (netbuf_next(buf) >= 0);
         netbuf_delete(buf);
       }

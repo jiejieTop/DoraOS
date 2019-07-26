@@ -99,7 +99,7 @@ a lot of data that needs to be copied, this should be set high. */
 #define TCP_MSS                 (1500 - 40)	  /* TCP_MSS = (Ethernet MTU - IP header size - TCP header size) */
 
 /* TCP sender buffer space (bytes). */
-#define TCP_SND_BUF             (11*TCP_MSS)
+#define TCP_SND_BUF             (7*TCP_MSS)
 
 /*  TCP_SND_QUEUELEN: TCP sender buffer space (pbufs). This must be at least
   as much as (2 * TCP_SND_BUF/TCP_MSS) for things to work. */
@@ -107,7 +107,7 @@ a lot of data that needs to be copied, this should be set high. */
 #define TCP_SND_QUEUELEN        (8* TCP_SND_BUF/TCP_MSS)
 
 /* TCP receive window. */
-#define TCP_WND                 (11*TCP_MSS)
+#define TCP_WND                 (7*TCP_MSS)
 
 
 /* ---------- ICMP options ---------- */
@@ -210,16 +210,16 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 */
 
 
-#define DEFAULT_UDP_RECVMBOX_SIZE       20
-#define DEFAULT_TCP_RECVMBOX_SIZE       20
-#define DEFAULT_ACCEPTMBOX_SIZE         20
-#define DEFAULT_THREAD_STACKSIZE        2024*5
+#define DEFAULT_UDP_RECVMBOX_SIZE       10
+#define DEFAULT_TCP_RECVMBOX_SIZE       10
+#define DEFAULT_ACCEPTMBOX_SIZE         10
+#define DEFAULT_THREAD_STACKSIZE        1024*5
 
 
 #define TCPIP_THREAD_NAME              "lwip"
-#define TCPIP_THREAD_STACKSIZE          2024*5
-#define TCPIP_MBOX_SIZE                 20
-#define TCPIP_THREAD_PRIO               2
+#define TCPIP_THREAD_STACKSIZE          1024*5
+#define TCPIP_MBOX_SIZE                 10
+#define TCPIP_THREAD_PRIO               1
 
 //#define IPERF_SERVER_THREAD_NAME            "iperf_server"
 //#define IPERF_SERVER_THREAD_STACKSIZE        1024

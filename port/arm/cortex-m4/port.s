@@ -138,11 +138,26 @@ PendSV_Handler
 
 
 Dos_StartFirstTask
+
 	ldr r0, =0xE000ED08
 	ldr r0, [r0]
 	ldr r0, [r0]
+
 	msr msp, r0
+
 	cpsie i
 	cpsie f
+	dsb
+	isb
+
 	svc 0
+	nop
+
+;	ldr r0, =0xE000ED08
+;	ldr r0, [r0]
+;	ldr r0, [r0]
+;	msr msp, r0
+;	cpsie i
+;	cpsie f
+;	svc 0
 	END
