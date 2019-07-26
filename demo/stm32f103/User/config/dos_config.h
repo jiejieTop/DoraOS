@@ -47,8 +47,10 @@
 #define         DOS_LOG_TS                      (1U)
 #define         DOS_LOG_TAR                     (1U)
 
+#define         DOS_USE_LOG                     (1U)
+#define         DOS_USE_SALOF                   (1U)
 
-#define         DOS_USE_SALOF                   (0U)
+
 #define         DOS_SALOF_BUFF_SIZE             (256U)
 #define         DOS_SALOF_FIFO_SIZE             (1024*4U)
 

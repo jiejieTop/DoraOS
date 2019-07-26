@@ -24,10 +24,9 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-//#include "stm32f10x_it.h"
-//#include "./led/bsp_led.h"
-//#include "./exti/bsp_exti.h"
 #include "include.h"
+#include "task.h"
+
 /** @addtogroup STM32F10x_StdPeriph_Template
   * @{
   */
@@ -136,9 +135,19 @@ void DebugMon_Handler(void)
   * @param  None
   * @retval None
   */
-//void SysTick_Handler(void)
-//{
-//}
+/**
+ * system tick handler
+ */
+dos_void SysTick_Handler(dos_void)
+{
+    dos_uint32 pri; 
+    pri = Interrupt_Disable();
+    
+    /** update system tick */
+    Dos_Update_Tick();
+    
+    Interrupt_Enable(pri);
+}
 
 
 /******************************************************************************/
