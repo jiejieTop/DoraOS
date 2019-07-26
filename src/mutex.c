@@ -117,7 +117,6 @@ dos_err Dos_MutexPend(Dos_Mutex_t mutex, dos_uint32 timeout)
         DOS_RESET_TASK_STATUS(task, (DOS_TASK_STATUS_TIMEOUT | DOS_TASK_STATUS_SUSPEND));
         DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
         Dos_TaskItem_Del(&(task->PendItem));
-        DOS_LOG_INFO("waiting for mutex timeout\n");
         Dos_Interrupt_Enable(pri);
         return DOS_NOK;
     }

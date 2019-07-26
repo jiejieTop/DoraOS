@@ -99,10 +99,6 @@ typedef dos_int32              			    dos_err;       /**< Type for error number 
 #endif
 #define typeof                      __typeof__
 
-#define ERR_OK        ( 0 )
-#define ERR_NOK       ( -1 )
-#define ERR_NULL      ( -2 )
-#define ERR_UNUSE     ( -3 )
 
 
 #endif /* __REDEF_H */

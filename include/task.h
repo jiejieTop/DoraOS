@@ -98,6 +98,7 @@ DOS_TaskCB_t Dos_Get_NextTCB(Dos_TaskList_t *list);
 dos_void Dos_TaskWait(Dos_TaskList_t *dos_list, dos_uint32 timeout);
 dos_void Dos_TaskWake(DOS_TaskCB_t task);
 dos_void Dos_SetTaskPrio(DOS_TaskCB_t task, dos_uint16 prio);
+dos_void Dos_Update_Tick(dos_void);
 
 #endif
 

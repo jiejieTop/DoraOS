@@ -65,13 +65,13 @@ const dos_uint8 Dos_BitMap[] =
 /**
  * Function declaration
  */
-static void _Dos_Create_IdleTask(void);
-static dos_bool _Dos_Cheek_TaskPriority(void);
+static dos_void _Dos_Create_IdleTask(dos_void);
+static dos_bool _Dos_Cheek_TaskPriority(dos_void);
 
 /**
  * task priority list initialization
  */
-static void _Dos_TaskPriority_List_Init(void)
+static dos_void _Dos_TaskPriority_List_Init(dos_void)
 {
     dos_uint32 i;
 #if DOS_MAX_PRIORITY_NUM > 32
@@ -89,7 +89,7 @@ static void _Dos_TaskPriority_List_Init(void)
 /**
  * task sleep list initialization
  */
-static void _Dos_TaskSleep_List_Init(void)
+static dos_void _Dos_TaskSleep_List_Init(dos_void)
 {
     _Dos_TaskSleep_List = &_Dos_Sleep_List1;
     _Dos_TaskSleep_OverFlow_List = &_Dos_Sleep_List2;
@@ -101,7 +101,7 @@ static void _Dos_TaskSleep_List_Init(void)
 /**
  * task priority/sleep list initialization
  */
-static void _Dos_Task_List_Init(void)
+static dos_void _Dos_Task_List_Init(dos_void)
 {
     Dos_TaskList_Init(&_Dos_RecycleList);
     _Dos_TaskPriority_List_Init();
@@ -111,7 +111,7 @@ static void _Dos_Task_List_Init(void)
 /**
  * Task initialization
  */
-static void _Dos_InitTask(DOS_TaskCB_t task)
+static dos_void _Dos_InitTask(DOS_TaskCB_t task)
 {
     /** Get the top address of the task stack */
     task->TopOfStack = (dos_void *)((dos_uint32)task->StackAddr + (dos_uint32)(task->StackSize - 1));
@@ -152,7 +152,7 @@ static dos_uint32 _Dos_Get_Highest_Priority(dos_uint32 pri)
 /**
  * insert 
  */
-static void _Dos_insert_TaskPriority_List(DOS_TaskCB_t task)
+static dos_void _Dos_insert_TaskPriority_List(DOS_TaskCB_t task)
 {
     /* update priority  */
     DOS_SET_TASK_PTIORITY(task);
@@ -164,7 +164,7 @@ static void _Dos_insert_TaskPriority_List(DOS_TaskCB_t task)
     Dos_TaskItem_insert(&Dos_TaskPriority_List[task->Priority],&task->StateItem);
 }
 
-static void _Dos_insert_TaskSleep_List(dos_uint32 sleep_tick)
+static dos_void _Dos_insert_TaskSleep_List(dos_uint32 sleep_tick)
 {
     DOS_TaskCB_t cur_task = Dos_CurrentTCB;
 
@@ -209,7 +209,7 @@ static void _Dos_insert_TaskSleep_List(dos_uint32 sleep_tick)
 }
 
 
-static dos_bool _Dos_Cheek_TaskPriority(void)
+static dos_bool _Dos_Cheek_TaskPriority(dos_void)
 {
 #if DOS_MAX_PRIORITY_NUM > 32
     dos_uint32 i;
@@ -248,7 +248,7 @@ static dos_bool _Dos_Cheek_TaskPriority(void)
 /**
  * idle task function
  */
-static void _Dos_IdleTask(void *Parameter)
+static dos_void _Dos_IdleTask(dos_void *Parameter)
 {
     DOS_TaskCB_t task;
 #if DOS_USE_SALOF
@@ -282,7 +282,7 @@ static void _Dos_IdleTask(void *Parameter)
 /** 
  * create idle task
  */
-static void _Dos_Create_IdleTask(void)
+static dos_void _Dos_Create_IdleTask(dos_void)
 {
  Dos_IdleTCB = Dos_TaskCreate( "IdleTask",
                                 &_Dos_IdleTask,
@@ -301,7 +301,7 @@ static void _Dos_Create_IdleTask(void)
  * switch _Dos_TaskSleep_OverFlow_List when time overflows. 
  * Otherwise choose _Dos_TaskSleep_List
  */
-static void _Dos_Switch_SleepList(void)
+static dos_void _Dos_Switch_SleepList(dos_void)
 {
     Dos_TaskList_t *list;
     DOS_TaskCB_t task;
@@ -334,7 +334,7 @@ static void _Dos_Switch_SleepList(void)
 /**
  * task scheduler(Internally used function)
  */
-static dos_bool _Dos_Scheduler(void)
+static dos_bool _Dos_Scheduler(dos_void)
 {
     if((DOS_YES == Dos_IsRun) && (_Dos_Cheek_TaskPriority() != DOS_FALSE))
     {
@@ -348,7 +348,7 @@ static dos_bool _Dos_Scheduler(void)
 /**
  * system init
  */
-void Dos_TaskInit(void)
+dos_void Dos_TaskInit(dos_void)
 {
     /* init task list */
     _Dos_Task_List_Init();
@@ -368,8 +368,8 @@ void Dos_TaskInit(void)
  * @return     Task control block pointer
  */
 DOS_TaskCB_t Dos_TaskCreate(const dos_char *name,
-                            void (*task_entry)(void *param),
-                            void * const param,
+                            dos_void (*task_entry)(dos_void *param),
+                            dos_void * const param,
                             dos_uint32 stack_size,
                             dos_uint16 priority,
                             dos_uint32 tick)
@@ -422,7 +422,7 @@ DOS_TaskCB_t Dos_TaskCreate(const dos_char *name,
     }
   
     /** Initialize task control block information */
-    task->TaskEntry = (void *)task_entry;
+    task->TaskEntry = (dos_void *)task_entry;
     task->Parameter = param;
     task->Priority = priority;
     task->TaskName = (dos_char *)name;
@@ -512,7 +512,7 @@ dos_err Dos_TaskDelete(DOS_TaskCB_t task)
 /**
  * task sleep (tick)
  */
-void Dos_TaskSleep(dos_uint32 sleep_tick)
+dos_void Dos_TaskSleep(dos_uint32 sleep_tick)
 {
     dos_uint32 pri;
 
@@ -537,7 +537,7 @@ void Dos_TaskSleep(dos_uint32 sleep_tick)
 /**
  * get current task control block 
  */
-DOS_TaskCB_t Dos_Get_CurrentTCB(void)
+DOS_TaskCB_t Dos_Get_CurrentTCB(dos_void)
 {
     dos_uint32 pri;
     DOS_TaskCB_t task;
@@ -551,7 +551,7 @@ DOS_TaskCB_t Dos_Get_CurrentTCB(void)
 /**
  * get current task control block 
  */
-dos_char *Dos_Get_TaskName(void)
+dos_char *Dos_Get_TaskName(dos_void)
 {
     return Dos_CurrentTCB->TaskName;
 }
@@ -563,7 +563,7 @@ dos_char *Dos_Get_TaskName(void)
 DOS_TaskCB_t Dos_GetTCB(Dos_TaskList_t *list)
 {
     list->Dos_TaskItem = list->Task_EndItem.Next;
-    if((void*)(list)->Dos_TaskItem == (void*)&((list)->Task_EndItem))
+    if((dos_void*)(list)->Dos_TaskItem == (dos_void*)&((list)->Task_EndItem))
     {
         list->Dos_TaskItem = list->Dos_TaskItem->Next;
     }
@@ -579,7 +579,7 @@ DOS_TaskCB_t Dos_Get_NextTCB(Dos_TaskList_t *list)
     /** Support time slice rotation scheduling. Each time the function is called, the task item will move backwards once. */
     list->Dos_TaskItem = list->Dos_TaskItem->Next;    
 
-    if((void*)(list)->Dos_TaskItem == (void*)&((list)->Task_EndItem))
+    if((dos_void*)(list)->Dos_TaskItem == (dos_void*)&((list)->Task_EndItem))
     {
         list->Dos_TaskItem = list->Dos_TaskItem->Next;
     }
@@ -590,7 +590,7 @@ DOS_TaskCB_t Dos_Get_NextTCB(Dos_TaskList_t *list)
 /**
  * get system tick
  */
-dos_uint32 Dos_Get_Tick(void)
+dos_uint32 Dos_Get_Tick(dos_void)
 {
     return Dos_TickCount;
 }
@@ -676,7 +676,7 @@ dos_void Dos_SetTaskPrio(DOS_TaskCB_t task, dos_uint16 prio)
 /**
  * task exit function
  */
-void Dos_TaskExit(void)
+dos_void Dos_TaskExit(dos_void)
 {
     DOS_LOG_WARN("task exit\n");
     Dos_TaskDelete(Dos_Get_CurrentTCB());
@@ -688,7 +688,7 @@ void Dos_TaskExit(void)
 /**
  * system scheduler
  */
-void Dos_Scheduler(void)
+dos_void Dos_Scheduler(dos_void)
 {
     if((!Dos_Scheduler_IsLock()) && (_Dos_Scheduler() == DOS_TRUE))
     {
@@ -699,7 +699,7 @@ void Dos_Scheduler(void)
 /**
  * start run system
  */
-void Dos_Start( void )
+dos_void Dos_Start( dos_void )
 {
   
     _Dos_Cheek_TaskPriority();
@@ -720,7 +720,7 @@ void Dos_Start( void )
 /**
  * Choose the right task to run
  */
-void Dos_SwitchTask( void )
+dos_void Dos_SwitchTask( dos_void )
 {  
     /** Get the control block for the highest priority task  */
     Dos_CurrentTCB = Dos_Get_NextTCB(&Dos_TaskPriority_List[Dos_CurPriority]);
@@ -730,7 +730,7 @@ void Dos_SwitchTask( void )
 /**
  * Scheduler lock
  */
-void Dos_Scheduler_Lock(void)
+dos_void Dos_Scheduler_Lock(dos_void)
 {
     dos_uint32 pri;
 
@@ -744,7 +744,7 @@ void Dos_Scheduler_Lock(void)
 /**
  * Scheduler unlock
  */
-void Dos_Scheduler_Unlock(void)
+dos_void Dos_Scheduler_Unlock(dos_void)
 {
     dos_uint32 pri;
 
@@ -771,7 +771,7 @@ void Dos_Scheduler_Unlock(void)
 /**
  * Determine if the system scheduler is locked
  */
-dos_bool Dos_Scheduler_IsLock(void)
+dos_bool Dos_Scheduler_IsLock(dos_void)
 {
     return (0 != Dos_SchedulerLock);
 }
@@ -779,8 +779,8 @@ dos_bool Dos_Scheduler_IsLock(void)
 /**
  * update system tick
  */
-extern dos_err Dos_Swtmr_OverFlow(void);
-void Dos_Update_Tick(void)
+extern dos_err Dos_Swtmr_OverFlow(dos_void);
+dos_void Dos_Update_Tick(dos_void)
 {
     DOS_TaskCB_t task;
     dos_uint32 tick;
@@ -842,18 +842,6 @@ void Dos_Update_Tick(void)
 }
 
 
-/**
- * system tick handler
- */
-void SysTick_Handler(void)
-{
-    dos_uint32 pri; 
-    pri = Interrupt_Disable();
-    HAL_IncTick();
-    /** update system tick */
-    Dos_Update_Tick();
-    
-    Interrupt_Enable(pri);
-}
+
 
 

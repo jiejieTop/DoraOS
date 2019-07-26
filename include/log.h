@@ -27,21 +27,29 @@
 #ifndef _LOG_H_
 #define _LOG_H_
 
-#include <salof.h>
 #include <dos_config.h>
+
+#if DOS_USE_LOG
+
+#if DOS_USE_SALOF
+#include <salof.h>
+
+#define     PRINT_LOG       Dos_Salof
+#else
+
+#if ((!DOS_USE_SALOF)&&(!PRINT_LOG))
+#define         PRINT_LOG                       printf
+#endif
+
+#ifndef PRINT_LOG
+    #error "If the DOS_USE_LOG macro definition is turned on, you must define PRINT_LOG as the LOG output, such as #definePRINT_LOG printf"
+#endif
+#endif
+
 
 #if DOS_LOG_TS || DOS_LOG_TAR
 #include <task.h>
 #endif
-
-//#define     BGC_BLACK   40      /** background color */
-//#define     BGC_RED     41
-//#define     BGC_GREEN   42
-//#define     BGC_YELLOW  43
-//#define     BGC_BLUE    44
-//#define     BGC_PURPLE  45
-//#define     BGC_DARK    46
-//#define     BGC_WHITE   47
 
 #define     FC_BLACK    30       /** font color */
 #define     FC_RED      31
@@ -58,19 +66,19 @@
 #endif 
 
 #if DOS_LOG_COLOR
-#define DOS_LOG_S(l, c) Dos_Salof("\033\n["#c"m["#l"] >> ")
-#define DOS_LOG_E   Dos_Salof("\033[0m")  
+#define DOS_LOG_S(l, c) PRINT_LOG("\033\n["#c"m["#l"] >> ")
+#define DOS_LOG_E   PRINT_LOG("\033[0m")  
 #else
 #define DOS_LOG_S(l, c) Dos_Salof("\n["#l"] >> ")
 #define DOS_LOG_E       
 #endif
 
 #if DOS_LOG_TS && DOS_LOG_TAR
-    #define DOS_LOG_T   Dos_Salof("[TS: %ld] [TAR: %s] ",Dos_Get_Tick(), Dos_Get_TaskName())
+    #define DOS_LOG_T   PRINT_LOG("[TS: %ld] [TAR: %s] ",Dos_Get_Tick(), Dos_Get_TaskName())
 #elif DOS_LOG_TS
-    #define DOS_LOG_T   Dos_Salof("[TS: %ld] ", Dos_Get_Tick())
+    #define DOS_LOG_T   PRINT_LOG("[TS: %ld] ", Dos_Get_Tick())
 #elif DOS_LOG_TAR
-    #define DOS_LOG_T   Dos_Salof("[TAR: %s] ", Dos_Get_TaskName())
+    #define DOS_LOG_T   PRINT_LOG("[TAR: %s] ", Dos_Get_TaskName())
 #else
     #define DOS_LOG_T
 #endif
@@ -81,7 +89,7 @@
     {                                       \
         DOS_LOG_S(l, c);                    \
         DOS_LOG_T;                          \
-        Dos_Salof(fmt, ##__VA_ARGS__);      \
+        PRINT_LOG(fmt, ##__VA_ARGS__);      \
         DOS_LOG_E;                          \
     }                                       \
     while (0)
@@ -138,11 +146,19 @@ DOS_ASSERT(x)
 #if DOS_LOG_LEVEL < DOS_BASE_LEVEL
 #define DOS_LOG(fmt, ...)
 #else
-#define DOS_LOG(fmt, ...)           Dos_Salof(fmt, ##__VA_ARGS__)
+#define DOS_LOG(fmt, ...)           PRINT_LOG(fmt, ##__VA_ARGS__)
 #endif
 
+#else
 
+#define DOS_LOG_DEBUG(fmt, ...)
+#define DOS_LOG_INFO(fmt, ...)
+#define DOS_LOG_WARN(fmt, ...)
+#define DOS_LOG_ERR(fmt, ...)
+#define DOS_LOG(fmt, ...)
+#define DOS_ASSERT(x)
 
+#endif
 
 
 #endif // !_LOG_H_

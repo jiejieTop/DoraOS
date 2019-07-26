@@ -92,33 +92,41 @@ dos_err Dos_EventDelete(Dos_Event_t event)
  */
 dos_uint32 Dos_EventWait(Dos_Event_t event, dos_uint32 wait_event, dos_uint32 op, dos_uint32 timeout)
 {
+    dos_uint32 pri;
     DOS_TaskCB_t task;
+    
+    pri = Dos_Interrupt_Disable();
 
     if((event == DOS_NULL) ||(wait_event == 0))
     {
         DOS_LOG_WARN("event is null or the waiting event is 0\n");
+        Dos_Interrupt_Enable(pri);
         return 0;
     }
 
     if((op & WAIT_EVENT_OP) == WAIT_EVENT_OP)
     {
         DOS_LOG_WARN("waiting for event option is invalid\n");
+        Dos_Interrupt_Enable(pri);
         return 0;
     }
     
     if(_Dos_CheckEvent(event, wait_event, op) == DOS_TRUE)
     {
+        Dos_Interrupt_Enable(pri);
         return wait_event;  /** waiting for the event to succeed */
     }
 
     if((timeout == 0) || (Dos_Scheduler_IsLock()))  /** scheduler is lock */
     {
+        Dos_Interrupt_Enable(pri);
         return 0;
     }
 
     if(Dos_ContextIsInt())
     {
         DOS_LOG_ERR("event wait time is not 0, and the context is in an interrupt\n");
+        Dos_Interrupt_Enable(pri);
         return 0;
     }
 
@@ -127,16 +135,19 @@ dos_uint32 Dos_EventWait(Dos_Event_t event, dos_uint32 wait_event, dos_uint32 op
     task->WaitEventOp = op;
 
     Dos_TaskWait(&event->EventPend, timeout);
+    Dos_Interrupt_Enable(pri);
+    Dos_Scheduler();
 
     /** Task resumes running */
     if(task->TaskStatus & DOS_TASK_STATUS_TIMEOUT)
     {
+        pri = Dos_Interrupt_Disable();
         DOS_RESET_TASK_STATUS(task, (DOS_TASK_STATUS_TIMEOUT | DOS_TASK_STATUS_SUSPEND));
         DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
         Dos_TaskItem_Del(&(task->PendItem));
-        DOS_LOG_INFO("waiting for event timeout\n");
         task->WaitEvent &= (~wait_event);
         task->WaitEventOp = 0;
+        Dos_Interrupt_Enable(pri);
         return 0;
     }
 
@@ -148,16 +159,22 @@ dos_uint32 Dos_EventWait(Dos_Event_t event, dos_uint32 wait_event, dos_uint32 op
  */
 dos_uint32 Dos_EventSet(Dos_Event_t event, dos_uint32 set_event)
 {
+    dos_uint32 pri;
     dos_uint32 value;
     DOS_TaskCB_t task;
+    
+    pri = Dos_Interrupt_Disable();
+
 
     if((event == DOS_NULL) ||(set_event == 0))
     {
         DOS_LOG_WARN("event is null or the setting event is 0\n");
+        Dos_Interrupt_Enable(pri);
         return 0;
     }
 
     event->EventSet |= set_event;
+    Dos_Interrupt_Enable(pri);
 
     if(!(Dos_TaskList_IsEmpty(&event->EventPend)))
     {
@@ -171,6 +188,7 @@ dos_uint32 Dos_EventSet(Dos_Event_t event, dos_uint32 set_event)
             {
                 task->EventGet = task->WaitEvent;
                 Dos_TaskWake(task);
+                Dos_Scheduler();
             }
         }
 
