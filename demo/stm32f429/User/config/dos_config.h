@@ -15,11 +15,11 @@
 
 #define         DOS_MAX_PRIORITY_NUM            (32U)
 
-#define         DOS_LOGO_PRINT                  (1U)
+#define         DOS_LOGO_PRINT                  (0U)
 #define         DOS_LOGO                        DOS_LOGO_BIG    /** Choose big logo or small logo */
 
 #define         DOS_IDLE_TASK_PRIORITY          (DOS_MAX_PRIORITY_NUM - 1U)
-#define         DOS_IDLE_TASK_SIZE              (512U)
+#define         DOS_IDLE_TASK_SIZE              (1024U)
 #define         DOS_IDLE_TASK_TICK              (20U)
 
 #define         DOS_SWTMR                       (1U)
@@ -48,7 +48,7 @@
 #define         DOS_LOG_TAR                     (1U)
 
 #define         DOS_USE_LOG                     (1U)
-#define         DOS_USE_SALOF                   (0U)
+#define         DOS_USE_SALOF                   (1U)
 
 
 #define         DOS_SALOF_BUFF_SIZE             (256U)

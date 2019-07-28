@@ -63,15 +63,24 @@ Dos_GetMSP
 	bx lr
 
 SVC_Handler
-	ldr	r2, =Dos_CurrentTCB
-	ldr r3, [r2]
-	ldr r0, [r3]
-	ldmia r0!, {r4-r11, lr}
+	ldr	r3, =Dos_CurrentTCB
+	ldr r1, [r3]
+	ldr r0, [r1]
+	ldmia r0!, {r4-r11, r14}
 	msr psp, r0
+	isb
 	mov r0, #0
 	msr	basepri, r0
-	orr lr, #0xd
-	bx lr
+	bx r14
+;	ldr	r2, =Dos_CurrentTCB
+;	ldr r3, [r2]
+;	ldr r0, [r3]
+;	ldmia r0!, {r4-r11, lr}
+;	msr psp, r0
+;	mov r0, #0
+;	msr	basepri, r0
+;	orr lr, #0xd
+;	bx lr
 
 PendSV_Handler
 

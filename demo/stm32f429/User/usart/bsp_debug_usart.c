@@ -18,7 +18,7 @@
 #include "./usart/bsp_debug_usart.h"
 
 UART_HandleTypeDef UartHandle;
-extern uint8_t ucTemp;  
+//extern uint8_t ucTemp;  
 
  /**
   * @brief  DEBUG_USART GPIO 配置,工作模式配置。115200 8-N-1
@@ -37,7 +37,10 @@ void DEBUG_USART_Config(void)
   UartHandle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
   UartHandle.Init.Mode         = UART_MODE_TX_RX;
   
-  HAL_UART_Init(&UartHandle); 
+  HAL_UART_Init(&UartHandle);
+    
+ /*使能串口接收断 */
+  __HAL_UART_ENABLE_IT(&UartHandle,UART_IT_RXNE);  
 }
 
 

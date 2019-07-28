@@ -148,6 +148,21 @@ dos_void SysTick_Handler(dos_void)
     Interrupt_Enable(pri);
 }
 
+
+
+void  DEBUG_USART_IRQHandler(void)
+{
+  uint8_t ch=0; 
+  
+	if(__HAL_UART_GET_FLAG( &UartHandle, UART_FLAG_RXNE ) != RESET)
+	{		
+    ch=( uint16_t)READ_REG(UartHandle.Instance->DR);
+    WRITE_REG(UartHandle.Instance->DR,ch); 
+//		HAL_UART_Transmit( &UartHandle,&ch ,1,1 );    
+	}
+//  HAL_UART_IRQHandler(&UartHandle);	
+}
+
 /******************************************************************************/
 /*                 STM32F4xx Peripherals Interrupt Handlers                   */
 /*  Add here the Interrupt Handler for the used peripheral(s) (PPP), for the  */

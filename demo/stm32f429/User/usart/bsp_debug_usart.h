@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 //串口波特率
-#define DEBUG_USART_BAUDRATE                    256000
+#define DEBUG_USART_BAUDRATE                    115200
 
 //引脚定义
 /*******************************************************/
