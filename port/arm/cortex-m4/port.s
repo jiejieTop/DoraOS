@@ -63,110 +63,110 @@ Dos_GetMSP
 	bx lr
 
 SVC_Handler
-	ldr	r3, =Dos_CurrentTCB
-	ldr r1, [r3]
-	ldr r0, [r1]
-	ldmia r0!, {r4-r11, r14}
+	;ldr	r3, =Dos_CurrentTCB
+	;ldr r1, [r3]
+	;ldr r0, [r1]
+	;ldmia r0!, {r4-r11, r14}
+	;msr psp, r0
+	;isb
+	;mov r0, #0
+	;msr	basepri, r0
+	;bx r14
+	ldr	r2, =Dos_CurrentTCB
+	ldr r3, [r2]
+	ldr r0, [r3]
+	ldmia r0!, {r4-r11, lr}
 	msr psp, r0
-	isb
 	mov r0, #0
 	msr	basepri, r0
-	bx r14
-;	ldr	r2, =Dos_CurrentTCB
-;	ldr r3, [r2]
-;	ldr r0, [r3]
-;	ldmia r0!, {r4-r11, lr}
-;	msr psp, r0
-;	mov r0, #0
-;	msr	basepri, r0
-;	orr lr, #0xd
-;	bx lr
+	orr lr, #0xd
+	bx lr
 
 PendSV_Handler
 
-	mrs r0, psp
-	isb
-	ldr	r3, =Dos_CurrentTCB
-	ldr	r2, [r3]
+	;mrs r0, psp
+	;isb
+	;ldr	r3, =Dos_CurrentTCB
+	;ldr	r2, [r3]
 
-	tst r14, #0x10
+	;tst r14, #0x10
+	;it eq
+	;vstmdbeq r0!, {s16-s31}
+
+	;stmdb r0!, {r4-r11, r14}
+
+	;str r0, [r2]
+
+	;stmdb sp!, {r3}
+	;mov r0, #( 5 << (8 - 4) )
+	;msr basepri, r0
+	;dsb
+	;isb
+	;bl Dos_SwitchTask
+	;mov r0, #0
+	;msr basepri, r0
+	;ldmia sp!, {r3}
+
+	;ldr r1, [r3]
+	;ldr r0, [r1]
+
+	;ldmia r0!, {r4-r11, r14}
+
+
+	;tst r14, #0x10
+	;it eq
+	;vldmiaeq r0!, {s16-s31}
+
+	;msr psp, r0
+	;isb
+
+	;bx r14
+    mrs	r1, primask
+    CPSID   I
+	mrs r0, psp
+	ldr	r2, =Dos_CurrentTCB
+	ldr	r3, [r2]
+	tst lr, #0x10
 	it eq
 	vstmdbeq r0!, {s16-s31}
-
-	stmdb r0!, {r4-r11, r14}
-
-	str r0, [r2]
-
-	stmdb sp!, {r3}
-	mov r0, #( 5 << (8 - 4) )
-	msr basepri, r0
-	dsb
-	isb
+	stmdb r0!, {r4-r11, lr}
+	str r0, [r3]
+	stmdb sp!, {r1,r2}
 	bl Dos_SwitchTask
-	mov r0, #0
-	msr basepri, r0
-	ldmia sp!, {r3}
-
-	ldr r1, [r3]
-	ldr r0, [r1]
-
-	ldmia r0!, {r4-r11, r14}
-
-
-	tst r14, #0x10
+	ldmia sp!, {r1,r2}
+	ldr r3, [r2]
+	ldr r0, [r3]
+	ldmia r0!, {r4-r11, lr}
+	tst lr, #0x10
 	it eq
 	vldmiaeq r0!, {s16-s31}
-
 	msr psp, r0
-	isb
-
-	bx r14
-;    mrs	r1, primask
-;    CPSID   I
-;	mrs r0, psp
-;	ldr	r2, =Dos_CurrentTCB
-;	ldr	r3, [r2]
-;	tst lr, #0x10
-;	it eq
-;	vstmdbeq r0!, {s16-s31}
-;	stmdb r0!, {r4-r11, lr}
-;	str r0, [r3]
-;	stmdb sp!, {r1,r2}
-;	bl Dos_SwitchTask
-;	ldmia sp!, {r1,r2}
-;	ldr r3, [r2]
-;	ldr r0, [r3]
-;	ldmia r0!, {r4-r11, lr}
-;	tst lr, #0x10
-;	it eq
-;	vldmiaeq r0!, {s16-s31}
-;	msr psp, r0
-;	msr	primask, r1
-;	orr	lr, lr, #0x04
-;	bx lr
+	msr	primask, r1
+	orr	lr, lr, #0x04
+	bx lr
 
 
 Dos_StartFirstTask
 
+	;ldr r0, =0xE000ED08
+	;ldr r0, [r0]
+	;ldr r0, [r0]
+
+	;msr msp, r0
+
+	;cpsie i
+	;cpsie f
+	;dsb
+	;isb
+
+	;svc 0
+	;nop
+
 	ldr r0, =0xE000ED08
 	ldr r0, [r0]
 	ldr r0, [r0]
-
 	msr msp, r0
-
 	cpsie i
 	cpsie f
-	dsb
-	isb
-
 	svc 0
-	nop
-
-;	ldr r0, =0xE000ED08
-;	ldr r0, [r0]
-;	ldr r0, [r0]
-;	msr msp, r0
-;	cpsie i
-;	cpsie f
-;	svc 0
 	END
