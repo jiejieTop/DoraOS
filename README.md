@@ -10,36 +10,86 @@ DoraOS 是我个人所写的RTOS内核，结合FreeRTOS、uCOS, RT-Thread, LiteO
 
 ```
 文件目录如下：
-DoraOS
-├─cpu
-│  ├─cortex-m3
-│  │      cpu.c
-│  │      port.c
-│  │      
-│  └─cortex-m4
-│          cpu.c
-│          
-├─demo
-│ 
-├─include
-│  │  list.h
-│  │  task.h
-│  │  
-│  ├─config
-│  │      debug.h
-│  │      dos_config.h
-│  │      dos_def.h
-│  │      
-│  ├─mem
-│  │      mem.h
-│  │      
-│  └─port
-│          port.h
-│          
-├─mem
-│      mem.c
-│      
-└─src
-        list.c
-        task.c
+DoraOS/
+├── common
+│   ├── lwip
+│   │   ├── lwip相关文件
+│   │   └── lwip相关文件
+│   └── salof
+│       ├── fifo.c
+│       ├── format.c
+│       └── salof.c
+├── demo
+│   ├── stm32f103
+│   │   ├── Doc
+│   │   │   └── readme.txt
+│   │   └── Project
+│   │       └── stm32f103.uvprojx
+│   └── stm32f429
+│       ├── Doc
+│       │   └── readme.txt
+│       └── Project
+│           └── stm32f429.uvprojx
+├── example
+│   ├── app_event.c
+│   ├── app_mem.c
+│   ├── app_memp.c
+│   ├── app_mutex.c
+│   ├── app_queue.c
+│   ├── app_sem.c
+│   └── app_swtmr.c
+├── include
+│   ├── common
+│   │   └── salof
+│   │       ├── fifo.h
+│   │       ├── format.h
+│   │       └── salof.h
+│   ├── config
+│   │   ├── debug.h
+│   │   ├── dos_config.h
+│   │   └── dos_def.h
+│   ├── event.h
+│   ├── list.h
+│   ├── log.h
+│   ├── mem
+│   │   ├── mem.h
+│   │   └── memp.h
+│   ├── mutex.h
+│   ├── port
+│   │   ├── arm
+│   │   │   ├── cortex-m3
+│   │   │   │   ├── arm_cmsis.h
+│   │   │   │   └── port.h
+│   │   │   └── cortex-m4
+│   │   │       └── port.h
+│   │   └── cmsis
+│   │       └── arm_cmsis.h
+│   ├── queue.h
+│   ├── sem.h
+│   ├── swtmr.h
+│   ├── sys.h
+│   └── task.h
+├── LICENSE
+├── mem
+│   ├── mem.c
+│   └── memp.c
+├── port
+│   └── arm
+│       ├── cortex-m3
+│       │   ├── port.c
+│       │   └── port.s
+│       └── cortex-m4
+│           ├── port.c
+│           └── port.s
+├── README.md
+└── src
+    ├── event.c
+    ├── list.c
+    ├── log.c
+    ├── mutex.c
+    ├── queue.c
+    ├── sem.c
+    ├── swtmr.c
+    ├── sys.c
+    └── task.c
 ```
