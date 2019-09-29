@@ -8,9 +8,9 @@
   ******************************************************************************
   * @attention
   *
-  * ÊµÑéÆ½Ì¨:Ò°»ð STM32 F429 ¿ª·¢°å 
-  * ÂÛÌ³    :http://www.firebbs.cn
-  * ÌÔ±¦    :http://firestm32.taobao.com
+  * Êµï¿½ï¿½Æ½Ì¨:Ò°ï¿½ï¿½ STM32 F429 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ 
+  * ï¿½ï¿½Ì³    :http://www.firebbs.cn
+  * ï¿½Ô±ï¿½    :http://firestm32.taobao.com
   *
   ******************************************************************************
   */
@@ -204,13 +204,13 @@ HAL_StatusTypeDef Bsp_Eth_Init(void)
 void ETH_IRQHandler(void)
 {
   uint32_t ulReturn;
-  /* ½øÈëÁÙ½ç¶Î£¬ÁÙ½ç¶Î¿ÉÒÔÇ¶Ì× */
-  ulReturn = Dos_Interrupt_Disable();
+  /* ï¿½ï¿½ï¿½ï¿½ï¿½Ù½ï¿½Î£ï¿½ï¿½Ù½ï¿½Î¿ï¿½ï¿½ï¿½Ç¶ï¿½ï¿½ */
+  ulReturn = dos_interrupt_disable();
   
   HAL_ETH_IRQHandler(&heth);
   
-  /* ÍË³öÁÙ½ç¶Î */
-  Dos_Interrupt_Enable( ulReturn );
+  /* ï¿½Ë³ï¿½ï¿½Ù½ï¿½ï¿½ */
+  dos_interrupt_enable( ulReturn );
 }
 
 /**
@@ -218,12 +218,12 @@ void ETH_IRQHandler(void)
   * @param  heth: ETH handle
   * @retval None
   */
-extern Dos_Sem_t s_xSemaphore;
+extern dos_sem_t s_xSemaphore;
 void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *heth)
 {
   LED2_TOGGLE;
 
-  Dos_SemPost(s_xSemaphore);
+  dos_sem_post(s_xSemaphore);
 
 }
 

@@ -91,7 +91,7 @@ extern ETH_HandleTypeDef heth;
 
 /* USER CODE BEGIN 3 */
 
-Dos_Sem_t s_xSemaphore = NULL;
+dos_sem_t s_xSemaphore = NULL;
 
 
 sys_sem_t tx_sem = NULL;
@@ -125,7 +125,7 @@ static void low_level_init(struct netif *netif)
 { 
   HAL_StatusTypeDef hal_eth_init_status;
   
-  //³õÊ¼»¯bsp¡ªeth
+  //ï¿½ï¿½Ê¼ï¿½ï¿½bspï¿½ï¿½eth
   hal_eth_init_status = Bsp_Eth_Init();
 
   if (hal_eth_init_status == HAL_OK)
@@ -160,7 +160,7 @@ static void low_level_init(struct netif *netif)
 
 /* USER CODE BEGIN PHY_PRE_CONFIG */ 
     
-  s_xSemaphore = Dos_SemCreate(0,40);
+  s_xSemaphore = dos_sem_create(0,40);
   
   if(sys_sem_new(&tx_sem , 0) == ERR_OK)
     PRINT_DEBUG("sys_sem_new ok\n");
@@ -170,16 +170,16 @@ static void low_level_init(struct netif *netif)
 
   /* create the task that handles the ETH_MAC */
 	sys_thread_new("ETHIN",
-                  ethernetif_input,  /* ÈÎÎñÈë¿Úº¯Êý */
-                  netif,        	  /* ÈÎÎñÈë¿Úº¯Êý²ÎÊý */
-                  NETIF_IN_TASK_STACK_SIZE,/* ÈÎÎñÕ»´óÐ¡ */
-                  NETIF_IN_TASK_PRIORITY); /* ÈÎÎñµÄÓÅÏÈ¼¶ */
+                  ethernetif_input,  /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úºï¿½ï¿½ï¿½ */
+                  netif,        	  /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+                  NETIF_IN_TASK_STACK_SIZE,/* ï¿½ï¿½ï¿½ï¿½Õ»ï¿½ï¿½Ð¡ */
+                  NETIF_IN_TASK_PRIORITY); /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¼ï¿½ */
                   
 //	sys_thread_new("ETHTX",
-//                  ethernetif_output,  /* ÈÎÎñÈë¿Úº¯Êý */
-//                  netif,        	  /* ÈÎÎñÈë¿Úº¯Êý²ÎÊý */
-//                  NETIF_OUT_TASK_STACK_SIZE,/* ÈÎÎñÕ»´óÐ¡ */
-//                  NETIF_OUT_TASK_PRIORITY); /* ÈÎÎñµÄÓÅÏÈ¼¶ */
+//                  ethernetif_output,  /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úºï¿½ï¿½ï¿½ */
+//                  netif,        	  /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+//                  NETIF_OUT_TASK_STACK_SIZE,/* ï¿½ï¿½ï¿½ï¿½Õ»ï¿½ï¿½Ð¡ */
+//                  NETIF_OUT_TASK_PRIORITY); /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È¼ï¿½ */
                                  
 /* USER CODE END PHY_PRE_CONFIG */
   
@@ -462,17 +462,17 @@ void ethernetif_input(void *pParams) {
   
 	while(1) 
   {
-    if(Dos_SemWait( s_xSemaphore, DOS_WAIT_FOREVER ) == DOS_OK)
+    if(dos_sem_pend( s_xSemaphore, DOS_WAIT_FOREVER ) == DOS_OK)
     {
       /* move received packet into a new pbuf */
-      pri = Dos_Interrupt_Disable();
+      pri = dos_interrupt_disable();
 TRY_GET_NEXT_FRAGMENT:
       p = low_level_input(netif);
-      Dos_Interrupt_Enable(pri);
+      dos_interrupt_enable(pri);
       /* points to packet payload, which starts with an Ethernet header */
       if(p != NULL)
       {
-        pri = Dos_Interrupt_Disable();
+        pri = dos_interrupt_disable();
         /* full packet send to tcpip_thread to process */
         if (netif->input(p, netif) != ERR_OK)
         {
@@ -482,10 +482,10 @@ TRY_GET_NEXT_FRAGMENT:
         }
         else
         {
-          Dos_SemWait( s_xSemaphore, 0);
+          dos_sem_pend( s_xSemaphore, 0);
           goto TRY_GET_NEXT_FRAGMENT;
         }
-        Dos_Interrupt_Enable(pri);
+        dos_interrupt_enable(pri);
       }
     }
 	}

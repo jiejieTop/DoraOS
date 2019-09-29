@@ -1,63 +1,63 @@
 #include <list.h>
 
 /* double list init */
-void Dos_TaskItem_Init(Dos_TaskItem_t *dos_item)
+void dos_task_item_init(dos_task_item_t *dos_item)
 {
-  dos_item->Next = dos_item;
-  dos_item->Prev = dos_item;
-  dos_item->Dos_TaskValue = 0;
-  dos_item->Dos_TCB = DOS_NULL;
-  dos_item->Dos_TaskList = DOS_NULL;
+  dos_item->next = dos_item;
+  dos_item->prev = dos_item;
+  dos_item->dos_task_value = 0;
+  dos_item->dos_task = DOS_NULL;
+  dos_item->dos_task_list = DOS_NULL;
 }
 
 
 
 /* insert a new node in double list */
-void Dos_TaskItem_insert(Dos_TaskList_t *dos_list , Dos_TaskItem_t *new_item)
+void dos_task_item_insert(dos_task_list_t *dos_list , dos_task_item_t *new_item)
 {
-  Dos_TaskItem_t *item;
-  dos_uint32 value = new_item->Dos_TaskValue;
+  dos_task_item_t *item;
+  dos_uint32 value = new_item->dos_task_value;
   
   if(value == 0xFFFFFFFF)
   {
-    item = dos_list->Task_EndItem.Prev;
+    item = dos_list->task_end_item.prev;
   }
   else
   {
-    for(item = (Dos_TaskItem_t*)&(dos_list->Task_EndItem);
-        item->Next->Dos_TaskValue <= value;
-        item = item->Next);
+    for(item = (dos_task_item_t*)&(dos_list->task_end_item);
+        item->next->dos_task_value <= value;
+        item = item->next);
   }
   
-  new_item->Next = item->Next;
-  new_item->Next->Prev = new_item;
-  new_item->Prev = item;
-  item->Next = new_item;
+  new_item->next = item->next;
+  new_item->next->prev = new_item;
+  new_item->prev = item;
+  item->next = new_item;
   
-  new_item->Dos_TaskList = (dos_void*)dos_list;
+  new_item->dos_task_list = (dos_void*)dos_list;
   
   dos_list->Task_ItemValue++;
 }
 
 /* delete a node in double list */
-dos_uint32 Dos_TaskItem_Del(Dos_TaskItem_t *dos_item)
+dos_uint32 dos_task_item_del(dos_task_item_t *dos_item)
 {
-  Dos_TaskList_t *dos_list = dos_item->Dos_TaskList;
+  dos_task_list_t *dos_list = dos_item->dos_task_list;
   
-  if(dos_item->Dos_TaskList != DOS_NULL)
+  if(dos_item->dos_task_list != DOS_NULL)
   {
-    dos_item->Prev->Next = dos_item->Next;
-    dos_item->Next->Prev = dos_item->Prev;
+    dos_item->prev->next = dos_item->next;
+    dos_item->next->prev = dos_item->prev;
     
-    dos_item->Dos_TaskList = DOS_NULL;
+    dos_item->dos_task_list = DOS_NULL;
     
-    if(dos_list->Dos_TaskItem == dos_item)
+    if(dos_list->task_item == dos_item)
     {
-      dos_list->Dos_TaskItem = dos_item->Prev;
+      dos_list->task_item = dos_item->prev;
     }
     
-    dos_item->Next = dos_item;
-    dos_item->Prev = dos_item;
+    dos_item->next = dos_item;
+    dos_item->prev = dos_item;
     
     dos_list->Task_ItemValue--;
   }
@@ -65,29 +65,29 @@ dos_uint32 Dos_TaskItem_Del(Dos_TaskItem_t *dos_item)
   return dos_list->Task_ItemValue;
 }
 
-dos_bool Dos_TaskList_IsEmpty(Dos_TaskList_t *dos_tasklist)
+dos_bool dos_task_list_is_empty(dos_task_list_t *dos_tasklist)
 {
   return (dos_tasklist->Task_ItemValue == 0) ? DOS_TRUE : DOS_FALSE; 
 }
 
 
-dos_uint32 Dos_Get_TaskListValue(Dos_TaskList_t *dos_tasklist)
+dos_uint32 dos_get_task_list_value(dos_task_list_t *dos_tasklist)
 {
   return dos_tasklist->Task_ItemValue;
 }
 
 
 /* double list init */
-void Dos_TaskList_Init(Dos_TaskList_t *dos_tasklist)
+void dos_task_list_init(dos_task_list_t *dos_tasklist)
 {
-  dos_tasklist->Dos_TaskItem = (Dos_TaskItem_t *)&(dos_tasklist->Task_EndItem);
+  dos_tasklist->task_item = (dos_task_item_t *)&(dos_tasklist->task_end_item);
     
   dos_tasklist->Task_ItemValue = 0;
   
-  dos_tasklist->Task_EndItem.Dos_TaskValue = 0xFFFFFFFF;
-  dos_tasklist->Task_EndItem.Next = (Dos_TaskItem_t *)&(dos_tasklist->Task_EndItem);
-  dos_tasklist->Task_EndItem.Prev = (Dos_TaskItem_t *)&(dos_tasklist->Task_EndItem);
-  dos_tasklist->Task_EndItem.Dos_TaskList = dos_tasklist;
+  dos_tasklist->task_end_item.dos_task_value = 0xFFFFFFFF;
+  dos_tasklist->task_end_item.next = (dos_task_item_t *)&(dos_tasklist->task_end_item);
+  dos_tasklist->task_end_item.prev = (dos_task_item_t *)&(dos_tasklist->task_end_item);
+  dos_tasklist->task_end_item.dos_task_list = dos_tasklist;
 }
 
 

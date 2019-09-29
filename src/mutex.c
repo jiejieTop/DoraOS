@@ -10,25 +10,25 @@
 /** 
  * create a mutex 
  */
-Dos_Mutex_t Dos_MutexCreate(void)
+dos_mutex_t dos_mutex_create(void)
 {
-    Dos_Mutex_t mutex;
+    dos_mutex_t mutex;
 
-    mutex = Dos_MemAlloc(sizeof(struct Dos_Mutex));
+    mutex = dos_mem_alloc(sizeof(struct dos_mutex));
     if(mutex == DOS_NULL)
     {
         DOS_LOG_ERR("mutex is null\n");
         return DOS_NULL;
     }
 
-    memset(mutex, 0, sizeof(struct Dos_Mutex));
+    memset(mutex, 0, sizeof(struct dos_mutex));
 
-    mutex->MutexCnt = 0;
-    mutex->MutexOwner = DOS_NULL;
-    mutex->Priority = 0;
+    mutex->mutex_count = 0;
+    mutex->mutex_owner = DOS_NULL;
+    mutex->mutex_priority = 0;
     
     /** Initialize mutex pend list */
-    Dos_TaskList_Init(&(mutex->MutexPend));
+    dos_task_list_init(&(mutex->mutex_pend_list));
 
     return mutex;
 }
@@ -36,14 +36,14 @@ Dos_Mutex_t Dos_MutexCreate(void)
 /**
  * delete a mutex
  */
-dos_err Dos_MutexDelete(Dos_Mutex_t mutex)
+dos_err dos_mutex_delete(dos_mutex_t mutex)
 {
     if(mutex != DOS_NULL)
     {
-        if(Dos_TaskList_IsEmpty(&(mutex->MutexPend)))
+        if(dos_task_list_is_empty(&(mutex->mutex_pend_list)))
         {
-            memset(mutex,0,sizeof(struct Dos_Mutex));
-            Dos_MemFree(mutex);
+            memset(mutex,0,sizeof(struct dos_mutex));
+            dos_mem_free(mutex);
             return DOS_OK;
         }
         else
@@ -62,62 +62,62 @@ dos_err Dos_MutexDelete(Dos_Mutex_t mutex)
 /**
  * the mutex P operation, pending mutex
  */
-dos_err Dos_MutexPend(Dos_Mutex_t mutex, dos_uint32 timeout)
+dos_err dos_mutex_pend(dos_mutex_t mutex, dos_uint32 timeout)
 {
-    DOS_TaskCB_t task;
+    dos_task_t task;
     dos_uint32 pri;
 
-    if((mutex == DOS_NULL) || (Dos_ContextIsInt()))
+    if((mutex == DOS_NULL) || (dos_context_is_interrupt()))
     {
         DOS_LOG_WARN("unable to continue to pend the mutex, the mutex is null or is currently in the interrupt context\n");
         return DOS_NOK;
     }
 
-    task = (DOS_TaskCB_t)Dos_Get_CurrentTCB();
+    task = (dos_task_t)dos_get_current_task();
     
-    pri = Dos_Interrupt_Disable();
+    pri = dos_interrupt_disable();
     /** can pend the mutex */
-    if(mutex->MutexCnt == 0)
+    if(mutex->mutex_count == 0)
     {
-        mutex->MutexCnt++;
-        mutex->Priority = task->Priority;
-        mutex->MutexOwner = task;
-        Dos_Interrupt_Enable(pri);
+        mutex->mutex_count++;
+        mutex->mutex_priority = task->priority;
+        mutex->mutex_owner = task;
+        dos_interrupt_enable(pri);
         return DOS_OK;
     }
 
-    if(mutex->MutexOwner == task)
+    if(mutex->mutex_owner == task)
     {
-        mutex->MutexCnt++;
-        Dos_Interrupt_Enable(pri);
+        mutex->mutex_count++;
+        dos_interrupt_enable(pri);
         return DOS_OK;
     }
 
     /** time is be set 0 or scheduler is lock */
-    if((timeout == 0) || (Dos_Scheduler_IsLock()))  
+    if((timeout == 0) || (dos_scheduler_is_lock()))  
     {
-        Dos_Interrupt_Enable(pri);
+        dos_interrupt_enable(pri);
         return DOS_NOK;
     }
 
     /** current task has a higher priority, priority inheritance is required */
-    if(mutex->Priority > task->Priority) 
+    if(mutex->mutex_priority > task->priority) 
     {
-        Dos_SetTaskPrio(mutex->MutexOwner, task->Priority);
+        dos_set_task_priority(mutex->mutex_owner, task->priority);
     }
 
-    Dos_TaskWait(&mutex->MutexPend, timeout);
-    Dos_Interrupt_Enable(pri);
-    Dos_Scheduler();
+    dos_task_wait(&mutex->mutex_pend_list, timeout);
+    dos_interrupt_enable(pri);
+    dos_scheduler();
     
     /** Task resumes running */
-    if(task->TaskStatus & DOS_TASK_STATUS_TIMEOUT)
+    if(task->task_status & DOS_TASK_STATUS_TIMEOUT)
     {
-        pri = Dos_Interrupt_Disable();
+        pri = dos_interrupt_disable();
         DOS_RESET_TASK_STATUS(task, (DOS_TASK_STATUS_TIMEOUT | DOS_TASK_STATUS_SUSPEND));
         DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
-        Dos_TaskItem_Del(&(task->PendItem));
-        Dos_Interrupt_Enable(pri);
+        dos_task_item_del(&(task->pend_item));
+        dos_interrupt_enable(pri);
         return DOS_NOK;
     }
 
@@ -125,58 +125,58 @@ dos_err Dos_MutexPend(Dos_Mutex_t mutex, dos_uint32 timeout)
 }
 
 
-dos_err Dos_MutexPost(Dos_Mutex_t mutex)
+dos_err dos_mutex_post(dos_mutex_t mutex)
 {
-    DOS_TaskCB_t task;
+    dos_task_t task;
     dos_uint32 pri;
 
-    if((mutex == DOS_NULL) || (Dos_ContextIsInt()))
+    if((mutex == DOS_NULL) || (dos_context_is_interrupt()))
     {
         DOS_LOG_WARN("unable to continue to post the mutex, the mutex is null or is currently in the interrupt context\n");
         return DOS_NOK;
     }
 
-    task = (DOS_TaskCB_t)Dos_Get_CurrentTCB();
+    task = (dos_task_t)dos_get_current_task();
     
-    pri = Dos_Interrupt_Disable();
+    pri = dos_interrupt_disable();
 
-    if((mutex->MutexCnt == 0) || (mutex->MutexOwner != task))
+    if((mutex->mutex_count == 0) || (mutex->mutex_owner != task))
     {
         DOS_LOG_WARN("unable to continue to post the mutex, the mutex is not be held, or the owner is not the current task\n");
-        Dos_Interrupt_Enable(pri);
+        dos_interrupt_enable(pri);
         return DOS_NOK;
     }
 
 
-    if(--(mutex->MutexCnt) != 0)
+    if(--(mutex->mutex_count) != 0)
     {
-        Dos_Interrupt_Enable(pri);
+        dos_interrupt_enable(pri);
         return DOS_OK;
     }
 
     /** Determine if priority inheritance occurs ? */
-    if(mutex->MutexOwner->Priority != mutex->Priority)
+    if(mutex->mutex_owner->priority != mutex->mutex_priority)
     {
-        Dos_SetTaskPrio(mutex->MutexOwner, mutex->Priority);
+        dos_set_task_priority(mutex->mutex_owner, mutex->mutex_priority);
     }
 
-    if(!Dos_TaskList_IsEmpty(&(mutex->MutexPend)))
+    if(!dos_task_list_is_empty(&(mutex->mutex_pend_list)))
     {
-        task = Dos_GetTCB(&(mutex->MutexPend));
-        mutex->Priority = task->Priority;
-        mutex->MutexCnt++;
-        mutex->MutexOwner = task;
-        Dos_TaskWake(task);
-        Dos_Interrupt_Enable(pri);
-        Dos_Scheduler();
+        task = dos_get_first_task(&(mutex->mutex_pend_list));
+        mutex->mutex_priority = task->priority;
+        mutex->mutex_count++;
+        mutex->mutex_owner = task;
+        dos_task_wake(task);
+        dos_interrupt_enable(pri);
+        dos_scheduler();
     }
     else
     {
-        mutex->Priority = 0;
-        mutex->MutexOwner = DOS_NULL;
+        mutex->mutex_priority = 0;
+        mutex->mutex_owner = DOS_NULL;
     }
 
-     Dos_Interrupt_Enable(pri);
+     dos_interrupt_enable(pri);
 
      return DOS_OK;
 }

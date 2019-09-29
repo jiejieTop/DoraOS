@@ -11,8 +11,8 @@
 #include "iperf.h"
 //#include "client.h"
 /** Variable declaration */
-DOS_TaskCB_t task1 = DOS_NULL;
-DOS_TaskCB_t task2 = DOS_NULL;
+dos_task_t task1 = DOS_NULL;
+dos_task_t task2 = DOS_NULL;
 
 /** Macro definition */
 
@@ -30,22 +30,22 @@ void test_task1(void *Parameter)
     iperf_server_init();
 //    client_init();
 
-    printf("±¾Àý³ÌÑÝÊ¾¿ª·¢°å·¢ËÍÊý¾Ýµ½·þÎñÆ÷\n\n");
+    printf("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½å·¢ï¿½ï¿½ï¿½ï¿½ï¿½Ýµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\n\n");
 
-    printf("ÍøÂçÁ¬½ÓÄ£ÐÍÈçÏÂ£º\n\t µçÄÔ<--ÍøÏß-->Â·ÓÉ<--ÍøÏß-->¿ª·¢°å\n\n");
+    printf("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½ï¿½ï¿½Â£ï¿½\n\t ï¿½ï¿½ï¿½ï¿½<--ï¿½ï¿½ï¿½ï¿½-->Â·ï¿½ï¿½<--ï¿½ï¿½ï¿½ï¿½-->ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\n\n");
 
-    printf("ÊµÑéÖÐÊ¹ÓÃTCPÐ­Òé´«ÊäÊý¾Ý£¬µçÄÔ×÷ÎªTCP Server£¬¿ª·¢°å×÷ÎªTCP Client\n\n");
+    printf("Êµï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½TCPÐ­ï¿½é´«ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÎªTCP Serverï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÎªTCP Client\n\n");
 
-    printf("±¾Àý³ÌµÄIPµØÖ·¾ùÔÚUser/arch/sys_arch.hÎÄ¼þÖÐÐÞ¸Ä\n\n");
+    printf("ï¿½ï¿½ï¿½ï¿½ï¿½Ìµï¿½IPï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½User/arch/sys_arch.hï¿½Ä¼ï¿½ï¿½ï¿½ï¿½Þ¸ï¿½\n\n");
 
-    printf("±¾Àý³Ì²Î¿¼<<LwIPÓ¦ÓÃÊµÕ½¿ª·¢Ö¸ÄÏ>>µÚ15ÕÂ Ê¹ÓÃ NETCONN ½Ó¿Ú±à³Ì\n\n");
+    printf("ï¿½ï¿½ï¿½ï¿½ï¿½Ì²Î¿ï¿½<<LwIPÓ¦ï¿½ï¿½ÊµÕ½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½>>ï¿½ï¿½15ï¿½ï¿½ Ê¹ï¿½ï¿½ NETCONN ï¿½Ó¿Ú±ï¿½ï¿½\n\n");
     
     while(1)
     {
-//        pri = Dos_Interrupt_Disable();
+//        pri = dos_interrupt_disable();
 ////        printf("task1\n");
-//        Dos_Interrupt_Enable(pri);
-        Dos_TaskSleep(100000);
+//        dos_interrupt_enable(pri);
+        dos_task_sleep(100000);
         
     }
 }
@@ -56,10 +56,10 @@ void test_task2(void *Parameter)
     dos_uint32 pri;
     while(1)
     {
-        pri = Dos_Interrupt_Disable();
-        printf("mem:%d\n",Dos_MemInfoGet());
-        Dos_Interrupt_Enable(pri);
-        Dos_TaskSleep(1000);
+        pri = dos_interrupt_disable();
+        printf("mem:%d\n",dos_get_mem_heap_info());
+        dos_interrupt_enable(pri);
+        dos_task_sleep(1000);
         
     }
 }
@@ -70,24 +70,24 @@ int main(void)
 {
     BSP_Init();
 
-    Dos_SystemInit();
+    dos_system_init();
     
    
-    task1 = Dos_TaskCreate( "test_task1",
+    task1 = dos_task_create( "test_task1",
                             &test_task1,
                             DOS_NULL,
                             2048,
                             6,
                             20);
 
-    task2 = Dos_TaskCreate( "test_task2",
+    task2 = dos_task_create( "test_task2",
                             &test_task2,
                             DOS_NULL,
                             2048,
                             7,
                             0);
                 
-    Dos_Start();
+    dos_system_start_run();
   
 }
 

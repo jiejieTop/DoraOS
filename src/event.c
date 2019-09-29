@@ -7,7 +7,7 @@
 #include <port.h>
 
 
-static dos_bool _Dos_CheckEvent(Dos_Event_t event, dos_uint32 want_event, dos_uint32 op)
+static dos_bool _dos_check_event(dos_event_t event, dos_uint32 want_event, dos_uint32 op)
 {
     dos_uint32 option;
 
@@ -16,12 +16,12 @@ static dos_bool _Dos_CheckEvent(Dos_Event_t event, dos_uint32 want_event, dos_ui
     switch (option)
     {
         case WAIT_ANY_EVENT:
-            if((event->EventSet & want_event) != 0)
+            if((event->event_flag & want_event) != 0)
                 goto got;
             break;
 
         case WAIT_ALL_EVENT:
-            if((event->EventSet & want_event) == want_event)
+            if((event->event_flag & want_event) == want_event)
                 goto got;
             break;
 
@@ -34,44 +34,44 @@ static dos_bool _Dos_CheckEvent(Dos_Event_t event, dos_uint32 want_event, dos_ui
 got:
     if(!(op & NO_CLR_EVENT))
     {
-        event->EventSet &= ~(want_event);
+        event->event_flag &= ~(want_event);
     }
     return DOS_TRUE;
 }
 
 /**
- * create a event set
+ * create a event 
  */
-Dos_Event_t Dos_EventCreate(void)
+dos_event_t dos_event_create(void)
 {
-    Dos_Event_t event;
+    dos_event_t event;
 
-    event = (Dos_Event_t)Dos_MemAlloc(sizeof(struct Dos_Event));
+    event = (dos_event_t)dos_mem_alloc(sizeof(struct dos_event));
     if(event == DOS_NULL)
     {
         DOS_LOG_ERR("event is null\n");
         return DOS_NULL;
     }
     
-    event->EventSet = 0;
-    Dos_TaskList_Init(&(event->EventPend));
+    event->event_flag = 0;
+    dos_task_list_init(&(event->event_pend_list));
 
     return event;
 }
 
 
 /**
- * delete a event set
- * description: You need to set the event pointer to null after deleting the event set
+ * delete a event
+ * description: You need to set the event pointer to null after deleting the event
  */
-dos_err Dos_EventDelete(Dos_Event_t event)
+dos_err dos_event_delete(dos_event_t event)
 {
     if(event != DOS_NULL)
     {
-        if(Dos_TaskList_IsEmpty(&(event->EventPend)))
+        if(dos_task_list_is_empty(&(event->event_pend_list)))
         {
-            memset(event,0,sizeof(struct Dos_Event));
-            Dos_MemFree(event);
+            memset(event,0,sizeof(struct dos_event));
+            dos_mem_free(event);
             return DOS_OK;
         }
         else
@@ -90,112 +90,112 @@ dos_err Dos_EventDelete(Dos_Event_t event)
 /**
  * event wait function
  */
-dos_uint32 Dos_EventWait(Dos_Event_t event, dos_uint32 wait_event, dos_uint32 op, dos_uint32 timeout)
+dos_uint32 dos_event_wait(dos_event_t event, dos_uint32 wait_event, dos_uint32 op, dos_uint32 timeout)
 {
     dos_uint32 pri;
-    DOS_TaskCB_t task;
+    dos_task_t task;
     
-    pri = Dos_Interrupt_Disable();
+    pri = dos_interrupt_disable();
 
     if((event == DOS_NULL) ||(wait_event == 0))
     {
         DOS_LOG_WARN("event is null or the waiting event is 0\n");
-        Dos_Interrupt_Enable(pri);
+        dos_interrupt_enable(pri);
         return 0;
     }
 
     if((op & WAIT_EVENT_OP) == WAIT_EVENT_OP)
     {
         DOS_LOG_WARN("waiting for event option is invalid\n");
-        Dos_Interrupt_Enable(pri);
+        dos_interrupt_enable(pri);
         return 0;
     }
     
-    if(_Dos_CheckEvent(event, wait_event, op) == DOS_TRUE)
+    if(_dos_check_event(event, wait_event, op) == DOS_TRUE)
     {
-        Dos_Interrupt_Enable(pri);
+        dos_interrupt_enable(pri);
         return wait_event;  /** waiting for the event to succeed */
     }
 
-    if((timeout == 0) || (Dos_Scheduler_IsLock()))  /** scheduler is lock */
+    if((timeout == 0) || (dos_scheduler_is_lock()))  /** scheduler is lock */
     {
-        Dos_Interrupt_Enable(pri);
+        dos_interrupt_enable(pri);
         return 0;
     }
 
-    if(Dos_ContextIsInt())
+    if(dos_context_is_interrupt())
     {
         DOS_LOG_ERR("event wait time is not 0, and the context is in an interrupt\n");
-        Dos_Interrupt_Enable(pri);
+        dos_interrupt_enable(pri);
         return 0;
     }
 
-    task = (DOS_TaskCB_t)Dos_Get_CurrentTCB();
-    task->WaitEvent = wait_event;
-    task->WaitEventOp = op;
+    task = (dos_task_t)dos_get_current_task();
+    task->wait_event = wait_event;
+    task->wait_event_opt = op;
 
-    Dos_TaskWait(&event->EventPend, timeout);
-    Dos_Interrupt_Enable(pri);
-    Dos_Scheduler();
+    dos_task_wait(&event->event_pend_list, timeout);
+    dos_interrupt_enable(pri);
+    dos_scheduler();
 
     /** Task resumes running */
-    if(task->TaskStatus & DOS_TASK_STATUS_TIMEOUT)
+    if(task->task_status & DOS_TASK_STATUS_TIMEOUT)
     {
-        pri = Dos_Interrupt_Disable();
+        pri = dos_interrupt_disable();
         DOS_RESET_TASK_STATUS(task, (DOS_TASK_STATUS_TIMEOUT | DOS_TASK_STATUS_SUSPEND));
         DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
-        Dos_TaskItem_Del(&(task->PendItem));
-        task->WaitEvent &= (~wait_event);
-        task->WaitEventOp = 0;
-        Dos_Interrupt_Enable(pri);
+        dos_task_item_del(&(task->pend_item));
+        task->wait_event &= (~wait_event);
+        task->wait_event_opt = 0;
+        dos_interrupt_enable(pri);
         return 0;
     }
 
-    return task->EventGet;
+    return task->event_get;
 }
 
 /**
- * set a event set
+ * set a event flag
  */
-dos_uint32 Dos_EventSet(Dos_Event_t event, dos_uint32 set_event)
+dos_uint32 dos_event_set(dos_event_t event, dos_uint32 set_event)
 {
     dos_uint32 pri;
     dos_uint32 value;
-    DOS_TaskCB_t task;
+    dos_task_t task;
     
-    pri = Dos_Interrupt_Disable();
+    pri = dos_interrupt_disable();
 
 
     if((event == DOS_NULL) ||(set_event == 0))
     {
         DOS_LOG_WARN("event is null or the setting event is 0\n");
-        Dos_Interrupt_Enable(pri);
+        dos_interrupt_enable(pri);
         return 0;
     }
 
-    event->EventSet |= set_event;
-    Dos_Interrupt_Enable(pri);
+    event->event_flag |= set_event;
+    dos_interrupt_enable(pri);
 
-    if(!(Dos_TaskList_IsEmpty(&event->EventPend)))
+    if(!(dos_task_list_is_empty(&event->event_pend_list)))
     {
-        Dos_Scheduler_Lock();
+        dos_scheduler_lock();
 
-        for(value = Dos_Get_TaskListValue(&event->EventPend); value > 0; value--)
+        for(value = dos_get_task_list_value(&event->event_pend_list); value > 0; value--)
         {
-            task = Dos_Get_NextTCB(&event->EventPend);
+            task = dos_get_next_task(&event->event_pend_list);
 
-            if(_Dos_CheckEvent(event, task->WaitEvent, task->WaitEventOp) == DOS_TRUE)
+            if(_dos_check_event(event, task->wait_event, task->wait_event_opt) == DOS_TRUE)
             {
-                task->EventGet = task->WaitEvent;
-                Dos_TaskWake(task);
-                Dos_Scheduler();
+                task->event_get = task->wait_event;
+                dos_task_wake(task);
+                dos_scheduler();
             }
         }
 
-        Dos_Scheduler_Unlock();
+        dos_scheduler_unlock();
     }
 
-  return event->EventSet;
+  return event->event_flag;
 }
 
 

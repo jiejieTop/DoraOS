@@ -1,4 +1,4 @@
-/* FreeRTOSÍ·ÎÄ¼þ */
+/* FreeRTOSÍ·ï¿½Ä¼ï¿½ */
 #include "task.h"
 #include "queue.h"
 #include "sem.h"
@@ -23,7 +23,7 @@ void iperf_server(void *thread_param)
   err_t err;
   void* recv_data;
   
-  recv_data = (void *)Dos_MemAlloc(IPERF_BUFSZ);
+  recv_data = (void *)dos_mem_alloc(IPERF_BUFSZ);
   if (recv_data == NULL)
   {
       printf("No memory\n");
@@ -32,7 +32,7 @@ void iperf_server(void *thread_param)
   conn = netconn_new(NETCONN_TCP);
   netconn_bind(conn, IP_ADDR_ANY, LOCAL_PORT);
     
-  printf("±¾µØ¶Ë¿ÚºÅÊÇ%d\n",LOCAL_PORT);
+  printf("ï¿½ï¿½ï¿½Ø¶Ë¿Úºï¿½ï¿½ï¿½%d\n",LOCAL_PORT);
   LWIP_ERROR("tcpecho: invalid conn", (conn != NULL), return;);
 
   /* Tell connection to go into listening mode. */

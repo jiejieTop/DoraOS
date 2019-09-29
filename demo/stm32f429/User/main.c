@@ -9,8 +9,8 @@
 #include <log.h>
 #include <memp.h>
 /** Variable declaration */
-DOS_TaskCB_t task1 = DOS_NULL;
-DOS_TaskCB_t task2 = DOS_NULL;
+dos_task_t task1 = DOS_NULL;
+dos_task_t task2 = DOS_NULL;
 
 /** Macro definition */
 
@@ -23,10 +23,10 @@ void test_task1(void *Parameter)
     dos_uint32 pri;
     while(1)
     {
-        pri = Dos_Interrupt_Disable();
+        pri = dos_interrupt_disable();
         DOS_LOG_INFO("task1\n");
-        Dos_Interrupt_Enable(pri);
-        Dos_TaskSleep(1000);
+        dos_interrupt_enable(pri);
+        dos_task_sleep(1000);
         
     }
 }
@@ -37,10 +37,10 @@ void test_task2(void *Parameter)
     dos_uint32 pri;
     while(1)
     {
-        pri = Dos_Interrupt_Disable();
+        pri = dos_interrupt_disable();
         DOS_LOG_INFO("task2\n");
-        Dos_Interrupt_Enable(pri);
-        Dos_TaskSleep(1000);
+        dos_interrupt_enable(pri);
+        dos_task_sleep(1000);
         
     }
 }
@@ -51,24 +51,24 @@ int main(void)
 {
     BSP_Init();
 
-    Dos_SystemInit();
+    dos_system_init();
     
    
-    task1 = Dos_TaskCreate( "test_task1",
+    task1 = dos_task_create( "test_task1",
                             &test_task1,
                             DOS_NULL,
                             512,
                             2,
                             20);
 
-    task2 = Dos_TaskCreate( "test_task2",
+    task2 = dos_task_create( "test_task2",
                             &test_task2,
                             DOS_NULL,
                             512,
                             3,
                             0);
                 
-    Dos_Start();
+    dos_system_start_run();
   
 }
 

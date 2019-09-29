@@ -143,7 +143,7 @@ dos_void SysTick_Handler(dos_void)
     pri = Interrupt_Disable();
     HAL_IncTick();
     /** update system tick */
-    Dos_Update_Tick();
+    dos_tick_update();
     
     Interrupt_Enable(pri);
 }

@@ -11,9 +11,9 @@
 #include <log.h>
 
 /** Variable declaration */
-DOS_TaskCB_t task = DOS_NULL;
-DOS_TaskCB_t task1 = DOS_NULL;
-Dos_Sem_t sem = DOS_NULL;
+dos_task_t task = DOS_NULL;
+dos_task_t task1 = DOS_NULL;
+dos_sem_t sem = DOS_NULL;
 
 
 /** Macro definition */
@@ -23,14 +23,14 @@ Dos_Sem_t sem = DOS_NULL;
 static void BSP_Init(void);
 
 
-void sem_wait_task(void *Parameter)
+void sem_wait_task(void *parameter)
 {
     dos_uint32 res;
 
     while(1)
     {
         DOS_LOG_INFO("start wait sem, wait time is DOS_WAIT_FOREVER\n");
-        res = Dos_SemWait(sem, DOS_WAIT_FOREVER);
+        res = dos_sem_pend(sem, DOS_WAIT_FOREVER);
         if(res == DOS_OK)
         {
             DOS_LOG_INFO("wait sem success\n");
@@ -43,15 +43,15 @@ void sem_wait_task(void *Parameter)
 }
 
 
-void sem_post_task(void *Parameter)
+void sem_post_task(void *parameter)
 {
     while(1)
     {
         DOS_LOG_INFO("start post sem\n");
 
-        Dos_SemPost(sem);
+        dos_sem_post(sem);
 
-        Dos_TaskSleep(1000);
+        dos_task_sleep(1000);
     }
 }
 
@@ -61,25 +61,25 @@ int main(void)
 {
     BSP_Init();
 
-    Dos_SystemInit();
+    dos_system_init();
 
-    sem = Dos_BinarySem_Create(0);
+    sem = dos_binary_sem_create(0);
 
-    task = Dos_TaskCreate( "sem_wait_task",
+    task = dos_task_create( "sem_wait_task",
                             &sem_wait_task,
                             DOS_NULL,
                             1024,
                             2,
                             20);
 
-    task1 = Dos_TaskCreate( "sem_post_task",
+    task1 = dos_task_create( "sem_post_task",
                             &sem_post_task,
                             DOS_NULL,
                             1024,
                             3,
                             0);
                 
-    Dos_Start();
+    dos_system_start_run();
   
 }
 

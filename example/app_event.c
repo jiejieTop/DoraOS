@@ -11,9 +11,9 @@
 #include <log.h>
 
 /** Variable declaration */
-DOS_TaskCB_t task = DOS_NULL;
-DOS_TaskCB_t task1 = DOS_NULL;
-Dos_Event_t event = DOS_NULL;
+dos_task_t task = DOS_NULL;
+dos_task_t task1 = DOS_NULL;
+dos_event_t event = DOS_NULL;
 
 /** Macro definition */
 #define EVENT1 (0x01<<1)
@@ -26,48 +26,48 @@ Dos_Event_t event = DOS_NULL;
 static void BSP_Init(void);
 
 
-void event_wait_task(void *Parameter)
+void event_wait_task(void *parameter)
 {
   dos_uint32 res;
 
   while(1)
   {
     DOS_LOG_DEBUG("wait event 1 or 2 5000 tick, and do not clear events\n");
-    res = Dos_EventWait(event, EVENT1 | EVENT2, WAIT_ANY_EVENT | NO_CLR_EVENT, 5000);
+    res = dos_event_wait(event, EVENT1 | EVENT2, WAIT_ANY_EVENT | NO_CLR_EVENT, 5000);
     if((res & EVENT1) || (res & EVENT2))
       DOS_LOG_DEBUG("wait event 1 or 2 success");
 
-    Dos_TaskSleep(1000);
+    dos_task_sleep(1000);
 
     DOS_LOG_DEBUG("wait event 1 or 2 forever, and do not clear events\n");
-    res = Dos_EventWait(event, EVENT1 | EVENT2, WAIT_ANY_EVENT | NO_CLR_EVENT, DOS_WAIT_FOREVER);
+    res = dos_event_wait(event, EVENT1 | EVENT2, WAIT_ANY_EVENT | NO_CLR_EVENT, DOS_WAIT_FOREVER);
     if((res & EVENT1) || (res & EVENT2))
       DOS_LOG_DEBUG("wait event 1 or 2 success");
 
 
     DOS_LOG_DEBUG("wait event 1 and 2 500 tick\n");
-    res = Dos_EventWait(event, EVENT1 | EVENT2, WAIT_ALL_EVENT, 500);
+    res = dos_event_wait(event, EVENT1 | EVENT2, WAIT_ALL_EVENT, 500);
     if(res &= (EVENT1 | EVENT2))
       DOS_LOG_DEBUG("wait event 1 and 2 success");
 
     DOS_LOG_DEBUG("wait event 1 and 2 1000 tick\n");
-    res = Dos_EventWait(event, EVENT1 | EVENT2, WAIT_ALL_EVENT, DOS_WAIT_FOREVER);
+    res = dos_event_wait(event, EVENT1 | EVENT2, WAIT_ALL_EVENT, DOS_WAIT_FOREVER);
     if(res &= (EVENT1 | EVENT2))
       DOS_LOG_DEBUG("wait event 1 and 2 success");
   }
 }
-void event_set_task(void *Parameter)
+void event_set_task(void *parameter)
 {
   while(1)
   {
     DOS_LOG_DEBUG("set event 1\n");
-    Dos_EventSet(event, EVENT1);
+    dos_event_set(event, EVENT1);
 
-    Dos_TaskSleep(1000);
+    dos_task_sleep(1000);
 
     DOS_LOG_DEBUG("set event 2\n");
-    Dos_EventSet(event, EVENT2);
-    Dos_TaskSleep(1000);
+    dos_event_set(event, EVENT2);
+    dos_task_sleep(1000);
   }
 }
 
@@ -77,25 +77,25 @@ int main(void)
 {
   BSP_Init();
   
-  Dos_SystemInit();
+  dos_system_init();
   
-  event = Dos_EventCreate();
+  event = dos_event_create();
 
-  task = Dos_TaskCreate( "event_wait",
+  task = dos_task_create( "event_wait",
                           &event_wait_task,
                           DOS_NULL,
                           1024,
                           2,
                           20);
 
-  task1 = Dos_TaskCreate( "event_set",
+  task1 = dos_task_create( "event_set",
                           &event_set_task,
                           DOS_NULL,
                           1024,
                           3,
                           0);
                 
-  Dos_Start();
+  dos_system_start_run();
   
 }
 

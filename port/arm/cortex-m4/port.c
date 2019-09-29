@@ -6,15 +6,15 @@
 #endif // !DOS_SYSTEM_CLOCK_HZ
 
 
-extern void Dos_TaskExit(void);
+extern void dos_task_exit(void);
 
-dos_uint32 *Dos_StackInit(dos_uint32 *sp , 
+dos_uint32 *dos_stack_init(dos_uint32 *sp , 
                           void *task_entry,
                           dos_void *parameter)
 {
 	*--sp = 0x01000000L;	/* xPSR */
 	*--sp = ((dos_uint32)task_entry);	/* PC */
-	*--sp = (dos_uint32)Dos_TaskExit;	/* LR */
+	*--sp = (dos_uint32)dos_task_exit;	/* LR */
 	/* R12, R3, R2 and R1. */
 	sp -=4;	
 	*--sp = ( dos_uint32 ) parameter;	/* R0 */
@@ -27,7 +27,7 @@ dos_uint32 *Dos_StackInit(dos_uint32 *sp ,
 
 
 
-dos_uint32 Dos_StartScheduler( void )
+dos_uint32 dos_start_scheduler( void )
 {
 	/* Configure PendSV and SysTick with the lowest interrupt priority */
 	SYSPRI2_REG |= (PENDSV_PRI | SYSTICK_PRI);
@@ -54,7 +54,7 @@ dos_uint32 Dos_StartScheduler( void )
 /**
  * Is the context environment interrupted?
  */
-dos_bool Dos_ContextIsInt(void)
+dos_bool dos_context_is_interrupt(void)
 {
 	return (Dos_GetIPSR() != 0) ? DOS_TRUE : DOS_FALSE; 
 }

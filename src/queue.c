@@ -5,20 +5,20 @@
 #include <dos_config.h>
 
 
-static dos_void _Dos_QueueCopy(Dos_Queue_t queue, dos_void *buff, dos_size size, dos_uint8 op)
+static dos_void _dos_queue_copy(dos_queue_t queue, dos_void *buff, dos_size size, dos_uint8 op)
 {
     dos_uint32 pri;
     
-    pri = Dos_Interrupt_Disable();
+    pri = dos_interrupt_disable();
     
     switch (op)
     {
     case QUEUE_READ:
-        memcpy(buff, queue->QueueRWPtr[op], size);
+        memcpy(buff, queue->queue_rw_ptr[op], size);
         break;
 
     case QUEUE_WRITE:
-        memcpy(queue->QueueRWPtr[op], buff, size);
+        memcpy(queue->queue_rw_ptr[op], buff, size);
         break;
 
     default:
@@ -26,12 +26,12 @@ static dos_void _Dos_QueueCopy(Dos_Queue_t queue, dos_void *buff, dos_size size,
         break;
     }
 
-    queue->QueueRWPtr[op] = (dos_uint8 *)queue->QueueRWPtr[op] + queue->QueueSize;
-    if(queue->QueueRWPtr[op] == queue->QueueTPtr)
+    queue->queue_rw_ptr[op] = (dos_uint8 *)queue->queue_rw_ptr[op] + queue->queue_size;
+    if(queue->queue_rw_ptr[op] == queue->queue_tail_ptr)
     {
-        queue->QueueRWPtr[op] = queue->QueueHPtr;
+        queue->queue_rw_ptr[op] = queue->queue_head_ptr;
     }
-    Dos_Interrupt_Enable(pri);
+    dos_interrupt_enable(pri);
 }
 
 
@@ -43,76 +43,76 @@ static dos_void _Dos_QueueCopy(Dos_Queue_t queue, dos_void *buff, dos_size size,
  * op    : 0 is read, 1 is wirte
  * timeout : tick
  */
-static dos_err _Dos_Queuehandler(Dos_Queue_t queue, dos_void *buff, dos_size size, dos_uint8 op, dos_uint32 timeout)
+static dos_err _dos_queue_handler(dos_queue_t queue, dos_void *buff, dos_size size, dos_uint8 op, dos_uint32 timeout)
 {
     dos_uint32 pri;
-    DOS_TaskCB_t task;
+    dos_task_t task;
 
-    pri = Dos_Interrupt_Disable();
+    pri = dos_interrupt_disable();
     
     if((!queue) || (!buff) || (!size) || (op > QUEUE_WRITE))
     {
         DOS_LOG_WARN("queue does not satisfy the condition\n");
-        Dos_Interrupt_Enable(pri);
+        dos_interrupt_enable(pri);
         return DOS_NOK;
     }
 
-    size = DOS_MIN(size, queue->QueueSize);
+    size = DOS_MIN(size, queue->queue_size);
 
-    if(0 == queue->QueueRWCnt[op])
+    if(0 == queue->queue_rw_count[op])
     {
         if(0 == timeout)
         {
-            Dos_Interrupt_Enable(pri);
+            dos_interrupt_enable(pri);
             return DOS_NOK;
         }
 
-        if(Dos_ContextIsInt())
+        if(dos_context_is_interrupt())
         {
             DOS_LOG_ERR("queue wait time is not 0, and the context is in an interrupt\n");
-            Dos_Interrupt_Enable(pri);
+            dos_interrupt_enable(pri);
             return DOS_NOK;
         }
 
-        if(Dos_Scheduler_IsLock())  /** scheduler is lock */
+        if(dos_scheduler_is_lock())  /** scheduler is lock */
         {
-            Dos_Interrupt_Enable(pri);
+            dos_interrupt_enable(pri);
             return DOS_NOK;
         }
 
-        Dos_TaskWait(&queue->QueuePend[op], timeout);
-        Dos_Interrupt_Enable(pri);
-        Dos_Scheduler();
+        dos_task_wait(&queue->queue_pend_list[op], timeout);
+        dos_interrupt_enable(pri);
+        dos_scheduler();
         
-        task = (DOS_TaskCB_t)Dos_Get_CurrentTCB();
+        task = (dos_task_t)dos_get_current_task();
         /** Task resumes running */
-        if(task->TaskStatus & DOS_TASK_STATUS_TIMEOUT)
+        if(task->task_status & DOS_TASK_STATUS_TIMEOUT)
         {
             DOS_RESET_TASK_STATUS(task, (DOS_TASK_STATUS_TIMEOUT | DOS_TASK_STATUS_SUSPEND));
             DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
-            Dos_TaskItem_Del(&(task->PendItem));
+            dos_task_item_del(&(task->pend_item));
             return DOS_NOK;
         }
     }
     else
     {
-        queue->QueueRWCnt[op]--;
-        Dos_Interrupt_Enable(pri);
+        queue->queue_rw_count[op]--;
+        dos_interrupt_enable(pri);
     }
     
-    _Dos_QueueCopy(queue, buff, size, op);
+    _dos_queue_copy(queue, buff, size, op);
     
-    if(!Dos_TaskList_IsEmpty(&(queue->QueuePend[1-op])))
+    if(!dos_task_list_is_empty(&(queue->queue_pend_list[1-op])))
     {
-        pri = Dos_Interrupt_Disable();
-        task = Dos_GetTCB(&(queue->QueuePend[1-op]));
-        Dos_TaskWake(task);
-        Dos_Interrupt_Enable(pri);
-        Dos_Scheduler();
+        pri = dos_interrupt_disable();
+        task = dos_get_first_task(&(queue->queue_pend_list[1-op]));
+        dos_task_wake(task);
+        dos_interrupt_enable(pri);
+        dos_scheduler();
     }
     else
     {
-        queue->QueueRWCnt[1-op]++;
+        queue->queue_rw_count[1-op]++;
     }
     
     return DOS_OK;
@@ -124,9 +124,9 @@ static dos_err _Dos_Queuehandler(Dos_Queue_t queue, dos_void *buff, dos_size siz
  * @param[in]  len: queue length
  * @param[in]  size: queue node size
  */
-Dos_Queue_t Dos_QueueCreate(dos_uint16 len, dos_uint16 size)
+dos_queue_t dos_queue_create(dos_uint16 len, dos_uint16 size)
 {
-    Dos_Queue_t queue;
+    dos_queue_t queue;
     dos_size queue_size;
 
     if((len <= 0) || (size <= 0))
@@ -137,32 +137,32 @@ Dos_Queue_t Dos_QueueCreate(dos_uint16 len, dos_uint16 size)
 
     queue_size = (dos_size)(len * size);
 
-    queue = (Dos_Queue_t)Dos_MemAlloc(sizeof(struct Dos_Queue) + queue_size);
+    queue = (dos_queue_t)dos_mem_alloc(sizeof(struct dos_queue) + queue_size);
     if(queue == DOS_NULL)
     {
         DOS_LOG_ERR("unable to create queue\n");
         return DOS_NULL;
     }
 
-    memset(queue,0,sizeof(struct Dos_Queue) + queue_size);
+    memset(queue,0,sizeof(struct dos_queue) + queue_size);
 
-    queue->QueueLen = len;
-    queue->QueueSize = size;
+    queue->queue_len = len;
+    queue->queue_size = size;
 
-    queue->QueueHPtr = (dos_uint8 *)queue + sizeof(struct Dos_Queue);
-    queue->QueueTPtr = queue->QueueHPtr + (queue->QueueLen * queue->QueueSize);
+    queue->queue_head_ptr = (dos_uint8 *)queue + sizeof(struct dos_queue);
+    queue->queue_tail_ptr = queue->queue_head_ptr + (queue->queue_len * queue->queue_size);
 
-    queue->QueueRWCnt[QUEUE_READ] = 0;
-    queue->QueueRWCnt[QUEUE_WRITE] = len;
+    queue->queue_rw_count[QUEUE_READ] = 0;
+    queue->queue_rw_count[QUEUE_WRITE] = len;
 
 //    queue->QueueRWLock[QUEUE_READ] = 0;
 //    queue->QueueRWLock[QUEUE_WRITE] = 0;
 
-    queue->QueueRWPtr[QUEUE_READ] = queue->QueueHPtr;
-    queue->QueueRWPtr[QUEUE_WRITE] = queue->QueueHPtr;
+    queue->queue_rw_ptr[QUEUE_READ] = queue->queue_head_ptr;
+    queue->queue_rw_ptr[QUEUE_WRITE] = queue->queue_head_ptr;
     
-    Dos_TaskList_Init(&(queue->QueuePend[QUEUE_READ]));
-    Dos_TaskList_Init(&(queue->QueuePend[QUEUE_WRITE]));
+    dos_task_list_init(&(queue->queue_pend_list[QUEUE_READ]));
+    dos_task_list_init(&(queue->queue_pend_list[QUEUE_WRITE]));
     
     return queue;
 }
@@ -172,14 +172,14 @@ Dos_Queue_t Dos_QueueCreate(dos_uint16 len, dos_uint16 size)
  * delete a queue
  * description: You need to set the semaphore pointer to null after deleting the semaphore
  */
-dos_err Dos_QueueDelete(Dos_Queue_t queue)
+dos_err dos_queue_delete(dos_queue_t queue)
 {
     if(queue != DOS_NULL)
     {
-        if((Dos_TaskList_IsEmpty(&(queue->QueuePend[QUEUE_READ]))) && (Dos_TaskList_IsEmpty(&(queue->QueuePend[QUEUE_WRITE]))))
+        if((dos_task_list_is_empty(&(queue->queue_pend_list[QUEUE_READ]))) && (dos_task_list_is_empty(&(queue->queue_pend_list[QUEUE_WRITE]))))
         {
-            memset(queue,0,sizeof(struct Dos_Queue) + (dos_size)(queue->QueueLen * queue->QueueSize));
-            Dos_MemFree(queue);
+            memset(queue,0,sizeof(struct dos_queue) + (dos_size)(queue->queue_len * queue->queue_size));
+            dos_mem_free(queue);
             return DOS_OK;
         }
         else
@@ -198,17 +198,17 @@ dos_err Dos_QueueDelete(Dos_Queue_t queue)
 /**
  * Read data from the queue
  */
-dos_err Dos_QueueRead(Dos_Queue_t queue, dos_void *buff, dos_size size, dos_uint32 timeout)
+dos_err dos_queue_read(dos_queue_t queue, dos_void *buff, dos_size size, dos_uint32 timeout)
 {
-    return _Dos_Queuehandler(queue, buff, size, QUEUE_READ, timeout);
+    return _dos_queue_handler(queue, buff, size, QUEUE_READ, timeout);
 }
 
 /**
  * Write data to the queue
  */
-dos_err Dos_QueueWrite(Dos_Queue_t queue, dos_void *buff, dos_size size, dos_uint32 timeout)
+dos_err dos_queue_write(dos_queue_t queue, dos_void *buff, dos_size size, dos_uint32 timeout)
 {
-    return _Dos_Queuehandler(queue, buff, size, QUEUE_WRITE, timeout);
+    return _dos_queue_handler(queue, buff, size, QUEUE_WRITE, timeout);
 }
 
 

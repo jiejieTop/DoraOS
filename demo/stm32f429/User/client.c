@@ -45,12 +45,12 @@ static void client(void *thread_param)
   
   uint8_t send_buf[]= "This is a TCP Client test...\n";
   
-  printf("目地IP地址:%d.%d.%d.%d \t 端口号:%d\n\n",      \
+  printf("目锟斤拷IP锟斤拷址:%d.%d.%d.%d \t 锟剿口猴拷:%d\n\n",      \
           DEST_IP_ADDR0,DEST_IP_ADDR1,DEST_IP_ADDR2,DEST_IP_ADDR3,DEST_PORT);
   
-  printf("请将电脑上位机设置为TCP Server.在User/arch/sys_arch.h文件中将目标IP地址修改为您电脑上的IP地址\n\n");
+  printf("锟诫将锟斤拷锟斤拷锟斤拷位锟斤拷锟斤拷锟斤拷为TCP Server.锟斤拷User/arch/sys_arch.h锟侥硷拷锟叫斤拷目锟斤拷IP锟斤拷址锟睫革拷为锟斤拷锟斤拷锟斤拷锟较碉拷IP锟斤拷址\n\n");
   
-  printf("修改对应的宏定义:DEST_IP_ADDR0,DEST_IP_ADDR1,DEST_IP_ADDR2,DEST_IP_ADDR3,DEST_PORT\n\n");
+  printf("锟睫改讹拷应锟侥宏定锟斤拷:DEST_IP_ADDR0,DEST_IP_ADDR1,DEST_IP_ADDR2,DEST_IP_ADDR3,DEST_PORT\n\n");
   
   while(1)
   {
@@ -58,7 +58,7 @@ static void client(void *thread_param)
     if (conn == NULL)
     {
       PRINT_DEBUG("create conn failed!\n");
-      Dos_TaskSleep(10);
+      dos_task_sleep(10);
       continue;
     }
     
@@ -69,7 +69,7 @@ static void client(void *thread_param)
     {
         PRINT_DEBUG("Connect failed!\n");
         netconn_close(conn);
-        Dos_TaskSleep(10);
+        dos_task_sleep(10);
         continue;
     }
 
@@ -79,7 +79,7 @@ static void client(void *thread_param)
     {
       ret = netconn_write(conn,send_buf,sizeof(send_buf),0);
    
-      Dos_TaskSleep(10);
+      dos_task_sleep(10);
     }
   }
 

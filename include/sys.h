@@ -37,7 +37,7 @@
 */
 
 
-void Dos_SystemInit(void);
+void dos_system_init(void);
 
 
 

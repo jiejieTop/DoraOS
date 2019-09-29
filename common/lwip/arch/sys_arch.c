@@ -61,7 +61,7 @@ struct sys_timeouts {
 struct timeoutlist
 {
 	struct sys_timeouts timeouts;
-	DOS_TaskCB_t pid;
+	dos_task_t pid;
 };
 
 #define SYS_THREAD_MAX 4
@@ -73,14 +73,14 @@ static u16_t s_nextthread = 0;
 u32_t
 sys_jiffies(void)
 {
-  lwip_sys_now = Dos_Get_Tick();
+  lwip_sys_now = dos_get_tick();
   return lwip_sys_now;
 }
 
 u32_t
 sys_now(void)
 {
-  lwip_sys_now = Dos_Get_Tick();
+  lwip_sys_now = dos_get_tick();
   return lwip_sys_now;
 }
 
@@ -102,9 +102,9 @@ sys_init(void)
 struct sys_timeouts *sys_arch_timeouts(void)
 {
 	int i;
-	DOS_TaskCB_t pid;
+	dos_task_t pid;
 	struct timeoutlist *tl;
-	pid = Dos_Get_CurrentTCB();
+	pid = dos_get_current_task();
 	for(i = 0; i < s_nextthread; i++)
 	{
 		tl = &(s_timeoutlist[i]);
@@ -118,12 +118,12 @@ struct sys_timeouts *sys_arch_timeouts(void)
 
 sys_prot_t sys_arch_protect(void)
 {
-    return Dos_Interrupt_Disable();
+    return dos_interrupt_disable();
 }
 
 void sys_arch_unprotect(sys_prot_t pval)
 {
-	Dos_Interrupt_Enable(pval);
+	dos_interrupt_enable(pval);
 }
 
 #if !NO_SYS
@@ -132,17 +132,17 @@ void sys_arch_unprotect(sys_prot_t pval)
 err_t
 sys_sem_new(sys_sem_t *sem, u8_t count)
 {
-  /* ´´½¨ sem */
+  /* ï¿½ï¿½ï¿½ï¿½ sem */
   if(count <= 1)
   {    
-    *sem = Dos_BinarySem_Create(count);
+    *sem = dos_binary_sem_create(count);
     if(count == 1)
     {
-      Dos_SemPost(*sem);
+      dos_sem_post(*sem);
     }
   }
   else
-    *sem = Dos_SemCreate(count,count);
+    *sem = dos_sem_create(count,count);
   
 #if SYS_STATS
 	++lwip_stats.sys.sem.used;
@@ -169,8 +169,8 @@ sys_sem_free(sys_sem_t *sem)
 #if SYS_STATS
    --lwip_stats.sys.sem.used;
 #endif /* SYS_STATS */
-  /* É¾³ý sem */
-  Dos_SemDelete(*sem);
+  /* É¾ï¿½ï¿½ sem */
+  dos_sem_delete(*sem);
   *sem = SYS_SEM_NULL;
 }
 
@@ -188,38 +188,38 @@ sys_sem_set_invalid(sys_sem_t *sem)
 }
 
 /* 
- Èç¹ûtimeout²ÎÊý²»ÎªÁã£¬Ôò·µ»ØÖµÎª
- µÈ´ýÐÅºÅÁ¿Ëù»¨·ÑµÄºÁÃëÊý¡£Èç¹û
- ÐÅºÅÁ¿Î´ÔÚÖ¸¶¨Ê±¼äÄÚ·¢³öÐÅºÅ£¬·µ»ØÖµÎª
- SYS_ARCH_TIMEOUT¡£Èç¹ûÏß³Ì²»±ØµÈ´ýÐÅºÅÁ¿
- ¸Ãº¯Êý·µ»ØÁã¡£ */
+ ï¿½ï¿½ï¿½timeoutï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ã£¬ï¿½ò·µ»ï¿½ÖµÎª
+ ï¿½È´ï¿½ï¿½Åºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÑµÄºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+ ï¿½Åºï¿½ï¿½ï¿½Î´ï¿½ï¿½Ö¸ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Ú·ï¿½ï¿½ï¿½ï¿½ÅºÅ£ï¿½ï¿½ï¿½ï¿½ï¿½ÖµÎª
+ SYS_ARCH_TIMEOUTï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ß³Ì²ï¿½ï¿½ØµÈ´ï¿½ï¿½Åºï¿½ï¿½ï¿½
+ ï¿½Ãºï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ã¡£ */
 u32_t
 sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
 {
   u32_t wait_tick = 0;
   u32_t start_tick = 0 ;
   
-  //¿´¿´ÐÅºÅÁ¿ÊÇ·ñÓÐÐ§
+  //ï¿½ï¿½ï¿½ï¿½ï¿½Åºï¿½ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Ð§
   if(*sem == SYS_SEM_NULL)
     return SYS_ARCH_TIMEOUT;
   
-  //Ê×ÏÈ»ñÈ¡¿ªÊ¼µÈ´ýÐÅºÅÁ¿µÄÊ±ÖÓ½ÚÅÄ
-  start_tick = Dos_Get_Tick();
+  //ï¿½ï¿½ï¿½È»ï¿½È¡ï¿½ï¿½Ê¼ï¿½È´ï¿½ï¿½Åºï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½Ó½ï¿½ï¿½ï¿½
+  start_tick = dos_get_tick();
   
-  //timeout != 0£¬ÐèÒª½«ms»»³ÉÏµÍ³µÄÊ±ÖÓ½ÚÅÄ
+  //timeout != 0ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½msï¿½ï¿½ï¿½ï¿½ÏµÍ³ï¿½ï¿½Ê±ï¿½Ó½ï¿½ï¿½ï¿½
   if(timeout != 0)
   {
-    //½«ms×ª»»³ÉÊ±ÖÓ½ÚÅÄ
+    //ï¿½ï¿½ms×ªï¿½ï¿½ï¿½ï¿½Ê±ï¿½Ó½ï¿½ï¿½ï¿½
     wait_tick = timeout / DOS_TICK_PERIOD_MS;
     if (wait_tick == 0)
       wait_tick = 1;
   }
   else
-    wait_tick = DOS_WAIT_FOREVER;  //Ò»Ö±×èÈû
+    wait_tick = DOS_WAIT_FOREVER;  //Ò»Ö±ï¿½ï¿½ï¿½ï¿½
   
-  //µÈ´ý³É¹¦£¬¼ÆËãµÈ´ýµÄÊ±¼ä£¬·ñÔò¾Í±íÊ¾µÈ´ý³¬Ê±
-  if(Dos_SemWait(*sem, wait_tick) == DOS_OK)
-    return ((Dos_Get_Tick()-start_tick) * DOS_TICK_PERIOD_MS);
+  //ï¿½È´ï¿½ï¿½É¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È´ï¿½ï¿½ï¿½Ê±ï¿½ä£¬ï¿½ï¿½ï¿½ï¿½Í±ï¿½Ê¾ï¿½È´ï¿½ï¿½ï¿½Ê±
+  if(dos_sem_pend(*sem, wait_tick) == DOS_OK)
+    return ((dos_get_tick()-start_tick) * DOS_TICK_PERIOD_MS);
   else
     return SYS_ARCH_TIMEOUT;
 }
@@ -227,15 +227,15 @@ sys_arch_sem_wait(sys_sem_t *sem, u32_t timeout)
 void
 sys_sem_signal(sys_sem_t *sem)
 {
-  if(Dos_SemPost( *sem ) != DOS_OK)
+  if(dos_sem_post( *sem ) != DOS_OK)
     DOS_LOG_WARN("[sys_arch]:sem signal fail!\n");
 }
 
 err_t
 sys_mutex_new(sys_mutex_t *mutex)
 {
-  /* ´´½¨ sem */   
-  *mutex = Dos_MutexCreate();
+  /* ï¿½ï¿½ï¿½ï¿½ sem */   
+  *mutex = dos_mutex_create();
   if(*mutex != SYS_MRTEX_NULL)
     return ERR_OK;
   else
@@ -248,7 +248,7 @@ sys_mutex_new(sys_mutex_t *mutex)
 void
 sys_mutex_free(sys_mutex_t *mutex)
 {
-  Dos_MutexDelete(*mutex);
+  dos_mutex_delete(*mutex);
 }
 
 void
@@ -260,14 +260,14 @@ sys_mutex_set_invalid(sys_mutex_t *mutex)
 void
 sys_mutex_lock(sys_mutex_t *mutex)
 {
-  Dos_MutexPend(*mutex,/* »¥³âÁ¿¾ä±ú */
-                 DOS_WAIT_FOREVER); /* µÈ´ýÊ±¼ä */
+  dos_mutex_pend(*mutex,/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
+                 DOS_WAIT_FOREVER); /* ï¿½È´ï¿½Ê±ï¿½ï¿½ */
 }
 
 void
 sys_mutex_unlock(sys_mutex_t *mutex)
 {
-  Dos_MutexPost( *mutex );//¸ø³ö»¥³âÁ¿
+  dos_mutex_post( *mutex );//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 }
 
 
@@ -275,8 +275,8 @@ sys_thread_t
 sys_thread_new(const char *name, lwip_thread_fn function, void *arg, int stacksize, int prio)
 {
   sys_thread_t handle = NULL;
-  /* ´´½¨MidPriority_TaskÈÎÎñ */
-  handle = Dos_TaskCreate(name, function, arg, stacksize, prio, 40);
+  /* ï¿½ï¿½ï¿½ï¿½MidPriority_Taskï¿½ï¿½ï¿½ï¿½ */
+  handle = dos_task_create(name, function, arg, stacksize, prio, 40);
   if(handle == DOS_NULL)
   {
     DOS_LOG_WARN("[sys_arch]:create task fail!\n");
@@ -288,8 +288,8 @@ sys_thread_new(const char *name, lwip_thread_fn function, void *arg, int stacksi
 err_t
 sys_mbox_new(sys_mbox_t *mbox, int size)
 {
-    /* ´´½¨Test_Queue */
-    *mbox = Dos_QueueCreate( size, sizeof(void *));
+    /* ï¿½ï¿½ï¿½ï¿½Test_Queue */
+    *mbox = dos_queue_create( size, sizeof(void *));
     if(NULL == *mbox)
         return ERR_MEM;
     return ERR_OK;
@@ -298,7 +298,7 @@ sys_mbox_new(sys_mbox_t *mbox, int size)
 void
 sys_mbox_free(sys_mbox_t *mbox)
 {
-    Dos_QueueDelete(*mbox);
+    dos_queue_delete(*mbox);
 }
 
 int sys_mbox_valid(sys_mbox_t *mbox)          
@@ -318,16 +318,16 @@ sys_mbox_set_invalid(sys_mbox_t *mbox)
 void
 sys_mbox_post(sys_mbox_t *q, void *msg)
 {
-  while(Dos_QueueWrite( *q, /* ÏûÏ¢¶ÓÁÐµÄ¾ä±ú */
-                    &msg,/* ·¢ËÍµÄÏûÏ¢ÄÚÈÝ */
+  while(dos_queue_write( *q, /* ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ÐµÄ¾ï¿½ï¿½ */
+                    &msg,/* ï¿½ï¿½ï¿½Íµï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ */
                     sizeof(void *),
-                    DOS_WAIT_FOREVER) != DOS_OK); /* µÈ´ýÊ±¼ä */
+                    DOS_WAIT_FOREVER) != DOS_OK); /* ï¿½È´ï¿½Ê±ï¿½ï¿½ */
 }
 
 err_t
 sys_mbox_trypost(sys_mbox_t *q, void *msg)
 {
-  if(Dos_QueueWrite(*q,&msg,sizeof(void *),0) == DOS_OK)  
+  if(dos_queue_write(*q,&msg,sizeof(void *),0) == DOS_OK)  
     return ERR_OK;
   else
     return ERR_MEM;
@@ -346,26 +346,26 @@ sys_arch_mbox_fetch(sys_mbox_t *q, void **msg, u32_t timeout)
   u32_t wait_tick = 0;
   u32_t start_tick = 0 ;
   
-  if ( msg == NULL )  //¿´¿´´æ´¢ÏûÏ¢µÄµØ·½ÊÇ·ñÓÐÐ§
+  if ( msg == NULL )  //ï¿½ï¿½ï¿½ï¿½ï¿½æ´¢ï¿½ï¿½Ï¢ï¿½ÄµØ·ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Ð§
 		msg = &dummyptr;
   
-  //Ê×ÏÈ»ñÈ¡¿ªÊ¼µÈ´ýÐÅºÅÁ¿µÄÊ±ÖÓ½ÚÅÄ
+  //ï¿½ï¿½ï¿½È»ï¿½È¡ï¿½ï¿½Ê¼ï¿½È´ï¿½ï¿½Åºï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½Ó½ï¿½ï¿½ï¿½
   start_tick = sys_now();
   
-  //timeout != 0£¬ÐèÒª½«ms»»³ÉÏµÍ³µÄÊ±ÖÓ½ÚÅÄ
+  //timeout != 0ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½msï¿½ï¿½ï¿½ï¿½ÏµÍ³ï¿½ï¿½Ê±ï¿½Ó½ï¿½ï¿½ï¿½
   if(timeout != 0)
   {
-    //½«ms×ª»»³ÉÊ±ÖÓ½ÚÅÄ
+    //ï¿½ï¿½ms×ªï¿½ï¿½ï¿½ï¿½Ê±ï¿½Ó½ï¿½ï¿½ï¿½
     wait_tick = timeout / DOS_TICK_PERIOD_MS;
     if (wait_tick == 0)
       wait_tick = 1;
   }
-  //Ò»Ö±×èÈû
+  //Ò»Ö±ï¿½ï¿½ï¿½ï¿½
   else
     wait_tick = DOS_WAIT_FOREVER;
   
-  //µÈ´ý³É¹¦£¬¼ÆËãµÈ´ýµÄÊ±¼ä£¬·ñÔò¾Í±íÊ¾µÈ´ý³¬Ê±
-  if(Dos_QueueRead(*q,&(*msg),sizeof(void *), wait_tick) == DOS_OK)
+  //ï¿½È´ï¿½ï¿½É¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È´ï¿½ï¿½ï¿½Ê±ï¿½ä£¬ï¿½ï¿½ï¿½ï¿½Í±ï¿½Ê¾ï¿½È´ï¿½ï¿½ï¿½Ê±
+  if(dos_queue_read(*q,&(*msg),sizeof(void *), wait_tick) == DOS_OK)
     return ((sys_now() - start_tick)*DOS_TICK_PERIOD_MS);
   else
   {
@@ -381,8 +381,8 @@ sys_arch_mbox_tryfetch(sys_mbox_t *q, void **msg)
 	if ( msg == NULL )
 		msg = &dummyptr;
   
-  //µÈ´ý³É¹¦£¬¼ÆËãµÈ´ýµÄÊ±¼ä
-  if(Dos_QueueRead(*q,&(*msg),sizeof(void *), 0) == DOS_OK)
+  //ï¿½È´ï¿½ï¿½É¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È´ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+  if(dos_queue_read(*q,&(*msg),sizeof(void *), 0) == DOS_OK)
     return ERR_OK;
   else
     return SYS_MBOX_EMPTY;
@@ -437,26 +437,26 @@ void TCPIP_Init(void)
     netif_set_down(&gnetif);
   }
   
-#if LWIP_DHCP	   			//ÈôÊ¹ÓÃÁËDHCP
+#if LWIP_DHCP	   			//ï¿½ï¿½Ê¹ï¿½ï¿½ï¿½ï¿½DHCP
   int err;
   /*  Creates a new DHCP client for this interface on the first call.
   Note: you must call dhcp_fine_tmr() and dhcp_coarse_tmr() at
   the predefined regular intervals after starting the client.
   You can peek in the netif->dhcp struct for the actual DHCP status.*/
   
-  printf("±¾Àý³Ì½«Ê¹ÓÃDHCP¶¯Ì¬·ÖÅäIPµØÖ·,Èç¹û²»ÐèÒªÔòÔÚlwipopts.hÖÐ½«LWIP_DHCP¶¨ÒåÎª0\n\n");
+  printf("ï¿½ï¿½ï¿½ï¿½ï¿½Ì½ï¿½Ê¹ï¿½ï¿½DHCPï¿½ï¿½Ì¬ï¿½ï¿½ï¿½ï¿½IPï¿½ï¿½Ö·,ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½ï¿½lwipopts.hï¿½Ð½ï¿½LWIP_DHCPï¿½ï¿½ï¿½ï¿½Îª0\n\n");
   
-  err = dhcp_start(&gnetif);      //¿ªÆôdhcp
+  err = dhcp_start(&gnetif);      //ï¿½ï¿½ï¿½ï¿½dhcp
   if(err == ERR_OK)
     printf("lwip dhcp init success...\n\n");
   else
     printf("lwip dhcp init fail...\n\n");
-  while(ip_addr_cmp(&(gnetif.ip_addr),&ipaddr))   //µÈ´ýdhcp·ÖÅäµÄipÓÐÐ§
+  while(ip_addr_cmp(&(gnetif.ip_addr),&ipaddr))   //ï¿½È´ï¿½dhcpï¿½ï¿½ï¿½ï¿½ï¿½ipï¿½ï¿½Ð§
   {
     vTaskDelay(1);
   } 
 #endif
-  printf("±¾µØIPµØÖ·ÊÇ:%d.%d.%d.%d\n\n",  \
+  printf("ï¿½ï¿½ï¿½ï¿½IPï¿½ï¿½Ö·ï¿½ï¿½:%d.%d.%d.%d\n\n",  \
         ((gnetif.ip_addr.addr)&0x000000ff),       \
         (((gnetif.ip_addr.addr)&0x0000ff00)>>8),  \
         (((gnetif.ip_addr.addr)&0x00ff0000)>>16), \

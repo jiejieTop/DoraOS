@@ -54,23 +54,23 @@ Dos_Fifo_t Dos_FifoCreate(dos_size size)
 		size = _Dos_FifoAlign(size);
 	}
 
-    fifo = (Dos_Fifo_t)Dos_MemAlloc((sizeof(struct Dos_Fifo) + size));
+    fifo = (Dos_Fifo_t)dos_mem_alloc((sizeof(struct Dos_Fifo) + size));
     if(DOS_NULL != fifo)
     {
         fifo->Buffer = (dos_uint8 *)fifo + sizeof(struct Dos_Fifo);
 
-        fifo->Mutex[FIFO_READ] = Dos_MutexCreate();
+        fifo->Mutex[FIFO_READ] = dos_mutex_create();
         if(DOS_NULL == fifo->Mutex[FIFO_READ])
         {
-            Dos_MemFree(fifo);  
+            dos_mem_free(fifo);  
             return DOS_NULL;
         }
 
-        fifo->Mutex[FIFO_WRITE] = Dos_MutexCreate();
+        fifo->Mutex[FIFO_WRITE] = dos_mutex_create();
         if(DOS_NULL == fifo->Mutex[FIFO_WRITE])
         {
-            Dos_MemFree(fifo);
-            Dos_MutexDelete(fifo->Mutex[FIFO_READ]);
+            dos_mem_free(fifo);
+            dos_mutex_delete(fifo->Mutex[FIFO_READ]);
             return DOS_NULL;
         }
 
@@ -91,7 +91,7 @@ dos_uint32 Dos_FifoWrite(Dos_Fifo_t fifo, dos_void *buff, dos_uint32 len, dos_ui
     if((!fifo) || (!buff) || (!len))
         return 0;
 
-    err = Dos_MutexPend(fifo->Mutex[FIFO_WRITE], timeout);
+    err = dos_mutex_pend(fifo->Mutex[FIFO_WRITE], timeout);
     if(err == DOS_NOK)
         return 0;
 
@@ -103,7 +103,7 @@ dos_uint32 Dos_FifoWrite(Dos_Fifo_t fifo, dos_void *buff, dos_uint32 len, dos_ui
 
     fifo->In += len;
 
-    Dos_MutexPost(fifo->Mutex[FIFO_WRITE]);
+    dos_mutex_post(fifo->Mutex[FIFO_WRITE]);
 
     return len;
 }
@@ -115,7 +115,7 @@ dos_uint32 Dos_FifoRead(Dos_Fifo_t fifo, dos_void *buff, dos_uint32 len, dos_uin
     if((!fifo) || (!buff) || (!len))
         return 0;
 
-    err = Dos_MutexPend(fifo->Mutex[FIFO_READ], timeout);
+    err = dos_mutex_pend(fifo->Mutex[FIFO_READ], timeout);
     if(err == DOS_NOK)
         return 0;
 
@@ -127,7 +127,7 @@ dos_uint32 Dos_FifoRead(Dos_Fifo_t fifo, dos_void *buff, dos_uint32 len, dos_uin
 
     fifo->Out += len;
 
-    Dos_MutexPost(fifo->Mutex[FIFO_READ]);
+    dos_mutex_post(fifo->Mutex[FIFO_READ]);
 
     return len;
 }

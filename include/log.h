@@ -74,11 +74,11 @@
 #endif
 
 #if DOS_LOG_TS && DOS_LOG_TAR
-    #define DOS_LOG_T   PRINT_LOG("[TS: %ld] [TAR: %s] ",Dos_Get_Tick(), Dos_Get_TaskName())
+    #define DOS_LOG_T   PRINT_LOG("[TS: %ld] [TAR: %s] ",dos_get_tick(), dos_get_task_name())
 #elif DOS_LOG_TS
-    #define DOS_LOG_T   PRINT_LOG("[TS: %ld] ", Dos_Get_Tick())
+    #define DOS_LOG_T   PRINT_LOG("[TS: %ld] ", dos_get_tick())
 #elif DOS_LOG_TAR
-    #define DOS_LOG_T   PRINT_LOG("[TAR: %s] ", Dos_Get_TaskName())
+    #define DOS_LOG_T   PRINT_LOG("[TAR: %s] ", dos_get_task_name())
 #else
     #define DOS_LOG_T
 #endif

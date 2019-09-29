@@ -11,29 +11,29 @@
  * @param[in]  cnt : Initialize the number of semaphores
  * @param[in]  cnt : Maximum number of semaphores
  */
-Dos_Sem_t Dos_SemCreate(dos_uint32 cnt, dos_uint32 max_cnt)
+dos_sem_t dos_sem_create(dos_uint32 cnt, dos_uint32 max_cnt)
 {
-    Dos_Sem_t sem;
+    dos_sem_t sem;
 
     if(cnt > max_cnt)
     {
         DOS_LOG_WARN("the cnt of the semaphore cannot exceed the max cnt\n");
     }
 
-    sem = (Dos_Sem_t)Dos_MemAlloc(sizeof(struct Dos_Sem));
+    sem = (dos_sem_t)dos_mem_alloc(sizeof(struct dos_sem));
     if(sem == DOS_NULL)
     {
         DOS_LOG_ERR("unable to create sem\n");
         return DOS_NULL;
     }
 
-    memset(sem, 0, sizeof(struct Dos_Sem));
+    memset(sem, 0, sizeof(struct dos_sem));
 
-    sem->SemCnt = cnt;
-    sem->SemMaxCnt = max_cnt;
+    sem->sem_count = cnt;
+    sem->sem_max_count = max_cnt;
     
     /** Initialize semaphores pend list */
-    Dos_TaskList_Init(&(sem->SemPend));
+    dos_task_list_init(&(sem->sem_pend_list));
 
     return sem;
 }
@@ -42,14 +42,14 @@ Dos_Sem_t Dos_SemCreate(dos_uint32 cnt, dos_uint32 max_cnt)
  * semaphores delete
  * description: You need to set the semaphore pointer to null after deleting the semaphore
  */
-dos_err Dos_SemDelete(Dos_Sem_t sem)
+dos_err dos_sem_delete(dos_sem_t sem)
 {
     if(sem != DOS_NULL)
     {
-        if(Dos_TaskList_IsEmpty(&(sem->SemPend)))
+        if(dos_task_list_is_empty(&(sem->sem_pend_list)))
         {
-            memset(sem,0,sizeof(struct Dos_Sem));
-            Dos_MemFree(sem);
+            memset(sem,0,sizeof(struct dos_sem));
+            dos_mem_free(sem);
             return DOS_OK;
         }
         else
@@ -68,53 +68,53 @@ dos_err Dos_SemDelete(Dos_Sem_t sem)
 /**
  * semaphores wait function
  */
-dos_err Dos_SemWait(Dos_Sem_t sem, dos_uint32 timeout)
+dos_err dos_sem_pend(dos_sem_t sem, dos_uint32 timeout)
 {
     dos_uint32 pri;
-    DOS_TaskCB_t task;
+    dos_task_t task;
     
-    pri = Dos_Interrupt_Disable();
+    pri = dos_interrupt_disable();
     
     if(sem == DOS_NULL)
     {
         DOS_LOG_WARN("sem is null\n");
-        Dos_Interrupt_Enable(pri);
+        dos_interrupt_enable(pri);
         return DOS_NOK;
     }
 
-    if(sem->SemCnt > 0)
+    if(sem->sem_count > 0)
     {
-        sem->SemCnt--;
-        Dos_Interrupt_Enable(pri);
+        sem->sem_count--;
+        dos_interrupt_enable(pri);
         return DOS_OK;
     }
 
-    if((timeout == 0) || (Dos_Scheduler_IsLock()))  /** scheduler is lock */
+    if((timeout == 0) || (dos_scheduler_is_lock()))  /** scheduler is lock */
     {
-        Dos_Interrupt_Enable(pri);
+        dos_interrupt_enable(pri);
         return DOS_NOK;
     }
 
-    if(Dos_ContextIsInt())
+    if(dos_context_is_interrupt())
     {
         DOS_LOG_ERR("sem wait time is not 0, and the context is in an interrupt\n");
-        Dos_Interrupt_Enable(pri);
+        dos_interrupt_enable(pri);
         return DOS_NOK;
     }
 
-    Dos_TaskWait(&sem->SemPend, timeout);
-    Dos_Interrupt_Enable(pri);
-    Dos_Scheduler();
+    dos_task_wait(&sem->sem_pend_list, timeout);
+    dos_interrupt_enable(pri);
+    dos_scheduler();
     
-    task = (DOS_TaskCB_t)Dos_Get_CurrentTCB();
+    task = (dos_task_t)dos_get_current_task();
     /** Task resumes running */
-    if(task->TaskStatus & DOS_TASK_STATUS_TIMEOUT)
+    if(task->task_status & DOS_TASK_STATUS_TIMEOUT)
     {
-        pri = Dos_Interrupt_Disable();
+        pri = dos_interrupt_disable();
         DOS_RESET_TASK_STATUS(task, (DOS_TASK_STATUS_TIMEOUT | DOS_TASK_STATUS_SUSPEND));
         DOS_SET_TASK_STATUS(task, DOS_TASK_STATUS_READY);
-        Dos_TaskItem_Del(&(task->PendItem));
-        Dos_Interrupt_Enable(pri);
+        dos_task_item_del(&(task->pend_item));
+        dos_interrupt_enable(pri);
         return DOS_NOK;
     }
 
@@ -124,38 +124,38 @@ dos_err Dos_SemWait(Dos_Sem_t sem, dos_uint32 timeout)
 /**
  * semaphores post
  */
-dos_err Dos_SemPost(Dos_Sem_t sem)
+dos_err dos_sem_post(dos_sem_t sem)
 {
     dos_uint32 pri;
-    DOS_TaskCB_t task;
+    dos_task_t task;
     
-    pri = Dos_Interrupt_Disable();
+    pri = dos_interrupt_disable();
 
     if(sem == DOS_NULL)
     {
         DOS_LOG_WARN("sem is null\n");
-        Dos_Interrupt_Enable(pri);
+        dos_interrupt_enable(pri);
         return DOS_NOK;
     }
     
-    if(sem->SemCnt == sem->SemMaxCnt)
+    if(sem->sem_count == sem->sem_max_count)
     {
-        Dos_Interrupt_Enable(pri);
+        dos_interrupt_enable(pri);
         return DOS_NOK; /** overflow */
     }
 
     /** No task is waiting for the semaphore, the number of semaphores ++ */
-    if(Dos_TaskList_IsEmpty(&(sem->SemPend)))
+    if(dos_task_list_is_empty(&(sem->sem_pend_list)))
     {
-        sem->SemCnt++;  
-        Dos_Interrupt_Enable(pri);
+        sem->sem_count++;  
+        dos_interrupt_enable(pri);
     }
     else
     {
-        task = Dos_GetTCB(&(sem->SemPend));
-        Dos_TaskWake(task);
-        Dos_Interrupt_Enable(pri);
-        Dos_Scheduler();
+        task = dos_get_first_task(&(sem->sem_pend_list));
+        dos_task_wake(task);
+        dos_interrupt_enable(pri);
+        dos_scheduler();
     }
 
     return DOS_OK;

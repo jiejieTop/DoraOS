@@ -7,20 +7,20 @@
 #include <task.h>
 
 
-#define Dos_BinarySem_Create(cnt)  Dos_SemCreate(cnt,1)
+#define dos_binary_sem_create(cnt)  dos_sem_create(cnt,1)
 
-struct Dos_Sem
+struct dos_sem
 {
-    dos_uint32      SemCnt;         /** sem count */
-    dos_uint32      SemMaxCnt;      /** sem max count */
-    Dos_TaskList_t  SemPend;        /** task pend list, 28 byte */
+    dos_uint32      sem_count;         /** sem count */
+    dos_uint32      sem_max_count;      /** sem max count */
+    dos_task_list_t  sem_pend_list;        /** task pend list, 28 byte */
 };
-typedef struct Dos_Sem * Dos_Sem_t;
+typedef struct dos_sem * dos_sem_t;
 
 
-Dos_Sem_t Dos_SemCreate(dos_uint32 cnt, dos_uint32 max_cnt);
-dos_err Dos_SemDelete(Dos_Sem_t sem);
-dos_err Dos_SemWait(Dos_Sem_t sem, dos_uint32 timeout);
-dos_err Dos_SemPost(Dos_Sem_t sem);
+dos_sem_t dos_sem_create(dos_uint32 cnt, dos_uint32 max_cnt);
+dos_err dos_sem_delete(dos_sem_t sem);
+dos_err dos_sem_pend(dos_sem_t sem, dos_uint32 timeout);
+dos_err dos_sem_post(dos_sem_t sem);
 
 #endif

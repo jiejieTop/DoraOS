@@ -11,18 +11,18 @@
 #define     WAIT_ALL_EVENT      0x02        /** waiting all event */
 #define     NO_CLR_EVENT        0x04        /** do not clear events */
 
-struct Dos_Event
+struct dos_event
 {
-    dos_uint32      EventSet;       /** Event Set */
-    Dos_TaskList_t  EventPend;      /** task pend list, 28 byte */
+    dos_uint32      event_flag;       /** Event Set */
+    dos_task_list_t  event_pend_list;      /** task pend list, 28 byte */
 };
-typedef struct Dos_Event * Dos_Event_t;
+typedef struct dos_event * dos_event_t;
 
 
-Dos_Event_t Dos_EventCreate(void);
-dos_err Dos_EventDelete(Dos_Event_t event);
-dos_uint32 Dos_EventWait(Dos_Event_t event, dos_uint32 wait_event, dos_uint32 op, dos_uint32 timeout);
-dos_uint32 Dos_EventSet(Dos_Event_t event, dos_uint32 set_event);
+dos_event_t dos_event_create(void);
+dos_err dos_event_delete(dos_event_t event);
+dos_uint32 dos_event_wait(dos_event_t event, dos_uint32 wait_event, dos_uint32 op, dos_uint32 timeout);
+dos_uint32 dos_event_set(dos_event_t event, dos_uint32 set_event);
 
 #endif // !_EVENT_H_
 

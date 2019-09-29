@@ -72,15 +72,15 @@
 #define GW_ADDR3                      1
 /* USER CODE END 0 */
 
-#define SYS_MBOX_NULL  (Dos_Queue_t)DOS_NULL
-#define SYS_SEM_NULL   (Dos_Sem_t)DOS_NULL
-#define SYS_MRTEX_NULL (Dos_Mutex_t)DOS_NULL
+#define SYS_MBOX_NULL  (dos_queue_t)DOS_NULL
+#define SYS_SEM_NULL   (dos_sem_t)DOS_NULL
+#define SYS_MRTEX_NULL (dos_mutex_t)DOS_NULL
 #define SYS_DEFAULT_THREAD_STACK_DEPTH	1024*8
 
-typedef Dos_Sem_t sys_sem_t;
-typedef Dos_Mutex_t sys_mutex_t;
-typedef Dos_Queue_t sys_mbox_t;
-typedef DOS_TaskCB_t sys_thread_t;
+typedef dos_sem_t sys_sem_t;
+typedef dos_mutex_t sys_mutex_t;
+typedef dos_queue_t sys_mbox_t;
+typedef dos_task_t sys_thread_t;
 
 typedef dos_uint32 sys_prot_t;
 

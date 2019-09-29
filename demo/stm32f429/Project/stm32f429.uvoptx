@@ -186,12 +186,12 @@
         <Ww>
           <count>0</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Dos_TickCount</ItemText>
+          <ItemText>dos_tick_count</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Dos_TickCount</ItemText>
+          <ItemText>dos_tick_count</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
@@ -211,7 +211,7 @@
         <Ww>
           <count>5</count>
           <WinNumber>1</WinNumber>
-          <ItemText>_Dos_TaskSleep_List</ItemText>
+          <ItemText>_dos_task_sleep_list</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
@@ -221,7 +221,7 @@
         <Ww>
           <count>7</count>
           <WinNumber>1</WinNumber>
-          <ItemText>Dos_CurrentTCB</ItemText>
+          <ItemText>dos_current_task</ItemText>
         </Ww>
         <Ww>
           <count>8</count>

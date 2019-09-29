@@ -7,21 +7,21 @@
 #include <task.h>
 
 
-enum Dos_Swtmr_Mode
+enum dos_swtmr_mode
 {
-    Dos_Swtmr_OnceMode = 0x01,
-    Dos_Swtmr_PeriodMode = 0x02,
-    Dos_Swtmr_ModeMask = 0x03,
+    dos_swtmr_mode_one = 0x01,
+    dos_swtmr_mode_period = 0x02,
+    dos_swtmr_mode_mask = 0x03,
 };
 
-enum Dos_Swtmr_Option
+enum dos_swtmr_option
 {
-    Dos_Swtmr_OpStart = 0x01,
-    Dos_Swtmr_OpStop = 0x02,
-    Dos_Swtmr_OpDelete = 0x04,
-    Dos_Swtmr_OpOverFlow = 0x08,
-    Dos_Swtmr_OpReset = 0x10,     /** This operation option is reserved */
-    Dos_Swtmr_OpMask = 0xff,
+    dos_swtmr_opt_start = 0x01,
+    dos_swtmr_opt_stop = 0x02,
+    dos_swtmr_opt_delete = 0x04,
+    dos_swtmr_opt_overflow = 0x08,
+    dos_swtmr_opt_reset = 0x10,     /** This operation option is reserved */
+    dos_swtmr_opt_mask = 0xff,
 };
 
 #define     DOS_SWTMR_STATUS_UNUSED     0x00
@@ -30,32 +30,32 @@ enum Dos_Swtmr_Option
 #define     DOS_SWTMR_STATUS_STOP       0x04
 
 
-typedef dos_void (*Swtmr_CallBacke)(dos_void *Parameter);
+typedef dos_void (*dos_swtmr_call_backe)(dos_void *parameter);
 
-struct Dos_Swtmr
+struct dos_swtmr
 {
-    struct Dos_Swtmr    *Prev;
-    struct Dos_Swtmr    *Next;
-    dos_void            *Parameter;      /** Parameter */
-    Swtmr_CallBacke     CallBacke;
-    dos_uint16          Status;
-    dos_uint16          Mode;
-    dos_uint32          Timeout;
-    dos_uint32          WakeTime;
+    struct dos_swtmr        *swtmr_prev;
+    struct dos_swtmr        *swtmr_next;
+    dos_void                *swtmr_parameter;      /** parameter */
+    dos_swtmr_call_backe    swtmr_call_backe;
+    dos_uint16              swtmr_status;
+    dos_uint16              swtmr_mode;
+    dos_uint32              swtmr_timeout;
+    dos_uint32              swtmr_wake_time;
 };
-typedef struct Dos_Swtmr * Dos_Swtmr_t;
+typedef struct dos_swtmr * dos_swtmr_t;
 
-struct Dos_SwtmrMsg
+struct dos_swtmr_msg
 {
-    dos_uint32          Option;
-    Dos_Swtmr_t         Swtmr;
+    dos_uint32          swtmr_opt;
+    dos_swtmr_t         swtmr;
 };
-typedef struct Dos_SwtmrMsg * Dos_SwtmrMsg_t;
+typedef struct dos_swtmr_msg * dos_swtmr_msg_t;
 
-dos_err Dos_SwtmrInit(void);
-Dos_Swtmr_t Dos_SwtmrCreate(dos_uint32 timeout, dos_uint16 mode, Swtmr_CallBacke cb, dos_void *param);
-dos_err Dos_SwtmrStart(Dos_Swtmr_t swtmr);
-dos_err Dos_SwtmrStop(Dos_Swtmr_t swtmr);
-dos_err Dos_SwtmrDelete(Dos_Swtmr_t swtmr);
-dos_err Dos_Swtmr_OverFlow(void);
+dos_err dos_swtmr_init(void);
+dos_swtmr_t dos_swtmr_create(dos_uint32 timeout, dos_uint16 mode, dos_swtmr_call_backe cb, dos_void *param);
+dos_err dos_swtmr_start(dos_swtmr_t swtmr);
+dos_err dos_swtmr_stop(dos_swtmr_t swtmr);
+dos_err dos_swtmr_delete(dos_swtmr_t swtmr);
+dos_err dos_swtmr_overflow(void);
 #endif // !_SWTMR_H_

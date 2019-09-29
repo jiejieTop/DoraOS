@@ -11,12 +11,12 @@
 #include <log.h>
 
 /** Variable declaration */
-DOS_TaskCB_t task1 = DOS_NULL;
-DOS_TaskCB_t task2 = DOS_NULL;
+dos_task_t task1 = DOS_NULL;
+dos_task_t task2 = DOS_NULL;
 
-Dos_Swtmr_t swtmr3 = DOS_NULL;
-Dos_Swtmr_t swtmr2 = DOS_NULL;
-Dos_Swtmr_t swtmr1 = DOS_NULL;
+dos_swtmr_t swtmr3 = DOS_NULL;
+dos_swtmr_t swtmr2 = DOS_NULL;
+dos_swtmr_t swtmr1 = DOS_NULL;
 
 
 /** Macro definition */
@@ -25,54 +25,54 @@ Dos_Swtmr_t swtmr1 = DOS_NULL;
 /** Function declaration */
 static void BSP_Init(void);
 
-dos_void Swtmr_CallBacke1(dos_void *Parameter)
+dos_void Swtmr_CallBacke1(dos_void *parameter)
 {
-    DOS_LOG_INFO("Swtmr1 CallBack, tick = %d\n",Dos_Get_Tick());
+    DOS_LOG_INFO("Swtmr1 CallBack, tick = %d\n",dos_get_tick());
 }
 
-dos_void Swtmr_CallBacke2(dos_void *Parameter)
+dos_void Swtmr_CallBacke2(dos_void *parameter)
 {
-    DOS_LOG_INFO("Swtmr2 CallBack, tick = %d\n",Dos_Get_Tick());
+    DOS_LOG_INFO("Swtmr2 CallBack, tick = %d\n",dos_get_tick());
 }
 
-dos_void Swtmr_CallBacke3(dos_void *Parameter)
+dos_void Swtmr_CallBacke3(dos_void *parameter)
 {
-    DOS_LOG_INFO("Swtmr3 CallBack, tick = %d\n",Dos_Get_Tick());
+    DOS_LOG_INFO("Swtmr3 CallBack, tick = %d\n",dos_get_tick());
 }
 
-void swtmr_stop_task1(void *Parameter)
+void swtmr_stop_task1(void *parameter)
 {
     DOS_LOG_WARN("start swtmr 1 2\n");
-    Dos_SwtmrStart(swtmr1);
-    Dos_SwtmrStart(swtmr2);
+    dos_swtmr_start(swtmr1);
+    dos_swtmr_start(swtmr2);
 
 
-    Dos_TaskSleep(10000);
+    dos_task_sleep(10000);
     DOS_LOG_WARN("stop swtmr 1\n");
-    Dos_SwtmrStop(swtmr1);
+    dos_swtmr_stop(swtmr1);
 
     while(1)
     {
         DOS_LOG_INFO("task1 running\n");
 
-        Dos_TaskSleep(5000);
+        dos_task_sleep(5000);
     }
 }
 
 
-void swtmr_stop_task2(void *Parameter)
+void swtmr_stop_task2(void *parameter)
 {
-    Dos_TaskSleep(20000);
+    dos_task_sleep(20000);
     DOS_LOG_WARN("stop swtmr 2 \n");
-    Dos_SwtmrStop(swtmr2);
+    dos_swtmr_stop(swtmr2);
     
     DOS_LOG_WARN("start swtmr 3\n");
-    Dos_SwtmrStart(swtmr3);
+    dos_swtmr_start(swtmr3);
     while(1)
     {
         DOS_LOG_INFO("task2 running\n");
 
-        Dos_TaskSleep(5000);
+        dos_task_sleep(5000);
     }
 }
 
@@ -82,27 +82,27 @@ int main(void)
 {
     BSP_Init();
 
-    Dos_SystemInit();
+    dos_system_init();
 
-    swtmr1 = Dos_SwtmrCreate(1000, Dos_Swtmr_PeriodMode, Swtmr_CallBacke1, DOS_NULL);
-    swtmr2 = Dos_SwtmrCreate(2000, Dos_Swtmr_PeriodMode, Swtmr_CallBacke2, DOS_NULL);
-    swtmr3 = Dos_SwtmrCreate(10000, Dos_Swtmr_OnceMode, Swtmr_CallBacke3, DOS_NULL);
+    swtmr1 = dos_swtmr_create(1000, dos_swtmr_mode_period, Swtmr_CallBacke1, DOS_NULL);
+    swtmr2 = dos_swtmr_create(2000, dos_swtmr_mode_period, Swtmr_CallBacke2, DOS_NULL);
+    swtmr3 = dos_swtmr_create(10000, dos_swtmr_mode_one, Swtmr_CallBacke3, DOS_NULL);
 
-    task1 = Dos_TaskCreate( "swtmr_stop_task1",
+    task1 = dos_task_create( "swtmr_stop_task1",
                             &swtmr_stop_task1,
                             DOS_NULL,
                             1024,
                             2,
                             20);
 
-    task2 = Dos_TaskCreate( "swtmr_stop_task2",
+    task2 = dos_task_create( "swtmr_stop_task2",
                             &swtmr_stop_task2,
                             DOS_NULL,
                             1024,
                             3,
                             0);
                 
-    Dos_Start();
+    dos_system_start_run();
   
 }
 

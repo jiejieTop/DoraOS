@@ -11,9 +11,9 @@
 #include <log.h>
 
 /** Variable declaration */
-DOS_TaskCB_t task = DOS_NULL;
-DOS_TaskCB_t task1 = DOS_NULL;
-Dos_Queue_t queue = DOS_NULL;
+dos_task_t task = DOS_NULL;
+dos_task_t task1 = DOS_NULL;
+dos_queue_t queue = DOS_NULL;
 
 
 /** Macro definition */
@@ -24,7 +24,7 @@ Dos_Queue_t queue = DOS_NULL;
 static void BSP_Init(void);
 
 
-void queue_read_task(void *Parameter)
+void queue_read_task(void *parameter)
 {
     dos_uint32 res;
     dos_uint8 buff[QUEUE_SIZE];
@@ -32,7 +32,7 @@ void queue_read_task(void *Parameter)
     while(1)
     {
         DOS_LOG_INFO("start read buff, wait time is DOS_WAIT_FOREVER\n");
-        res = Dos_QueueRead(queue, buff, QUEUE_SIZE, DOS_WAIT_FOREVER);
+        res = dos_queue_read(queue, buff, QUEUE_SIZE, DOS_WAIT_FOREVER);
         if(res == DOS_OK)
         {
             DOS_LOG_INFO("read buff success: %s\n", buff);
@@ -46,7 +46,7 @@ void queue_read_task(void *Parameter)
 
     }
 }
-void queue_write_task(void *Parameter)
+void queue_write_task(void *parameter)
 {
     dos_uint8 buff[] = "this is a queue test";
   
@@ -54,9 +54,9 @@ void queue_write_task(void *Parameter)
     {
         DOS_LOG_INFO("start write buff, wait time is 0\n");
 
-        Dos_QueueWrite(queue, buff , QUEUE_SIZE, 0);
+        dos_queue_write(queue, buff , QUEUE_SIZE, 0);
 
-        Dos_TaskSleep(1000);
+        dos_task_sleep(1000);
     }
 }
 
@@ -66,25 +66,25 @@ int main(void)
 {
     BSP_Init();
 
-    Dos_SystemInit();
+    dos_system_init();
 
-    queue = Dos_QueueCreate(QUEUE_LEN, QUEUE_SIZE);
+    queue = dos_queue_create(QUEUE_LEN, QUEUE_SIZE);
 
-    task = Dos_TaskCreate( "queue_read_task",
+    task = dos_task_create( "queue_read_task",
                             &queue_read_task,
                             DOS_NULL,
                             1024,
                             2,
                             20);
 
-    task1 = Dos_TaskCreate( "queue_write_task",
+    task1 = dos_task_create( "queue_write_task",
                             &queue_write_task,
                             DOS_NULL,
                             1024,
                             3,
                             0);
                 
-    Dos_Start();
+    dos_system_start_run();
   
 }
 

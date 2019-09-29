@@ -10,22 +10,22 @@
 #define     QUEUE_READ      0
 #define     QUEUE_WRITE     1
 
-struct Dos_Queue
+struct dos_queue
 {
-  dos_uint32      QueueLen;
-  dos_size        QueueSize;
-  dos_uint8       *QueueHPtr;       /** head pointer  */
-  dos_uint8       *QueueTPtr;       /** tail pointer  */
-  dos_uint16      QueueRWCnt[2];    /** write count / read count */
-  dos_uint8       *QueueRWPtr[2];   /** write pointer / read pointer */
-  Dos_TaskList_t  QueuePend[2];     /** task pend list, 28 byte *2 */
+  dos_uint32      queue_len;
+  dos_size        queue_size;
+  dos_uint8       *queue_head_ptr;       /** head pointer  */
+  dos_uint8       *queue_tail_ptr;       /** tail pointer  */
+  dos_uint16      queue_rw_count[2];    /** write count / read count */
+  dos_uint8       *queue_rw_ptr[2];   /** write pointer / read pointer */
+  dos_task_list_t  queue_pend_list[2];     /** task pend list, 28 byte *2 */
 };
-typedef struct Dos_Queue * Dos_Queue_t;
+typedef struct dos_queue * dos_queue_t;
 
-Dos_Queue_t Dos_QueueCreate(dos_uint16 len, dos_uint16 size);
-dos_err Dos_QueueDelete(Dos_Queue_t queue);
-dos_err Dos_QueueRead(Dos_Queue_t queue, dos_void *buff, dos_size size, dos_uint32 timeout);
-dos_err Dos_QueueWrite(Dos_Queue_t queue, dos_void *buff, dos_size size, dos_uint32 timeout);
+dos_queue_t dos_queue_create(dos_uint16 len, dos_uint16 size);
+dos_err dos_queue_delete(dos_queue_t queue);
+dos_err dos_queue_read(dos_queue_t queue, dos_void *buff, dos_size size, dos_uint32 timeout);
+dos_err dos_queue_write(dos_queue_t queue, dos_void *buff, dos_size size, dos_uint32 timeout);
 
 
 

@@ -9,75 +9,75 @@
 
 #if DOS_SWTMR
 
-static Dos_Queue_t _Dos_SwtmrQueue = DOS_NULL;
-static DOS_TaskCB_t _Dos_SwtmrTCB = DOS_NULL;
+static dos_queue_t _dos_swtmr_queue = DOS_NULL;
+static dos_task_t _dos_swtmr_tcb = DOS_NULL;
 
-static struct Dos_Swtmr _Dos_Swtmr_Start1;
-static struct Dos_Swtmr _Dos_Swtmr_Start2;
-static struct Dos_Swtmr *_Dos_Swtmr_OverFlowPtr;
-static struct Dos_Swtmr *_Dos_SwtmrPtr;
+static struct dos_swtmr _dos_swtmr_list1;
+static struct dos_swtmr _dos_swtmr_list2;
+static struct dos_swtmr *_dos_swtmr_overflow_ptr;
+static struct dos_swtmr *_dos_swtmr_ptr;
 
 
-dos_void _Dos_SwitchList(void)
+static dos_void _dos_swtmr_switch_ptr(void)
 {
-    static struct Dos_Swtmr * swtmr_list;
-    swtmr_list = _Dos_Swtmr_OverFlowPtr;
-    _Dos_Swtmr_OverFlowPtr =_Dos_SwtmrPtr;
-    _Dos_SwtmrPtr = swtmr_list;
+    static struct dos_swtmr * swtmr_list;
+    swtmr_list = _dos_swtmr_overflow_ptr;
+    _dos_swtmr_overflow_ptr =_dos_swtmr_ptr;
+    _dos_swtmr_ptr = swtmr_list;
 }
 
-static void _Dos_SwtmrStart(Dos_Swtmr_t swtmr)
+static void _dos_swtmr_start(dos_swtmr_t swtmr)
 {
-    Dos_Swtmr_t swtmr_item;
+    dos_swtmr_t swtmr_item;
     dos_uint32 cur_time;
 
-    cur_time = Dos_Get_Tick();
+    cur_time = dos_get_tick();
 
-    swtmr->WakeTime = cur_time + swtmr->Timeout;
+    swtmr->swtmr_wake_time = cur_time + swtmr->swtmr_timeout;
 
-    if(swtmr->WakeTime < cur_time)  /** overflow */
+    if(swtmr->swtmr_wake_time < cur_time)  /** overflow */
     {
-        for(swtmr_item = _Dos_Swtmr_OverFlowPtr; 
-            (swtmr_item->Next->WakeTime) <= swtmr->WakeTime; 
-            swtmr_item = swtmr_item->Next);
+        for(swtmr_item = _dos_swtmr_overflow_ptr; 
+            (swtmr_item->swtmr_next->swtmr_wake_time) <= swtmr->swtmr_wake_time; 
+            swtmr_item = swtmr_item->swtmr_next);
     }
-    else if(swtmr->WakeTime == 0xFFFFFFFF)  /** Insert the start of the overflow list */
+    else if(swtmr->swtmr_wake_time == 0xFFFFFFFF)  /** Insert the start of the overflow list */
     {
-        swtmr_item = _Dos_SwtmrPtr->Prev;
+        swtmr_item = _dos_swtmr_ptr->swtmr_prev;
     }
     else    /** at normal value */
     {
-        for(swtmr_item = _Dos_SwtmrPtr; 
-            (swtmr_item->Next->WakeTime) <= swtmr->WakeTime; 
-            swtmr_item = swtmr_item->Next);
+        for(swtmr_item = _dos_swtmr_ptr; 
+            (swtmr_item->swtmr_next->swtmr_wake_time) <= swtmr->swtmr_wake_time; 
+            swtmr_item = swtmr_item->swtmr_next);
     }
 
-    swtmr->Next = swtmr_item->Next;
-    swtmr->Next->Prev = swtmr;
-    swtmr->Prev = swtmr_item;
-    swtmr_item->Next = swtmr;
+    swtmr->swtmr_next = swtmr_item->swtmr_next;
+    swtmr->swtmr_next->swtmr_prev = swtmr;
+    swtmr->swtmr_prev = swtmr_item;
+    swtmr_item->swtmr_next = swtmr;
 
-    swtmr->Status = DOS_SWTMR_STATUS_RUNNING;
+    swtmr->swtmr_status = DOS_SWTMR_STATUS_RUNNING;
 }
 
 
-static void _Dos_SwtmrStop(Dos_Swtmr_t swtmr)
+static void _dos_swtmr_stop(dos_swtmr_t swtmr)
 {
-    if(_Dos_SwtmrPtr->Next == swtmr)
+    if(_dos_swtmr_ptr->swtmr_next == swtmr)
     {
-        _Dos_SwtmrPtr->Next = swtmr->Next;
+        _dos_swtmr_ptr->swtmr_next = swtmr->swtmr_next;
     }
 
-    swtmr->Prev->Next = swtmr->Next;
-    swtmr->Next->Prev = swtmr->Prev;
+    swtmr->swtmr_prev->swtmr_next = swtmr->swtmr_next;
+    swtmr->swtmr_next->swtmr_prev = swtmr->swtmr_prev;
 
-    swtmr->Status = DOS_SWTMR_STATUS_STOP;
-    swtmr->Prev = swtmr;
-    swtmr->Next = swtmr;
+    swtmr->swtmr_status = DOS_SWTMR_STATUS_STOP;
+    swtmr->swtmr_prev = swtmr;
+    swtmr->swtmr_next = swtmr;
 }
 
 
-dos_err _Dos_SwtmrDelete(Dos_Swtmr_t swtmr)
+static dos_err _dos_swtmr_delete(dos_swtmr_t swtmr)
 {
    dos_err err = DOS_NOK;
 
@@ -87,7 +87,7 @@ dos_err _Dos_SwtmrDelete(Dos_Swtmr_t swtmr)
        return DOS_NOK;
    }
 
-   switch (swtmr->Status)
+   switch (swtmr->swtmr_status)
    {
        case DOS_SWTMR_STATUS_UNUSED:
             goto out;
@@ -101,88 +101,88 @@ dos_err _Dos_SwtmrDelete(Dos_Swtmr_t swtmr)
    }
 
 stop:
-   _Dos_SwtmrStop(swtmr);
+   _dos_swtmr_stop(swtmr);
 delete:
-    Dos_MemFree(swtmr);
-    memset(swtmr, 0, sizeof(struct Dos_Swtmr));
+    dos_mem_free(swtmr);
+    memset(swtmr, 0, sizeof(struct dos_swtmr));
     err = DOS_OK;
 out:
     return err;
 }
 
-dos_err _Dos_Swtmr_MakeMsg(Dos_Swtmr_t swtmr, dos_uint32 op)
+static dos_err _dos_swtmr_make_msg(dos_swtmr_t swtmr, dos_uint32 op)
 {
-    struct Dos_SwtmrMsg swtmr_msg;
-    if((swtmr == DOS_NULL) && (op != Dos_Swtmr_OpOverFlow) )
+    struct dos_swtmr_msg swtmr_msg;
+    if((swtmr == DOS_NULL) && (op != dos_swtmr_opt_overflow) )
     {
         DOS_LOG_WARN("the software timer to be started is null\n");
         return DOS_NOK;
     }
 
-    swtmr_msg.Option = op;
-    swtmr_msg.Swtmr = swtmr;
+    swtmr_msg.swtmr_opt = op;
+    swtmr_msg.swtmr = swtmr;
 
-    return Dos_QueueWrite(_Dos_SwtmrQueue, &swtmr_msg, sizeof(struct Dos_SwtmrMsg), 0);
+    return dos_queue_write(_dos_swtmr_queue, &swtmr_msg, sizeof(struct dos_swtmr_msg), 0);
 }
 
-dos_uint32 _Dos_GetSwtmr_WakeTime(void)
+dos_uint32 dos_get_swtmr_wake_time(void)
 {
-    return _Dos_SwtmrPtr->Next->WakeTime;
+    return _dos_swtmr_ptr->swtmr_next->swtmr_wake_time;
 }
 
-Dos_Swtmr_t _Dos_GetSwtmr(void)
+static dos_swtmr_t _dos_get_swtmr(void)
 {
-    return _Dos_SwtmrPtr->Next;
+    return _dos_swtmr_ptr->swtmr_next;
 }
 
-dos_void _Dos_SwtmrTimeout_Handle(Dos_Swtmr_t swtmr)
+static dos_void _dos_swtmr_timeout_handle(dos_swtmr_t swtmr)
 {
-    if(swtmr->CallBacke != DOS_NULL)
+    if(swtmr->swtmr_call_backe != DOS_NULL)
     {
-        swtmr->CallBacke(swtmr->Parameter);
-        _Dos_SwtmrStop(swtmr);
-        if(swtmr->Mode == Dos_Swtmr_PeriodMode)
+        swtmr->swtmr_call_backe(swtmr->swtmr_parameter);
+        _dos_swtmr_stop(swtmr);
+        if(swtmr->swtmr_mode == dos_swtmr_mode_period)
         {
-            _Dos_SwtmrStart(swtmr);
+            _dos_swtmr_start(swtmr);
         }
         else
         {
-            _Dos_SwtmrDelete(swtmr);
+            _dos_swtmr_delete(swtmr);
         }
     }
 }
 
 
-dos_void _Dos_Swtmr_CmdHandle(Dos_SwtmrMsg_t msg)
+static dos_void _dos_swtmr_cmd_handle(dos_swtmr_msg_t msg)
 {
-    if(msg->Swtmr->Status == DOS_SWTMR_STATUS_UNUSED)
+    if(msg->swtmr->swtmr_status == DOS_SWTMR_STATUS_UNUSED)
     {
         DOS_LOG_WARN("the software timer to be operated is unused\n");
         return;
     }
-    switch (msg->Option)
+    switch (msg->swtmr_opt)
     {
-        case Dos_Swtmr_OpStart:
-            if(msg->Swtmr->Status == DOS_SWTMR_STATUS_RUNNING)
+        case dos_swtmr_opt_start:
+            if(msg->swtmr->swtmr_status == DOS_SWTMR_STATUS_RUNNING)
             {
-                _Dos_SwtmrStop(msg->Swtmr);
+                _dos_swtmr_stop(msg->swtmr);
             }
-            _Dos_SwtmrStart(msg->Swtmr);
+            _dos_swtmr_start(msg->swtmr);
             break;
 
-        case Dos_Swtmr_OpStop:
-            if(msg->Swtmr->Status == DOS_SWTMR_STATUS_RUNNING)
+        case dos_swtmr_opt_stop:
+            if(msg->swtmr->swtmr_status == DOS_SWTMR_STATUS_RUNNING)
             {
-                _Dos_SwtmrStop(msg->Swtmr);
+                _dos_swtmr_stop(msg->swtmr);
             }
             break;
 
-        case Dos_Swtmr_OpOverFlow:
-            _Dos_SwitchList();
+        case dos_swtmr_opt_overflow:
+            _dos_swtmr_switch_ptr();
             break;
 
-        case Dos_Swtmr_OpDelete:
-            _Dos_SwtmrDelete(msg->Swtmr);
+        case dos_swtmr_opt_delete:
+            _dos_swtmr_delete(msg->swtmr);
             break;      
 
         default:
@@ -191,97 +191,97 @@ dos_void _Dos_Swtmr_CmdHandle(Dos_SwtmrMsg_t msg)
 }
 
 
-static void _Dos_SwtmrTask(void *Parameter)
+static void _dos_swtmr_task(void *parameter)
 {
     dos_err err;
-    Dos_Swtmr_t wake_swtmr;
+    dos_swtmr_t wake_swtmr;
     dos_uint32 cur_time, wait_time;
-    struct Dos_SwtmrMsg swtmr_msg;
+    struct dos_swtmr_msg swtmr_msg;
 
     for( ; ; )
     {
-        wake_swtmr = _Dos_GetSwtmr();
-        cur_time = Dos_Get_Tick();
+        wake_swtmr = _dos_get_swtmr();
+        cur_time = dos_get_tick();
 
-        if(wake_swtmr == _Dos_SwtmrPtr)
+        if(wake_swtmr == _dos_swtmr_ptr)
         {
             wait_time = DOS_WAIT_FOREVER;
         }
         else
         {
-            wait_time = wake_swtmr->WakeTime-cur_time;
+            wait_time = wake_swtmr->swtmr_wake_time-cur_time;
         }
         
-        err = Dos_QueueRead(_Dos_SwtmrQueue, &swtmr_msg, sizeof(struct Dos_SwtmrMsg), wait_time);
+        err = dos_queue_read(_dos_swtmr_queue, &swtmr_msg, sizeof(struct dos_swtmr_msg), wait_time);
         if(err == DOS_NOK)  /** software timer timeout */
         {
-            cur_time = Dos_Get_Tick();
-            while (cur_time >= wake_swtmr->WakeTime)
+            cur_time = dos_get_tick();
+            while (cur_time >= wake_swtmr->swtmr_wake_time)
             {
-                _Dos_SwtmrTimeout_Handle(wake_swtmr);
-                wake_swtmr = _Dos_GetSwtmr();
-                cur_time = Dos_Get_Tick();
+                _dos_swtmr_timeout_handle(wake_swtmr);
+                wake_swtmr = _dos_get_swtmr();
+                cur_time = dos_get_tick();
             }
         }
         else
         {
-            _Dos_Swtmr_CmdHandle(&swtmr_msg);
+            _dos_swtmr_cmd_handle(&swtmr_msg);
         }
     }
 }
 
 /********************************************************************************************************/
 
-dos_void _Dos_Swtmr_ItemInit(Dos_Swtmr_t swtmr)
+dos_void _Dos_Swtmr_ItemInit(dos_swtmr_t swtmr)
 {
-    memset(swtmr, 0, sizeof(struct Dos_Swtmr));
-    swtmr->Status = DOS_SWTMR_STATUS_UNUSED;
-    swtmr->Prev = (Dos_Swtmr_t)(swtmr);
-    swtmr->Next = (Dos_Swtmr_t)(swtmr);
-    swtmr->WakeTime = 0xFFFFFFFF;
+    memset(swtmr, 0, sizeof(struct dos_swtmr));
+    swtmr->swtmr_status = DOS_SWTMR_STATUS_UNUSED;
+    swtmr->swtmr_prev = (dos_swtmr_t)(swtmr);
+    swtmr->swtmr_next = (dos_swtmr_t)(swtmr);
+    swtmr->swtmr_wake_time = 0xFFFFFFFF;
 }
 
-dos_err Dos_SwtmrInit(void)
+dos_err dos_swtmr_init(void)
 {
 #ifndef DOS_IPC_QUEUQ
     #error "message queue must be turned on when using software timer"
 #endif // !DOS_IPC_QUEUQ
 
-    _Dos_SwtmrQueue = Dos_QueueCreate(DOS_SWTMR_QUEUE_SIZE, sizeof(struct Dos_SwtmrMsg));
-    if(_Dos_SwtmrQueue == DOS_NULL)
+    _dos_swtmr_queue = dos_queue_create(DOS_SWTMR_QUEUE_SIZE, sizeof(struct dos_swtmr_msg));
+    if(_dos_swtmr_queue == DOS_NULL)
     {
         DOS_LOG_ERR("unable to create software timer queue\n");
         return DOS_NOK;
     }
 
-    _Dos_SwtmrTCB = Dos_TaskCreate("Swtmr_Task",
-                                    &_Dos_SwtmrTask,
+    _dos_swtmr_tcb = dos_task_create("Swtmr_Task",
+                                    &_dos_swtmr_task,
                                     DOS_NULL, 
                                     DOS_SWTMR_TASK_SIZE, 
                                     DOS_SWTMR_TASK_PRIORITY, 
                                     DOS_SWTMR_TASK_TICK);
-    if(_Dos_SwtmrTCB == DOS_NULL)
+    if(_dos_swtmr_tcb == DOS_NULL)
     {
         DOS_LOG_ERR("Unable to create software timer task\n");
         return DOS_NOK;
     }
 
-    _Dos_Swtmr_ItemInit(&_Dos_Swtmr_Start1);
-    _Dos_Swtmr_ItemInit(&_Dos_Swtmr_Start2);
+    _Dos_Swtmr_ItemInit(&_dos_swtmr_list1);
+    _Dos_Swtmr_ItemInit(&_dos_swtmr_list2);
 
-    _Dos_SwtmrPtr = &_Dos_Swtmr_Start1;
-    _Dos_Swtmr_OverFlowPtr = &_Dos_Swtmr_Start2;
+    _dos_swtmr_ptr = &_dos_swtmr_list1;
+    _dos_swtmr_overflow_ptr = &_dos_swtmr_list2;
 
     return DOS_OK;
 }
 
 
 
-Dos_Swtmr_t Dos_SwtmrCreate(dos_uint32 timeout, dos_uint16 mode, Swtmr_CallBacke cb, dos_void *param)
+dos_swtmr_t dos_swtmr_create(dos_uint32 timeout, dos_uint16 mode, dos_swtmr_call_backe cb, dos_void *param)
 {
-    Dos_Swtmr_t swtmr;
+    dos_swtmr_t swtmr;
 
-    swtmr = (Dos_Swtmr_t)Dos_MemAlloc(sizeof(struct Dos_Swtmr));
+    swtmr = (dos_swtmr_t)dos_mem_alloc(sizeof(struct dos_swtmr));
     if(swtmr == DOS_NULL)
     {
         DOS_LOG_ERR("not enough memory to create a software timer\n");
@@ -294,43 +294,43 @@ Dos_Swtmr_t Dos_SwtmrCreate(dos_uint32 timeout, dos_uint16 mode, Swtmr_CallBacke
         return DOS_NULL;
     }
 
-    if((!(mode & Dos_Swtmr_ModeMask)) || ((mode & Dos_Swtmr_ModeMask) == Dos_Swtmr_ModeMask))
+    if((!(mode & dos_swtmr_mode_mask)) || ((mode & dos_swtmr_mode_mask) == dos_swtmr_mode_mask))
     {
         DOS_LOG_WARN("parameter is is invalid\n");
         return DOS_NULL;
     }
 
-    swtmr->Status = DOS_SWTMR_STATUS_CREATE;
-    swtmr->Prev = swtmr;
-    swtmr->Next = swtmr;
-    swtmr->WakeTime = 0;
-    swtmr->Timeout = timeout;
-    swtmr->Mode = mode;
-    swtmr->CallBacke = cb;
-    swtmr->Parameter = param;
+    swtmr->swtmr_status = DOS_SWTMR_STATUS_CREATE;
+    swtmr->swtmr_prev = swtmr;
+    swtmr->swtmr_next = swtmr;
+    swtmr->swtmr_wake_time = 0;
+    swtmr->swtmr_timeout = timeout;
+    swtmr->swtmr_mode = mode;
+    swtmr->swtmr_call_backe = cb;
+    swtmr->swtmr_parameter = param;
 
     return swtmr;
 }
 
 
-dos_err Dos_SwtmrStart(Dos_Swtmr_t swtmr)
+dos_err dos_swtmr_start(dos_swtmr_t swtmr)
 {
-    return _Dos_Swtmr_MakeMsg(swtmr, Dos_Swtmr_OpStart);
+    return _dos_swtmr_make_msg(swtmr, dos_swtmr_opt_start);
 }
 
-dos_err Dos_SwtmrStop(Dos_Swtmr_t swtmr)
+dos_err dos_swtmr_stop(dos_swtmr_t swtmr)
 {
-    return _Dos_Swtmr_MakeMsg(swtmr, Dos_Swtmr_OpStop);    
+    return _dos_swtmr_make_msg(swtmr, dos_swtmr_opt_stop);    
 }
 
-dos_err Dos_SwtmrDelete(Dos_Swtmr_t swtmr)
+dos_err dos_swtmr_delete(dos_swtmr_t swtmr)
 {
-    return _Dos_Swtmr_MakeMsg(swtmr, Dos_Swtmr_OpDelete);    
+    return _dos_swtmr_make_msg(swtmr, dos_swtmr_opt_delete);    
 }
 
-dos_err Dos_Swtmr_OverFlow(void)
+dos_err dos_swtmr_overflow(void)
 {
-    return _Dos_Swtmr_MakeMsg(DOS_NULL, Dos_Swtmr_OpOverFlow);    
+    return _dos_swtmr_make_msg(DOS_NULL, dos_swtmr_opt_overflow);    
 }
 
 

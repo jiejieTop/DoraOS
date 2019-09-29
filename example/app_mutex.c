@@ -11,9 +11,9 @@
 #include <log.h>
 
 /** Variable declaration */
-DOS_TaskCB_t task = DOS_NULL;
-DOS_TaskCB_t task1 = DOS_NULL;
-Dos_Mutex_t mutex = DOS_NULL;
+dos_task_t task = DOS_NULL;
+dos_task_t task1 = DOS_NULL;
+dos_mutex_t mutex = DOS_NULL;
 
 
 /** Macro definition */
@@ -23,14 +23,14 @@ Dos_Mutex_t mutex = DOS_NULL;
 static void BSP_Init(void);
 
 
-void mutex_task(void *Parameter)
+void mutex_task(void *parameter)
 {
     dos_uint32 res;
 
     while(1)
     {
         DOS_LOG_INFO("start pend mutex, wait time is DOS_WAIT_FOREVER\n");
-        res = Dos_MutexPend(mutex, DOS_WAIT_FOREVER);
+        res = dos_mutex_pend(mutex, DOS_WAIT_FOREVER);
         if(res == DOS_OK)
         {
             DOS_LOG_INFO("pend mutex success\n");
@@ -41,18 +41,18 @@ void mutex_task(void *Parameter)
             return;
         }
         DOS_LOG_INFO("start post mutex\n");
-        Dos_MutexPost(mutex);
-        Dos_TaskSleep(1000);
+        dos_mutex_post(mutex);
+        dos_task_sleep(1000);
     }
 }
 
 
-void mutex_delete_task(void *Parameter)
+void mutex_delete_task(void *parameter)
 {
     dos_uint32 res;
-    Dos_TaskSleep(4000);
+    dos_task_sleep(4000);
 
-    res =Dos_MutexDelete(mutex);
+    res =dos_mutex_delete(mutex);
     if(res == DOS_OK)
     {
         mutex = DOS_NULL;
@@ -67,7 +67,7 @@ void mutex_delete_task(void *Parameter)
     {
         DOS_LOG_INFO("mutex_delete_task running\n");
 
-        Dos_TaskSleep(1000);
+        dos_task_sleep(1000);
     }
 }
 
@@ -77,25 +77,25 @@ int main(void)
 {
     BSP_Init();
 
-    Dos_SystemInit();
+    dos_system_init();
 
-    mutex = Dos_MutexCreate();
+    mutex = dos_mutex_create();
 
-    task = Dos_TaskCreate( "mutex_task",
+    task = dos_task_create( "mutex_task",
                             &mutex_task,
                             DOS_NULL,
                             1024,
                             3,
                             20);
 
-    task1 = Dos_TaskCreate( "mutex_delete_task",
+    task1 = dos_task_create( "mutex_delete_task",
                             &mutex_delete_task,
                             DOS_NULL,
                             1024,
                             2,
                             0);
                 
-    Dos_Start();
+    dos_system_start_run();
   
 }
 

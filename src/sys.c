@@ -53,7 +53,7 @@ static void _Dos_PrintfLogo(void)
 
 #endif
 
-void Dos_SystemInit(void)
+void dos_system_init(void)
 {
 #if DOS_LOGO_PRINT
     /** printf DoraOS logo */
@@ -61,14 +61,14 @@ void Dos_SystemInit(void)
 #endif
   
     /* system memheap init */
-    Dos_MemHeap_Init();
+    dos_mem_heap_init();
 
     Dos_SalofInit();
 
-    Dos_TaskInit();
+    dos_task_init();
   
 #if DOS_SWTMR
-    Dos_SwtmrInit();
+    dos_swtmr_init();
 #endif
     
 }

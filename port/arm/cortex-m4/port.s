@@ -4,7 +4,7 @@
 		
 	EXPORT  Interrupt_Disable
 	EXPORT  Interrupt_Enable
-	EXPORT  HardWare_Clz
+	EXPORT  hard_ware_clz
 	EXPORT	Dos_EnableVFP
 	EXPORT  Dos_GetIPSR
 	EXPORT  Dos_GetAPSR	
@@ -16,8 +16,8 @@
 	EXPORT  Dos_StartFirstTask
 
 		
-	IMPORT	Dos_CurrentTCB
-	IMPORT	Dos_SwitchTask
+	IMPORT	dos_current_task
+	IMPORT	dos_choose_task
 		
 
 Interrupt_Disable
@@ -29,7 +29,7 @@ Interrupt_Enable
 	msr     primask, r0
 	bx      lr
 	
-HardWare_Clz
+hard_ware_clz
 	rbit	r0,	r0
 	clz 	r0,	r0
 	bx      lr
@@ -63,7 +63,7 @@ Dos_GetMSP
 	bx lr
 
 SVC_Handler
-	;ldr	r3, =Dos_CurrentTCB
+	;ldr	r3, =dos_current_task
 	;ldr r1, [r3]
 	;ldr r0, [r1]
 	;ldmia r0!, {r4-r11, r14}
@@ -72,7 +72,7 @@ SVC_Handler
 	;mov r0, #0
 	;msr	basepri, r0
 	;bx r14
-	ldr	r2, =Dos_CurrentTCB
+	ldr	r2, =dos_current_task
 	ldr r3, [r2]
 	ldr r0, [r3]
 	ldmia r0!, {r4-r11, lr}
@@ -86,7 +86,7 @@ PendSV_Handler
 
 	;mrs r0, psp
 	;isb
-	;ldr	r3, =Dos_CurrentTCB
+	;ldr	r3, =dos_current_task
 	;ldr	r2, [r3]
 
 	;tst r14, #0x10
@@ -102,7 +102,7 @@ PendSV_Handler
 	;msr basepri, r0
 	;dsb
 	;isb
-	;bl Dos_SwitchTask
+	;bl dos_choose_task
 	;mov r0, #0
 	;msr basepri, r0
 	;ldmia sp!, {r3}
@@ -124,7 +124,7 @@ PendSV_Handler
     mrs	r1, primask
     CPSID   I
 	mrs r0, psp
-	ldr	r2, =Dos_CurrentTCB
+	ldr	r2, =dos_current_task
 	ldr	r3, [r2]
 	tst lr, #0x10
 	it eq
@@ -132,7 +132,7 @@ PendSV_Handler
 	stmdb r0!, {r4-r11, lr}
 	str r0, [r3]
 	stmdb sp!, {r1,r2}
-	bl Dos_SwitchTask
+	bl dos_choose_task
 	ldmia sp!, {r1,r2}
 	ldr r3, [r2]
 	ldr r0, [r3]

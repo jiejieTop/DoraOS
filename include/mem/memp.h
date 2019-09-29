@@ -8,39 +8,39 @@
 #define     DOS_MEMP_STATUS_UNUSED      0x00
 #define     DOS_MEMP_STATUS_USED        0x01
 
-struct MempNode {
-    dos_uint32 Status;
-    dos_void *Memp;
-    struct MempNode *Next;
+struct dos_memp_node {
+    dos_uint32 status;
+    dos_void *dos_memp;
+    struct dos_memp_node *next;
 };
-typedef struct MempNode * Dos_MempNode_t;
+typedef struct dos_memp_node * dos_memp_node_t;
 
-struct Memp {
+struct dos_memp {
     /** Element size */
-    dos_uint32 Size;
+    dos_uint32 memp_size;
 
     /** count of total memory block */
-    dos_uint32 TotalCnt;
+    dos_uint32 memp_total_count;
 
     /** count of free memory block */
-    dos_uint32 FreeCnt;
+    dos_uint32 memp_free_count;
 
-    /** Base address */
-    dos_void *Base;
+    /** memp_base address */
+    dos_void *memp_base;
 
     /** First free memory block of memory pool. memory block form a linked list. */
-    struct MempNode Free;
+    struct dos_memp_node memp_free;
 };
-typedef struct Memp * Dos_Memp_t;
+typedef struct dos_memp * dos_memp_t;
 
-Dos_Memp_t Dos_MempCreate(
+dos_memp_t dos_memp_create(
 #if (DOS_HEAP_TO_MEMP == 0U)
     dos_void *base,
 #endif 
     dos_uint32 memp_size,
     dos_uint32 blk_size);
-dos_void *Dos_MempAlloc(Dos_Memp_t memp);
-dos_void Dos_MempFree(dos_void * ptr);
+dos_void *dos_memp_alloc(dos_memp_t memp);
+dos_void dos_memp_free(dos_void * ptr);
 
 #endif // !_MEMP_H
 

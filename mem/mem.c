@@ -13,23 +13,23 @@
 #define DOS_MEM_HEAP_SIZE   1024*10
 #endif 
 
-static dos_uint8 *_Align_MemHeap_Begin = DOS_NULL;
-static dos_uint8 *_Align_MemHeap_End = DOS_NULL;
+static dos_uint8 *_align_mem_heap_begin = DOS_NULL;
+static dos_uint8 *_align_mem_heap_end = DOS_NULL;
 
-static dos_uint8 _MemHeap[DOS_MEM_HEAP_SIZE];
+static dos_uint8 _mem_heap[DOS_MEM_HEAP_SIZE];
 
 
 /**
  * get memory list next memory node 
  */
-static DOS_MemHeap_Node_t* _Dos_Get_NextNode(DOS_MemHeap_Node_t* node)
+static dos_mem_heap_node_t* _dos_get_next_node(dos_mem_heap_node_t* node)
 {
-  DOS_MemHeap_Info_t *memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;
+  dos_mem_heap_info_t *memheap_info = (dos_mem_heap_info_t *)_align_mem_heap_begin;
 
-  if(memheap_info->MemTail == node) 
+  if(memheap_info->mem_tail == node) 
     return DOS_NULL;
   else
-    return (DOS_MemHeap_Node_t*)(node->UserMem + node->MemNode_Size);
+    return (dos_mem_heap_node_t*)(node->user_mem + node->mem_node_size);
 }
 
 
@@ -44,19 +44,19 @@ static DOS_MemHeap_Node_t* _Dos_Get_NextNode(DOS_MemHeap_Node_t* node)
  * @version     v1.0
  * @note        alloc system mem , reference from LiteOS
  */
-dos_void* Dos_MemAlloc(dos_uint32 size)
+dos_void* dos_mem_alloc(dos_uint32 size)
 {
-  DOS_MemHeap_Info_t *memheap_info = (DOS_MemHeap_Info_t *)DOS_NULL;
-  DOS_MemHeap_Node_t *mem_node = (DOS_MemHeap_Node_t *)DOS_NULL;
-  DOS_MemHeap_Node_t *best_node = (DOS_MemHeap_Node_t *)DOS_NULL;
-  DOS_MemHeap_Node_t *node = (DOS_MemHeap_Node_t *)DOS_NULL;
+  dos_mem_heap_info_t *memheap_info = (dos_mem_heap_info_t *)DOS_NULL;
+  dos_mem_heap_node_t *mem_node = (dos_mem_heap_node_t *)DOS_NULL;
+  dos_mem_heap_node_t *best_node = (dos_mem_heap_node_t *)DOS_NULL;
+  dos_mem_heap_node_t *node = (dos_mem_heap_node_t *)DOS_NULL;
   
   dos_void* result;
   
   /* Scheduler lock */
-  Dos_Scheduler_Lock();
+  dos_scheduler_lock();
   
-  memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;
+  memheap_info = (dos_mem_heap_info_t *)_align_mem_heap_begin;
   if(DOS_NULL == memheap_info)
   {
     return DOS_NULL;
@@ -64,20 +64,20 @@ dos_void* Dos_MemAlloc(dos_uint32 size)
   
   size = DOS_ALIGN(size,DOS_ALIGN_SIZE);  /* align */
   
-  mem_node = memheap_info->MemTail;   /** get mem node */
+  mem_node = memheap_info->mem_tail;   /** get mem node */
   
   while(mem_node)   /** When a memory node exists */
   {
-    /**If current memory is not in use and the memory node MemNode_Size > size, and best memory node  MemNode_Size > current memory node MemNode_Size */
-    if((!mem_node->MemUsed) && (mem_node->MemNode_Size > size) && (!best_node || best_node->MemNode_Size > mem_node->MemNode_Size))
+    /**If current memory is not in use and the memory node mem_node_size > size, and best memory node  mem_node_size > current memory node mem_node_size */
+    if((!mem_node->mem_used) && (mem_node->mem_node_size > size) && (!best_node || best_node->mem_node_size > mem_node->mem_node_size))
     {
       best_node = mem_node;       /** best memory node is current memory node */
-      if(best_node->MemNode_Size == size)
+      if(best_node->mem_node_size == size)
       {
         goto FIND_BEST_MEM;     /** The best memory node is exactly equal to the memory block size the user needs */
       }
     }
-    mem_node = mem_node->Prev;  /** traversing the memory list */
+    mem_node = mem_node->prev;  /** traversing the memory list */
   }
 
   if (!best_node) /*alloc failed*/
@@ -85,40 +85,40 @@ dos_void* Dos_MemAlloc(dos_uint32 size)
     DOS_LOG_ERR("there's not enough whole to alloc %d Bytes!\n", size);
     
     /* Scheduler unlock */
-    Dos_Scheduler_Unlock();
+    dos_scheduler_unlock();
     
     return DOS_NULL;
   }
   
   /* Can cut the memory node */
-  if(best_node->MemNode_Size - size > MEM_NODE_SIZE)  
+  if(best_node->mem_node_size - size > MEM_NODE_SIZE)  
   {
-    mem_node = (DOS_MemHeap_Node_t *)(best_node->UserMem + size);   /** get a new free memory node address */
+    mem_node = (dos_mem_heap_node_t *)(best_node->user_mem + size);   /** get a new free memory node address */
     
-    mem_node->MemUsed = 0;    /** free memory node MemUsed flag is set to 0 */
-    mem_node->MemNode_Size = best_node->MemNode_Size - size - MEM_NODE_SIZE;  /** calculate the free memory node size MemNode_Size  */
-    mem_node->Prev = best_node;   /** insert free memory block list */
+    mem_node->mem_used = 0;    /** free memory node mem_used flag is set to 0 */
+    mem_node->mem_node_size = best_node->mem_node_size - size - MEM_NODE_SIZE;  /** calculate the free memory node size mem_node_size  */
+    mem_node->prev = best_node;   /** insert free memory block list */
     
-    if(best_node != memheap_info->MemTail) 
+    if(best_node != memheap_info->mem_tail) 
     {
-      if(DOS_NULL != (node = _Dos_Get_NextNode(mem_node)))  /** get memory list next node */
-        node->Prev = mem_node;    /** insert free memory block list */
+      if(DOS_NULL != (node = _dos_get_next_node(mem_node)))  /** get memory list next node */
+        node->prev = mem_node;    /** insert free memory block list */
     }
     else 
-      memheap_info->MemTail = mem_node;   /** set memory heap struct info MemTail pointer pointing new free memory node*/
+      memheap_info->mem_tail = mem_node;   /** set memory heap struct info mem_tail pointer pointing new free memory node*/
   }
   
   
 FIND_BEST_MEM:              /** find best memory node */
-  best_node->MemAlign = 0;  /** reserved */
-  best_node->MemUsed = 1;   /** memory node is already in use */
-  best_node->MemNode_Size = size;   /** set memory node info */
-  result = best_node->UserMem;
+  best_node->mem_align = 0;  /** reserved */
+  best_node->mem_used = 1;   /** memory node is already in use */
+  best_node->mem_node_size = size;   /** set memory node info */
+  result = best_node->user_mem;
   
-  memheap_info->MemHeap_Size -= size;
+  memheap_info->mem_heap_size -= size;
 
   /* Scheduler unlock */
-  Dos_Scheduler_Unlock();
+  dos_scheduler_unlock();
 
   return result;  
 }
@@ -135,11 +135,11 @@ FIND_BEST_MEM:              /** find best memory node */
  * @note        free mem , reference from LiteOS
  */
 
-dos_err Dos_MemFree(void *mem)
+dos_err dos_mem_free(void *mem)
 {  
-  DOS_MemHeap_Info_t *memheap_info = (DOS_MemHeap_Info_t *)DOS_NULL;
-  DOS_MemHeap_Node_t *free_node = (DOS_MemHeap_Node_t *)DOS_NULL;
-  DOS_MemHeap_Node_t *node = (DOS_MemHeap_Node_t *)DOS_NULL;
+  dos_mem_heap_info_t *memheap_info = (dos_mem_heap_info_t *)DOS_NULL;
+  dos_mem_heap_node_t *free_node = (dos_mem_heap_node_t *)DOS_NULL;
+  dos_mem_heap_node_t *node = (dos_mem_heap_node_t *)DOS_NULL;
 
   if(mem == DOS_NULL)
   {
@@ -147,7 +147,7 @@ dos_err Dos_MemFree(void *mem)
     return DOS_NOK;
   }
     
-  memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;    /** get the memory management structure from the memory heap start address */
+  memheap_info = (dos_mem_heap_info_t *)_align_mem_heap_begin;    /** get the memory management structure from the memory heap start address */
   if(DOS_NULL == memheap_info)
   {
     DOS_LOG_ERR("mem info struct is null!\n");
@@ -155,33 +155,33 @@ dos_err Dos_MemFree(void *mem)
   }  
   
   /** Find the real address of the memory node by offset */
-  free_node = (DOS_MemHeap_Node_t *)((dos_uint32)mem - MEM_NODE_SIZE);
+  free_node = (dos_mem_heap_node_t *)((dos_uint32)mem - MEM_NODE_SIZE);
 
-  if(0 == free_node->MemUsed)   /** determine if the memory node is already in use */
+  if(0 == free_node->mem_used)   /** determine if the memory node is already in use */
   {
     DOS_LOG_ERR("mem is unused\n");
     return DOS_NOK;
   }
 
-  free_node->MemUsed = 0;   /** can free memory node , MemUsed flag is set to 0 */
+  free_node->mem_used = 0;   /** can free memory node , mem_used flag is set to 0 */
 
-  memheap_info->MemHeap_Size += free_node->MemNode_Size;
+  memheap_info->mem_heap_size += free_node->mem_node_size;
 
-  while((DOS_NULL != free_node->Prev) && (0 == free_node->Prev->MemUsed))
+  while((DOS_NULL != free_node->prev) && (0 == free_node->prev->mem_used))
   {
-    free_node = free_node->Prev;    /** if current memory node Prev is not null, and the node is free, can merging */
+    free_node = free_node->prev;    /** if current memory node prev is not null, and the node is free, can merging */
   }
 
-  while(((node = (DOS_MemHeap_Node_t *)_Dos_Get_NextNode(free_node)) != DOS_NULL) && (0 == node->MemUsed))
+  while(((node = (dos_mem_heap_node_t *)_dos_get_next_node(free_node)) != DOS_NULL) && (0 == node->mem_used))
   {
-    free_node->MemNode_Size += MEM_NODE_SIZE + node->MemNode_Size;  /** reset the MemNode_Size of the new memory node */
+    free_node->mem_node_size += MEM_NODE_SIZE + node->mem_node_size;  /** reset the mem_node_size of the new memory node */
 
-    if(node == memheap_info->MemTail)   
-      memheap_info->MemTail = free_node;    /** set MemTail pointer to the memory management information structure */
+    if(node == memheap_info->mem_tail)   
+      memheap_info->mem_tail = free_node;    /** set mem_tail pointer to the memory management information structure */
   }
 
-  if((node = (DOS_MemHeap_Node_t *)_Dos_Get_NextNode(free_node)) != DOS_NULL)
-    node->Prev = free_node;   /** insert free memory block list */
+  if((node = (dos_mem_heap_node_t *)_dos_get_next_node(free_node)) != DOS_NULL)
+    node->prev = free_node;   /** insert free memory block list */
   
   return DOS_OK;
 }
@@ -198,42 +198,42 @@ dos_err Dos_MemFree(void *mem)
  * @version     v1.0
  * @note        This is a function that internally initializes the memory heap, only for internal calls.
  */
-dos_bool Dos_MemHeap_Init(void)
+dos_bool dos_mem_heap_init(void)
 {
-  DOS_MemHeap_Info_t *memheap_info = (DOS_MemHeap_Info_t *)DOS_NULL;
-  DOS_MemHeap_Node_t *memheap_node = (DOS_MemHeap_Node_t *)DOS_NULL;
+  dos_mem_heap_info_t *memheap_info = (dos_mem_heap_info_t *)DOS_NULL;
+  dos_mem_heap_node_t *memheap_node = (dos_mem_heap_node_t *)DOS_NULL;
   
   dos_uint32 align_memheap_size;
  
   /* Get the begin and end addresses of the memory heap */
-  dos_uint32 memheap_addr = (dos_uint32) _MemHeap;
-  _Align_MemHeap_Begin = (dos_uint8 *) DOS_ALIGN(memheap_addr,DOS_ALIGN_SIZE);
+  dos_uint32 memheap_addr = (dos_uint32) _mem_heap;
+  _align_mem_heap_begin = (dos_uint8 *) DOS_ALIGN(memheap_addr,DOS_ALIGN_SIZE);
   
-  _Align_MemHeap_End = (dos_uint8 *)memheap_addr + DOS_MEM_HEAP_SIZE;
-  _Align_MemHeap_End = (dos_uint8 *) DOS_ALIGN_DOWN((dos_uint32)_Align_MemHeap_End,DOS_ALIGN_SIZE);
+  _align_mem_heap_end = (dos_uint8 *)memheap_addr + DOS_MEM_HEAP_SIZE;
+  _align_mem_heap_end = (dos_uint8 *) DOS_ALIGN_DOWN((dos_uint32)_align_mem_heap_end,DOS_ALIGN_SIZE);
   
   /* Get the actual size of the memory heap */
-  align_memheap_size = (dos_uint32)(_Align_MemHeap_End - _Align_MemHeap_Begin);
+  align_memheap_size = (dos_uint32)(_align_mem_heap_end - _align_mem_heap_begin);
   
   /* Memory heap management information control block */
-  memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;
+  memheap_info = (dos_mem_heap_info_t *)_align_mem_heap_begin;
   
   if((!memheap_info)||(align_memheap_size <= (MEM_INFO_SIZE + MEM_NODE_SIZE)))
     return DOS_FALSE;
 
-  memset(_Align_MemHeap_Begin, 0, align_memheap_size);
+  memset(_align_mem_heap_begin, 0, align_memheap_size);
   
   /* Init  */
-  memheap_info->MemHeap_Addr = _Align_MemHeap_Begin;
-  memheap_info->MemHeap_Size = align_memheap_size - MEM_INFO_SIZE - MEM_NODE_SIZE;
-  memheap_info->MemHead = (DOS_MemHeap_Node_t *)(_Align_MemHeap_Begin + MEM_INFO_SIZE);
+  memheap_info->mem_heap_addr = _align_mem_heap_begin;
+  memheap_info->mem_heap_size = align_memheap_size - MEM_INFO_SIZE - MEM_NODE_SIZE;
+  memheap_info->MemHead = (dos_mem_heap_node_t *)(_align_mem_heap_begin + MEM_INFO_SIZE);
   memheap_node = memheap_info->MemHead;
-  memheap_info->MemTail = memheap_node;
+  memheap_info->mem_tail = memheap_node;
   
   /* Init memory node information control block */
-  memheap_node->MemUsed = 0;
-  memheap_node->MemNode_Size = memheap_info->MemHeap_Size;
-  memheap_node->Prev = DOS_NULL;
+  memheap_node->mem_used = 0;
+  memheap_node->mem_node_size = memheap_info->mem_heap_size;
+  memheap_node->prev = DOS_NULL;
 
   return DOS_TRUE;
 }
@@ -242,14 +242,14 @@ dos_bool Dos_MemHeap_Init(void)
 /**
  * get the remaining memory information of the current system
  */
-dos_uint32 Dos_MemInfoGet(void)
+dos_uint32 dos_get_mem_heap_info(void)
 {
-  DOS_MemHeap_Info_t *memheap_info = (DOS_MemHeap_Info_t *)DOS_NULL;
+  dos_mem_heap_info_t *memheap_info = (dos_mem_heap_info_t *)DOS_NULL;
   
   /* Memory heap management information control block */
-  memheap_info = (DOS_MemHeap_Info_t *)_Align_MemHeap_Begin;
+  memheap_info = (dos_mem_heap_info_t *)_align_mem_heap_begin;
 
-  return memheap_info->MemHeap_Size;
+  return memheap_info->mem_heap_size;
 }
 
 

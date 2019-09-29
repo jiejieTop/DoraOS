@@ -43,15 +43,15 @@
 
 typedef dos_void (*Dos_TaskFunction)( dos_void * );
 
-dos_uint32 *Dos_StackInit(dos_uint32 *sp , 
+dos_uint32 *dos_stack_init(dos_uint32 *sp , 
                           void *task_entry,
                           dos_void *parameter);
                           
-dos_uint32 Dos_StartScheduler(dos_void);
-dos_bool Dos_ContextIsInt(dos_void);
+dos_uint32 dos_start_scheduler(dos_void);
+dos_bool dos_context_is_interrupt(dos_void);
 dos_uint32 Interrupt_Disable(dos_void);
 dos_void Interrupt_Enable(dos_uint32 pri);
-dos_uint32 HardWare_Clz(dos_uint32 pri);
+dos_uint32 hard_ware_clz(dos_uint32 pri);
 dos_void Dos_EnableVFP(dos_void);
 dos_uint32 Dos_GetIPSR(dos_void);
 dos_uint32 Dos_GetAPSR(dos_void);

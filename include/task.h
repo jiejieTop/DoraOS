@@ -12,7 +12,7 @@
 //#endif
 
 #define     DOS_GET_STRUCT(ptr, type, member)   ((type *)((char *)(ptr) - (unsigned long)(&((type *)0)->member)))
-#define     DOS_GET_TCB(node)    DOS_GET_STRUCT(node, struct DOS_TaskCB, StateItem)
+#define     DOS_GET_TCB(node)    DOS_GET_STRUCT(node, struct dos_task, status_item)
 
 
 #if DOS_MAX_PRIORITY_NUM > 32U
@@ -20,19 +20,19 @@
 #define     DOS_PRIORITY_TAB_INDEX(PRI)  (((PRI -1 )/32))
 
 /** set or reset the task ready priority */
-#define     DOS_SET_TASK_PTIORITY(task)         (Dos_Task_Priority[DOS_PRIORITY_TAB_INDEX(task->Priority)]) |= (0x01 << (task->Priority % 32))
-#define     DOS_RESET_TASK_PTIORITY(task)       (Dos_Task_Priority[DOS_PRIORITY_TAB_INDEX(task->Priority)]) &= ~(0x01 << (task->Priority % 32))
+#define     DOS_SET_TASK_PTIORITY(task)         (dos_task_priority[DOS_PRIORITY_TAB_INDEX(task->priority)]) |= (0x01 << (task->priority % 32))
+#define     DOS_RESET_TASK_PTIORITY(task)       (dos_task_priority[DOS_PRIORITY_TAB_INDEX(task->priority)]) &= ~(0x01 << (task->priority % 32))
 #else 
 /** set or reset the task ready priority */
-#define     DOS_SET_TASK_PTIORITY(task)         (Dos_Task_Priority) |= (0x01 << task->Priority)
-#define     DOS_RESET_TASK_PTIORITY(task)       (Dos_Task_Priority) &= ~(0x01 << task->Priority)
+#define     DOS_SET_TASK_PTIORITY(task)         (dos_task_priority) |= (0x01 << task->priority)
+#define     DOS_RESET_TASK_PTIORITY(task)       (dos_task_priority) &= ~(0x01 << task->priority)
 #endif
 
-#define     DOS_SET_TASK_STATUS(task, status)     (task->TaskStatus) |= (status)
-#define     DOS_RESET_TASK_STATUS(task, status)   (task->TaskStatus) &= ~(status)
+#define     DOS_SET_TASK_STATUS(task, status)     (task->task_status) |= (status)
+#define     DOS_RESET_TASK_STATUS(task, status)   (task->task_status) &= ~(status)
 
-#define     Dos_Interrupt_Disable       Interrupt_Disable
-#define     Dos_Interrupt_Enable        Interrupt_Enable
+#define     dos_interrupt_disable       Interrupt_Disable
+#define     dos_interrupt_enable        Interrupt_Enable
 
 /**
  * Task status
@@ -52,53 +52,53 @@
 #define   DOS_WAIT_FOREVER            0xFFFFFFFF    /** Define the timeout interval as LOS_WAIT_FOREVER. */
 
 
-struct DOS_TaskCB
+struct dos_task
 {
-  dos_void                        *StackPoint;              /** Task stack point            */
-  dos_void                        *StackAddr;               /** Task stack point            */
-  dos_uint16                      TaskStatus;               /** Task status */
-  dos_uint16                      Priority;
-  dos_uint32                      StackSize;                /** Task stack size             */
-  dos_void                        *TopOfStack;              /** Task stack top              */
-  dos_void                        *TaskEntry;               /** Task entrance function      */
-  dos_void                        *Parameter;               /** Parameter                   */
-  dos_char                        *TaskName;                /** Task name                   */
-  dos_uint32                      TaskTick;                 /** TaskTick                    */
-  dos_uint32                      TaskInitTick;             /** TaskInitTick                */ 
-  dos_uint32                      WaitEvent;                /** Task wait event             */
-  dos_uint32                      WaitEventOp;              /** Task wait event options     */
-  dos_uint32                      EventGet;                 /** Task Get event              */
-  Dos_TaskItem_t                  StateItem;                /** Task status item            */
-  Dos_TaskItem_t                  PendItem;                 /** Task pend item              */
+  dos_void                        *stack_point;              /** Task stack point            */
+  dos_void                        *stack_addr;               /** Task stack point            */
+  dos_uint16                      task_status;               /** Task status */
+  dos_uint16                      priority;
+  dos_uint32                      stack_size;                /** Task stack size             */
+  dos_void                        *top_of_stack;              /** Task stack top              */
+  dos_void                        *task_entry;               /** Task entrance function      */
+  dos_void                        *parameter;               /** parameter                   */
+  dos_char                        *task_name;                /** Task name                   */
+  dos_uint32                      task_tick;                 /** task_tick                    */
+  dos_uint32                      task_init_tick;             /** task_init_tick                */ 
+  dos_uint32                      wait_event;                /** Task wait event             */
+  dos_uint32                      wait_event_opt;              /** Task wait event options     */
+  dos_uint32                      event_get;                 /** Task Get event              */
+  dos_task_item_t                  status_item;                /** Task status item            */
+  dos_task_item_t                  pend_item;                 /** Task pend item              */
 };
-typedef struct DOS_TaskCB * DOS_TaskCB_t;
+typedef struct dos_task * dos_task_t;
 
 
 
 
-void Dos_TaskInit(void);
-DOS_TaskCB_t Dos_TaskCreate(const dos_char *name,
+void dos_task_init(void);
+dos_task_t dos_task_create(const dos_char *name,
                             void (*task_entry)(void *param),
                             void * const param,
                             dos_uint32 stack_size,
                             dos_uint16 priority,
                             dos_uint32 tick);
-dos_err Dos_TaskDelete(DOS_TaskCB_t task);
-dos_uint32 Dos_Get_Tick(void);         
-void Dos_Start( void );
-void Dos_TaskSleep(dos_uint32 sleep_tick);
-void Dos_Scheduler(void);
-void Dos_Scheduler_Lock(void);
-void Dos_Scheduler_Unlock(void);
-dos_bool Dos_Scheduler_IsLock(void);
-dos_char *Dos_Get_TaskName(void);
-DOS_TaskCB_t Dos_Get_CurrentTCB(void);
-DOS_TaskCB_t Dos_GetTCB(Dos_TaskList_t *list);
-DOS_TaskCB_t Dos_Get_NextTCB(Dos_TaskList_t *list);
-dos_void Dos_TaskWait(Dos_TaskList_t *dos_list, dos_uint32 timeout);
-dos_void Dos_TaskWake(DOS_TaskCB_t task);
-dos_void Dos_SetTaskPrio(DOS_TaskCB_t task, dos_uint16 prio);
-dos_void Dos_Update_Tick(dos_void);
+dos_err dos_task_delete(dos_task_t task);
+dos_uint32 dos_get_tick(void);         
+void dos_system_start_run( void );
+void dos_task_sleep(dos_uint32 sleep_tick);
+void dos_scheduler(void);
+void dos_scheduler_lock(void);
+void dos_scheduler_unlock(void);
+dos_bool dos_scheduler_is_lock(void);
+dos_char *dos_get_task_name(void);
+dos_task_t dos_get_current_task(void);
+dos_task_t dos_get_first_task(dos_task_list_t *list);
+dos_task_t dos_get_next_task(dos_task_list_t *list);
+dos_void dos_task_wait(dos_task_list_t *dos_list, dos_uint32 timeout);
+dos_void dos_task_wake(dos_task_t task);
+dos_void dos_set_task_priority(dos_task_t task, dos_uint16 prio);
+dos_void dos_tick_update(dos_void);
 
 #endif
 
