@@ -27,7 +27,7 @@ dos_uint32 *dos_stack_init(dos_uint32 *sp ,
 
 
 
-dos_uint32 dos_start_scheduler( void )
+dos_uint32 dos_port_start( void )
 {
 	/* Configure PendSV and SysTick with the lowest interrupt priority */
 	SYSPRI2_REG |= (PENDSV_PRI | SYSTICK_PRI);
@@ -39,10 +39,10 @@ dos_uint32 dos_start_scheduler( void )
                        SYSTICK_INT_BIT |
                        SYSTICK_ENABLE_BIT );
 
-    Dos_EnableVFP();
+//    Dos_EnableVFP();
     
 	/* Lazy save always. */
-	*( portFPCCR ) |= portASPEN_AND_LSPEN_BITS;
+//	*( portFPCCR ) |= portASPEN_AND_LSPEN_BITS;
     
 	/* Start the first task, no longer return */
 	Dos_StartFirstTask();

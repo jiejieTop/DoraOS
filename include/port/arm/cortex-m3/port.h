@@ -78,7 +78,7 @@ dos_uint32 *dos_stack_init(dos_uint32 *sp ,
                           void *task_entry,
                           dos_void *parameter);
 
-dos_uint32 dos_start_scheduler(dos_void);
+dos_uint32 dos_port_start(dos_void);
 dos_bool dos_context_is_interrupt(dos_void);
 dos_uint32 Interrupt_Disable(dos_void);
 dos_void Interrupt_Enable(dos_uint32 pri);

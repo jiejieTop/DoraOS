@@ -140,13 +140,12 @@ void DebugMon_Handler(void)
  */
 dos_void SysTick_Handler(dos_void)
 {
-    dos_uint32 pri; 
-    pri = Interrupt_Disable();
+    dos_interrupt_enter();
     
     /** update system tick */
     dos_tick_update();
     
-    Interrupt_Enable(pri);
+    dos_interrupt_leave();
 }
 
 

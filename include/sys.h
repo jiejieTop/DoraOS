@@ -38,10 +38,15 @@
 
 
 void dos_system_init(void);
-
-
-
-
+void dos_scheduler(void);
+void dos_scheduler_lock(void);
+void dos_scheduler_unlock(void);
+dos_bool dos_scheduler_is_lock(void);
+dos_bool dos_system_is_running(void);
+void dos_set_system_status(dos_uint8 status);
+dos_bool dos_is_in_interrupt(dos_void);
+void dos_interrupt_enter(void);
+void dos_interrupt_leave(void);
 
 #endif // !_SYS_H_
 

@@ -33,8 +33,6 @@ static dos_task_t volatile dos_idle_task = DOS_NULL;
 /**
  * global variable
  */
-static dos_uint8 dos_is_run = DOS_NO;       /** system run flag */
-static dos_uint32 _dos_scheduler_lock = 0;   /** scheduler lock number of times*/
 static dos_uint32 dos_tick_count = 0U;      /** system time (tick) */
 static dos_uint32 dos_cur_priority = 0;     /** the highest priority the system is currently in the ready state */
 
@@ -67,7 +65,6 @@ static const dos_uint8 dos_bit_map[] =
  * Function declaration
  */
 static dos_void _dos_create_idle_task(dos_void);
-static dos_bool _dos_check_task_priority(dos_void);
 
 /**
  * task priority list initialization
@@ -210,42 +207,6 @@ static dos_void _dos_insert_task_sleep_list(dos_uint32 sleep_tick)
 }
 
 
-static dos_bool _dos_check_task_priority(dos_void)
-{
-#if DOS_MAX_PRIORITY_NUM > 32
-    dos_uint32 i;
-    for(i = 0; i < DOS_PRIORITY_TAB; i++)
-    {
-        if(dos_task_priority[i] & 0xFFFFFFFF)
-            break;
-    }
-    dos_cur_priority = _dos_get_highest_priority(dos_task_priority[i]) + 32 * i;
-#else
-    dos_cur_priority = _dos_get_highest_priority(dos_task_priority); /** get current task proority */
-#endif
-  
-    /** Task scheduling when there are higher priority tasks, except for idle tasks. or the current task is not in the ready state */
-    if((dos_cur_priority < dos_current_task->priority) || (!(dos_current_task->task_status & DOS_TASK_STATUS_READY)))
-        return DOS_TRUE;
-  
-  /** there are more tasks in the current task priority list */
-    else if(dos_get_task_list_value(&dos_task_priority_list[dos_current_task->priority]) > 1)
-    {
-        if(--dos_current_task->task_tick == 0)
-        {
-            dos_current_task->task_tick = dos_current_task->task_init_tick;
-            return DOS_TRUE;
-        }
-        else
-        {
-            return DOS_FALSE;
-        }
-    }
-  /** No task schedul */
-  else
-    return DOS_FALSE;
-}
-
 /**
  * idle task function
  */
@@ -332,17 +293,6 @@ static dos_void _dos_switch_sleep_list(dos_void)
         DOS_LOG_DEBUG("Task sleep list is not empty!\n");
 }
 
-/**
- * task scheduler(Internally used function)
- */
-static dos_bool _dos_scheduler(dos_void)
-{
-    if((DOS_YES == dos_is_run) && (_dos_check_task_priority() != DOS_FALSE))
-    {
-        return DOS_TRUE;
-    }
-    return DOS_FALSE;
-}
 
 /***********************************************************************************************************************/
 
@@ -461,7 +411,7 @@ dos_err dos_task_delete(dos_task_t task)
         return DOS_NOK;
     }
 
-    if(_dos_scheduler_lock != 0)
+    if(dos_scheduler_is_lock())
     {
         DOS_LOG_ERR("scheduler is lock\n");
         return DOS_NOK;
@@ -685,39 +635,6 @@ dos_void dos_task_exit(dos_void)
 }
 
 
-
-/**
- * system scheduler
- */
-dos_void dos_scheduler(dos_void)
-{
-    if((!dos_scheduler_is_lock()) && (_dos_scheduler() == DOS_TRUE))
-    {
-        DOS_TASK_YIELD(); 
-    }
-}
-
-/**
- * start run system
- */
-dos_void dos_system_start_run( dos_void )
-{
-  
-    _dos_check_task_priority();
-
-    dos_current_task = dos_get_first_task(&dos_task_priority_list[dos_cur_priority]);
-
-    /** Update dos_tick_count and dos_is_run to indicate that the system starts to boot */
-    dos_tick_count = 0U;
-    dos_is_run = DOS_YES;
-
-    if( dos_start_scheduler() != 0 )
-    {
-        /* Will not be executed here after the task is started */
-    }
-}
-
-
 /**
  * Choose the right task to run
  */
@@ -727,54 +644,54 @@ dos_void dos_choose_task( dos_void )
     dos_current_task = dos_get_next_task(&dos_task_priority_list[dos_cur_priority]);
 }
 
-
 /**
- * Scheduler lock
+ * Choose the highest priority task to run
  */
-dos_void dos_scheduler_lock(dos_void)
-{
-    dos_uint32 pri;
-
-    pri = dos_interrupt_disable();
-
-    _dos_scheduler_lock ++ ;
-
-    dos_interrupt_enable(pri);
+dos_void dos_choose_highest_priority_task( dos_void )
+{  
+    /** Get the control block for the highest priority task  */
+    dos_current_task = dos_get_first_task(&dos_task_priority_list[dos_cur_priority]);
 }
 
-/**
- * Scheduler unlock
- */
-dos_void dos_scheduler_unlock(dos_void)
+dos_bool dos_check_task_priority(dos_void)
 {
-    dos_uint32 pri;
-
-    pri = dos_interrupt_disable();
-
-    if(_dos_scheduler_lock > 0)
+#if DOS_MAX_PRIORITY_NUM > 32
+    dos_uint32 i;
+    for(i = 0; i < DOS_PRIORITY_TAB; i++)
     {
-        _dos_scheduler_lock -- ;
-
-        /** When the scheduler is completely unlocked */
-        if(0 == _dos_scheduler_lock)
+        if(dos_task_priority[i] & 0xFFFFFFFF)
+            break;
+    }
+    dos_cur_priority = _dos_get_highest_priority(dos_task_priority[i]) + 32 * i;
+#else
+    dos_cur_priority = _dos_get_highest_priority(dos_task_priority); /** get current task proority */
+#endif
+  
+    /** Task scheduling when there are higher priority tasks, except for idle tasks. or the current task is not in the ready state */
+    if((dos_cur_priority < dos_current_task->priority) || (!(dos_current_task->task_status & DOS_TASK_STATUS_READY)))
+        return DOS_TRUE;
+  
+  /** there are more tasks in the current task priority list */
+    else if(dos_get_task_list_value(&dos_task_priority_list[dos_current_task->priority]) > 1)
+    {
+        if(--dos_current_task->task_tick == 0)
         {
-            dos_interrupt_enable(pri);
-
-            /** Perform a task scheduling */
-            dos_scheduler();
-            return;
+            dos_current_task->task_tick = dos_current_task->task_init_tick;
+            return DOS_TRUE;
+        }
+        else
+        {
+            return DOS_FALSE;
         }
     }
-
-    dos_interrupt_enable(pri);
+  /** No task schedul */
+  else
+    return DOS_FALSE;
 }
 
-/**
- * Determine if the system scheduler is locked
- */
-dos_bool dos_scheduler_is_lock(dos_void)
+void dos_reset_tick(void)
 {
-    return (0 != _dos_scheduler_lock);
+    dos_tick_count = 0;
 }
 
 /**

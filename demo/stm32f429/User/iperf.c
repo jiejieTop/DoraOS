@@ -30,9 +30,9 @@ void iperf_server(void *thread_param)
   }
 
   conn = netconn_new(NETCONN_TCP);
-  netconn_bind(conn, IP_ADDR_ANY, LOCAL_PORT);
+  netconn_bind(conn, IP_ADDR_ANY, 5002);
     
-  printf("���ض˿ں���%d\n",LOCAL_PORT);
+  printf("���ض˿ں���%d\n",5002);
   LWIP_ERROR("tcpecho: invalid conn", (conn != NULL), return;);
 
   /* Tell connection to go into listening mode. */

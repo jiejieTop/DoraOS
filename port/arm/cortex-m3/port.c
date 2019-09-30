@@ -26,7 +26,7 @@ dos_uint32 *dos_stack_init(dos_uint32 *sp ,
 
 
 
-dos_uint32 dos_start_scheduler( void )
+dos_uint32 dos_port_start( void )
 {
 	/* Configure PendSV and SysTick with the lowest interrupt priority */
 	SYSPRI2_REG |= (PENDSV_PRI | SYSTICK_PRI);

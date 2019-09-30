@@ -87,10 +87,6 @@ dos_err dos_task_delete(dos_task_t task);
 dos_uint32 dos_get_tick(void);         
 void dos_system_start_run( void );
 void dos_task_sleep(dos_uint32 sleep_tick);
-void dos_scheduler(void);
-void dos_scheduler_lock(void);
-void dos_scheduler_unlock(void);
-dos_bool dos_scheduler_is_lock(void);
 dos_char *dos_get_task_name(void);
 dos_task_t dos_get_current_task(void);
 dos_task_t dos_get_first_task(dos_task_list_t *list);
@@ -99,6 +95,9 @@ dos_void dos_task_wait(dos_task_list_t *dos_list, dos_uint32 timeout);
 dos_void dos_task_wake(dos_task_t task);
 dos_void dos_set_task_priority(dos_task_t task, dos_uint16 prio);
 dos_void dos_tick_update(dos_void);
-
+dos_bool dos_check_task_priority(dos_void);
+dos_void dos_choose_highest_priority_task(dos_void);
+void dos_reset_tick(void);
+          
 #endif
 

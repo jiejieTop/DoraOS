@@ -203,14 +203,7 @@ HAL_StatusTypeDef Bsp_Eth_Init(void)
 
 void ETH_IRQHandler(void)
 {
-  uint32_t ulReturn;
-  /* �����ٽ�Σ��ٽ�ο���Ƕ�� */
-  ulReturn = dos_interrupt_disable();
-  
-  HAL_ETH_IRQHandler(&heth);
-  
-  /* �˳��ٽ�� */
-  dos_interrupt_enable( ulReturn );
+    HAL_ETH_IRQHandler(&heth);
 }
 
 /**
@@ -221,10 +214,13 @@ void ETH_IRQHandler(void)
 extern dos_sem_t s_xSemaphore;
 void HAL_ETH_RxCpltCallback(ETH_HandleTypeDef *heth)
 {
-  LED2_TOGGLE;
+    LED2_TOGGLE;
+    
+    dos_interrupt_enter();
+    
+    dos_sem_post(s_xSemaphore);
 
-  dos_sem_post(s_xSemaphore);
-
+    dos_interrupt_leave();
 }
 
 void HAL_ETH_TxCpltCallback(ETH_HandleTypeDef *heth)

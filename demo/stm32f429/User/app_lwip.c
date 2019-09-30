@@ -30,16 +30,6 @@ void test_task1(void *Parameter)
     iperf_server_init();
 //    client_init();
 
-    printf("��������ʾ�����巢�����ݵ�������\n\n");
-
-    printf("��������ģ�����£�\n\t ����<--����-->·��<--����-->������\n\n");
-
-    printf("ʵ����ʹ��TCPЭ�鴫�����ݣ�������ΪTCP Server����������ΪTCP Client\n\n");
-
-    printf("�����̵�IP��ַ����User/arch/sys_arch.h�ļ����޸�\n\n");
-
-    printf("�����̲ο�<<LwIPӦ��ʵս����ָ��>>��15�� ʹ�� NETCONN �ӿڱ��\n\n");
-    
     while(1)
     {
 //        pri = dos_interrupt_disable();
@@ -54,12 +44,12 @@ void test_task1(void *Parameter)
 void test_task2(void *Parameter)
 {
     dos_uint32 pri;
+    pri = dos_interrupt_disable();
+    printf("mem:%d\n",dos_get_mem_heap_info());
+    dos_interrupt_enable(pri);
     while(1)
     {
-        pri = dos_interrupt_disable();
-        printf("mem:%d\n",dos_get_mem_heap_info());
-        dos_interrupt_enable(pri);
-        dos_task_sleep(1000);
+        dos_task_sleep(100000);
         
     }
 }
