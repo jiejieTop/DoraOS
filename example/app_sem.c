@@ -4,7 +4,7 @@
   * @version V1.0
   * @date    2019
   * @brief   this is an event api example
-  */ 
+  */
 #include "include.h"
 #include <task.h>
 #include <sem.h>
@@ -27,16 +27,12 @@ void sem_wait_task(void *parameter)
 {
     dos_uint32 res;
 
-    while(1)
-    {
+    while (1) {
         DOS_LOG_INFO("start wait sem, wait time is DOS_WAIT_FOREVER\n");
         res = dos_sem_pend(sem, DOS_WAIT_FOREVER);
-        if(res == DOS_OK)
-        {
+        if (res == DOS_OK) {
             DOS_LOG_INFO("wait sem success\n");
-        }
-        else
-        {
+        } else {
             DOS_LOG_WARN("wait sem fail\n");
         }
     }
@@ -45,8 +41,7 @@ void sem_wait_task(void *parameter)
 
 void sem_post_task(void *parameter)
 {
-    while(1)
-    {
+    while (1) {
         DOS_LOG_INFO("start post sem\n");
 
         dos_sem_post(sem);
@@ -73,24 +68,24 @@ int main(void)
                             20);
 
     task1 = dos_task_create( "sem_post_task",
-                            &sem_post_task,
-                            DOS_NULL,
-                            1024,
-                            3,
-                            0);
-                
+                             &sem_post_task,
+                             DOS_NULL,
+                             1024,
+                             3,
+                             0);
+
     dos_system_start_run();
-  
+
 }
 
 
 
 /**
  * This function is used to initialize all onboard hardware
- */ 
+ */
 static void BSP_Init(void)
 {
-	USART_Config();
+    USART_Config();
 }
 
 

@@ -4,7 +4,7 @@
   * @version V1.0
   * @date    2019
   * @brief   this is an event api example
-  */ 
+  */
 #include "include.h"
 #include <task.h>
 #include <mutex.h>
@@ -27,16 +27,12 @@ void mutex_task(void *parameter)
 {
     dos_uint32 res;
 
-    while(1)
-    {
+    while (1) {
         DOS_LOG_INFO("start pend mutex, wait time is DOS_WAIT_FOREVER\n");
         res = dos_mutex_pend(mutex, DOS_WAIT_FOREVER);
-        if(res == DOS_OK)
-        {
+        if (res == DOS_OK) {
             DOS_LOG_INFO("pend mutex success\n");
-        }
-        else
-        {
+        } else {
             DOS_LOG_WARN("wait mutex fail\n");
             return;
         }
@@ -53,18 +49,14 @@ void mutex_delete_task(void *parameter)
     dos_task_sleep(4000);
 
     res =dos_mutex_delete(mutex);
-    if(res == DOS_OK)
-    {
+    if (res == DOS_OK) {
         mutex = DOS_NULL;
         DOS_LOG_INFO("delete mutex success\n");
-    }
-    else
-    {
+    } else {
         DOS_LOG_WARN("delete mutex fail\n");
     }
 
-    while(1)
-    {
+    while (1) {
         DOS_LOG_INFO("mutex_delete_task running\n");
 
         dos_task_sleep(1000);
@@ -89,24 +81,24 @@ int main(void)
                             20);
 
     task1 = dos_task_create( "mutex_delete_task",
-                            &mutex_delete_task,
-                            DOS_NULL,
-                            1024,
-                            2,
-                            0);
-                
+                             &mutex_delete_task,
+                             DOS_NULL,
+                             1024,
+                             2,
+                             0);
+
     dos_system_start_run();
-  
+
 }
 
 
 
 /**
  * This function is used to initialize all onboard hardware
- */ 
+ */
 static void BSP_Init(void)
 {
-	USART_Config();
+    USART_Config();
 }
 
 

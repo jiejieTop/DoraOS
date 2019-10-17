@@ -7,15 +7,13 @@
 #include <task.h>
 
 
-enum dos_swtmr_mode
-{
+enum dos_swtmr_mode {
     dos_swtmr_mode_one = 0x01,
     dos_swtmr_mode_period = 0x02,
     dos_swtmr_mode_mask = 0x03,
 };
 
-enum dos_swtmr_option
-{
+enum dos_swtmr_option {
     dos_swtmr_opt_start = 0x01,
     dos_swtmr_opt_stop = 0x02,
     dos_swtmr_opt_delete = 0x04,
@@ -32,8 +30,7 @@ enum dos_swtmr_option
 
 typedef dos_void (*dos_swtmr_call_backe)(dos_void *parameter);
 
-struct dos_swtmr
-{
+struct dos_swtmr {
     struct dos_swtmr        *swtmr_prev;
     struct dos_swtmr        *swtmr_next;
     dos_void                *swtmr_parameter;      /** parameter */
@@ -45,8 +42,7 @@ struct dos_swtmr
 };
 typedef struct dos_swtmr * dos_swtmr_t;
 
-struct dos_swtmr_msg
-{
+struct dos_swtmr_msg {
     dos_uint32          swtmr_opt;
     dos_swtmr_t         swtmr;
 };
@@ -59,3 +55,4 @@ dos_err dos_swtmr_stop(dos_swtmr_t swtmr);
 dos_err dos_swtmr_delete(dos_swtmr_t swtmr);
 dos_err dos_swtmr_overflow(void);
 #endif // !_SWTMR_H_
+

@@ -4,7 +4,7 @@
   * @version V1.0
   * @date    2019
   * @brief   this is an event api example
-  */ 
+  */
 #include "include.h"
 #include <task.h>
 #include <queue.h>
@@ -29,29 +29,24 @@ void queue_read_task(void *parameter)
     dos_uint32 res;
     dos_uint8 buff[QUEUE_SIZE];
 
-    while(1)
-    {
+    while (1) {
         DOS_LOG_INFO("start read buff, wait time is DOS_WAIT_FOREVER\n");
         res = dos_queue_read(queue, buff, QUEUE_SIZE, DOS_WAIT_FOREVER);
-        if(res == DOS_OK)
-        {
+        if (res == DOS_OK) {
             DOS_LOG_INFO("read buff success: %s\n", buff);
-        }
-        else
-        {
+        } else {
             DOS_LOG_WARN("read buff fail\n");
         }
 
-        
+
 
     }
 }
 void queue_write_task(void *parameter)
 {
     dos_uint8 buff[] = "this is a queue test";
-  
-    while(1)
-    {
+
+    while (1) {
         DOS_LOG_INFO("start write buff, wait time is 0\n");
 
         dos_queue_write(queue, buff , QUEUE_SIZE, 0);
@@ -78,24 +73,24 @@ int main(void)
                             20);
 
     task1 = dos_task_create( "queue_write_task",
-                            &queue_write_task,
-                            DOS_NULL,
-                            1024,
-                            3,
-                            0);
-                
+                             &queue_write_task,
+                             DOS_NULL,
+                             1024,
+                             3,
+                             0);
+
     dos_system_start_run();
-  
+
 }
 
 
 
 /**
  * This function is used to initialize all onboard hardware
- */ 
+ */
 static void BSP_Init(void)
 {
-	USART_Config();
+    USART_Config();
 }
 
 

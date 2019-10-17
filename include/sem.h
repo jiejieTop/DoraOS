@@ -9,8 +9,7 @@
 
 #define dos_binary_sem_create(cnt)  dos_sem_create(cnt,1)
 
-struct dos_sem
-{
+struct dos_sem {
     dos_uint32      sem_count;         /** sem count */
     dos_uint32      sem_max_count;      /** sem max count */
     dos_task_list_t  sem_pend_list;        /** task pend list, 28 byte */
@@ -24,3 +23,4 @@ dos_err dos_sem_pend(dos_sem_t sem, dos_uint32 timeout);
 dos_err dos_sem_post(dos_sem_t sem);
 
 #endif
+

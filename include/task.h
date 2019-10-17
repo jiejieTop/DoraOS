@@ -22,7 +22,7 @@
 /** set or reset the task ready priority */
 #define     DOS_SET_TASK_PTIORITY(task)         (dos_task_priority[DOS_PRIORITY_TAB_INDEX(task->priority)]) |= (0x01 << (task->priority % 32))
 #define     DOS_RESET_TASK_PTIORITY(task)       (dos_task_priority[DOS_PRIORITY_TAB_INDEX(task->priority)]) &= ~(0x01 << (task->priority % 32))
-#else 
+#else
 /** set or reset the task ready priority */
 #define     DOS_SET_TASK_PTIORITY(task)         (dos_task_priority) |= (0x01 << task->priority)
 #define     DOS_RESET_TASK_PTIORITY(task)       (dos_task_priority) &= ~(0x01 << task->priority)
@@ -39,7 +39,7 @@
  */
 #define   DOS_TASK_STATUS_MASK        0xFF
 #define   DOS_TASK_STATUS_UNUSED      0x01    /** unused status */
-#define   DOS_TASK_STATUS_READY       0x02    /** ready status */    
+#define   DOS_TASK_STATUS_READY       0x02    /** ready status */
 #define   DOS_TASK_STATUS_RUNNING     0x04    /** running status */
 #define   DOS_TASK_STATUS_DELAY       0x08    /** delay status */
 #define   DOS_TASK_STATUS_TIMEOUT     0x10    /** timeout status */
@@ -52,24 +52,23 @@
 #define   DOS_WAIT_FOREVER            0xFFFFFFFF    /** Define the timeout interval as LOS_WAIT_FOREVER. */
 
 
-struct dos_task
-{
-  dos_void                        *stack_point;              /** Task stack point            */
-  dos_void                        *stack_addr;               /** Task stack point            */
-  dos_uint16                      task_status;               /** Task status */
-  dos_uint16                      priority;
-  dos_uint32                      stack_size;                /** Task stack size             */
-  dos_void                        *top_of_stack;              /** Task stack top              */
-  dos_void                        *task_entry;               /** Task entrance function      */
-  dos_void                        *parameter;               /** parameter                   */
-  dos_char                        *task_name;                /** Task name                   */
-  dos_uint32                      task_tick;                 /** task_tick                    */
-  dos_uint32                      task_init_tick;             /** task_init_tick                */ 
-  dos_uint32                      wait_event;                /** Task wait event             */
-  dos_uint32                      wait_event_opt;              /** Task wait event options     */
-  dos_uint32                      event_get;                 /** Task Get event              */
-  dos_task_item_t                  status_item;                /** Task status item            */
-  dos_task_item_t                  pend_item;                 /** Task pend item              */
+struct dos_task {
+    dos_void                        *stack_point;              /** Task stack point            */
+    dos_void                        *stack_addr;               /** Task stack point            */
+    dos_uint16                      task_status;               /** Task status */
+    dos_uint16                      priority;
+    dos_uint32                      stack_size;                /** Task stack size             */
+    dos_void                        *top_of_stack;              /** Task stack top              */
+    dos_void                        *task_entry;               /** Task entrance function      */
+    dos_void                        *parameter;               /** parameter                   */
+    dos_char                        *task_name;                /** Task name                   */
+    dos_uint32                      task_tick;                 /** task_tick                    */
+    dos_uint32                      task_init_tick;             /** task_init_tick                */
+    dos_uint32                      wait_event;                /** Task wait event             */
+    dos_uint32                      wait_event_opt;              /** Task wait event options     */
+    dos_uint32                      event_get;                 /** Task Get event              */
+    dos_task_item_t                  status_item;                /** Task status item            */
+    dos_task_item_t                  pend_item;                 /** Task pend item              */
 };
 typedef struct dos_task * dos_task_t;
 
@@ -78,13 +77,13 @@ typedef struct dos_task * dos_task_t;
 
 void dos_task_init(void);
 dos_task_t dos_task_create(const dos_char *name,
-                            void (*task_entry)(void *param),
-                            void * const param,
-                            dos_uint32 stack_size,
-                            dos_uint16 priority,
-                            dos_uint32 tick);
+                           void (*task_entry)(void *param),
+                           void * const param,
+                           dos_uint32 stack_size,
+                           dos_uint16 priority,
+                           dos_uint32 tick);
 dos_err dos_task_delete(dos_task_t task);
-dos_uint32 dos_get_tick(void);         
+dos_uint32 dos_get_tick(void);
 void dos_system_start_run( void );
 void dos_task_sleep(dos_uint32 sleep_tick);
 dos_char *dos_get_task_name(void);
@@ -98,6 +97,6 @@ dos_void dos_tick_update(dos_void);
 dos_bool dos_check_task_priority(dos_void);
 dos_void dos_choose_highest_priority_task(dos_void);
 void dos_reset_tick(void);
-          
+
 #endif
 

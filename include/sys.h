@@ -6,7 +6,7 @@
 #include <port.h>
 #include <dos_config.h>
 
-/** 
+/**
 
  oooooooooo.                                      .oooooo.     .ooooooo.   \r\n \
  `888'   `Y8b                                    d8P'  `Y8b   d8P'    `Y8  \r\n \

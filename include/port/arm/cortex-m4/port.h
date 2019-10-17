@@ -6,7 +6,7 @@
 
 
 #define         SYSPRI2_REG                 ( * ( ( volatile dos_uint32 * ) 0xe000ed20 ) )
- 
+
 #define         PENDSV_PRI                  ( ( ( dos_uint32 ) 0xFF ) << 16UL )
 #define         SYSTICK_PRI                 ( ( ( dos_uint32 ) 0xFF ) << 24UL )
 
@@ -15,18 +15,18 @@
 #define         PENDSVSET_BIT               ( 1UL << 28UL )
 
 #ifndef         SYSTICK_CLOCK_HZ
-    #define     SYSTICK_CLOCK_HZ            1000
+#define     SYSTICK_CLOCK_HZ            1000
 #endif
 
 /* Constants required to manipulate the VFP. */
-#define portFPCCR					( ( volatile uint32_t * ) 0xe000ef34 ) /* Floating point context control register. */
-#define portASPEN_AND_LSPEN_BITS	( 0x3UL << 30UL )
+#define portFPCCR         ( ( volatile uint32_t * ) 0xe000ef34 ) /* Floating point context control register. */
+#define portASPEN_AND_LSPEN_BITS  ( 0x3UL << 30UL )
 
 #define         SYSTICK_CTRL_REG            ( * ( ( volatile dos_uint32 * ) 0xe000e010 ) )
 #define         SYSTICK_LOAD_REG            ( * ( ( volatile dos_uint32 * ) 0xe000e014 ) )
 #define         SYSTICK_VAL_REG             ( * ( ( volatile dos_uint32 * ) 0xe000e018 ) )
 #define         SYSPRI2_REG                 ( * ( ( volatile dos_uint32 * ) 0xe000ed20 ) )
-  
+
 #define         SYSTICK_ENABLE_BIT          ( 1UL << 0UL )
 #define         SYSTICK_INT_BIT             ( 1UL << 1UL )
 #define         SYSTICK_CLK_BIT             ( 1UL << 2UL )
@@ -43,10 +43,10 @@
 
 typedef dos_void (*Dos_TaskFunction)( dos_void * );
 
-dos_uint32 *dos_stack_init(dos_uint32 *sp , 
-                          void *task_entry,
-                          dos_void *parameter);
-                          
+dos_uint32 *dos_stack_init(dos_uint32 *sp ,
+                           void *task_entry,
+                           dos_void *parameter);
+
 dos_uint32 dos_port_start(dos_void);
 dos_bool dos_context_is_interrupt(dos_void);
 dos_uint32 Interrupt_Disable(dos_void);
@@ -58,7 +58,7 @@ dos_uint32 Dos_GetAPSR(dos_void);
 dos_uint32 Dos_GetXPSR(dos_void);
 dos_uint32 Dos_GetPSP(dos_void);
 dos_uint32 Dos_GetMSP(dos_void);
-dos_void Dos_StartFirstTask(dos_void);   
+dos_void Dos_StartFirstTask(dos_void);
 
 
 #endif

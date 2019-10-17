@@ -7,8 +7,7 @@
 #include <task.h>
 
 
-struct dos_mutex
-{
+struct dos_mutex {
     dos_uint16          mutex_count;     /** pend mutex count */
     dos_uint16          mutex_priority;       /** the initial priority of the tasks */
     dos_task_t          mutex_owner;     /** mutex owner */

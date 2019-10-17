@@ -7,7 +7,7 @@
   * @github  https://github.com/jiejieTop
   * @date    2018-xx-xx
   * @version v1.0
-  * @note    
+  * @note
   ***********************************************************/
 
 //#include "include.h"
@@ -29,31 +29,31 @@ typedef char                            dos_char;
 //typedef unsigned long                   dos_uint32;
 //typedef signed long                     dos_int32;
 
-typedef unsigned long long              dos_uint64;	/* 64-bit signed integer     */
+typedef unsigned long long              dos_uint64; /* 64-bit signed integer     */
 typedef signed long long                dos_int64;
 
 typedef void                            dos_void;
 
 typedef unsigned int                    dos_bool;
-typedef dos_int32              			    dos_err;       /**< Type for error number */
+typedef dos_int32                       dos_err;       /**< Type for error number */
 
 /* minimum values of exact-width signed integer types */
 #define DOS_INT8_MIN                   -128
 #define DOS_INT16_MIN                -32768
-#define DOS_INT32_MIN          	(~0x7fffffff)   			/* -2147483648 is unsigned */
-#define DOS_INT64_MIN  		dos_int64(~0x7fffffffffffffff) /* -9223372036854775808 is unsigned */
+#define DOS_INT32_MIN           (~0x7fffffff)         /* -2147483648 is unsigned */
+#define DOS_INT64_MIN     dos_int64(~0x7fffffffffffffff) /* -9223372036854775808 is unsigned */
 
 /* maximum values of exact-width signed integer types */
 #define DOS_INT8_MAX                    127
 #define DOS_INT16_MAX                32767
 #define DOS_INT32_MAX            2147483647
-#define DOS_INT64_MAX  		dos_int64(9223372036854775807)
+#define DOS_INT64_MAX     dos_int64(9223372036854775807)
 
 /* maximum values of exact-width unsigned integer types */
 #define DOS_UINT8_MAX                   255
 #define DOS_UINT16_MAX                65535
 #define DOS_UINT32_MAX           4294967295u
-#define DOS_UINT64_MAX 		dos_uint64(18446744073709551615)
+#define DOS_UINT64_MAX    dos_uint64(18446744073709551615)
 
 #define DOS_MAX(a,b) (((a) > (b)) ? (a) : (b))
 #define DOS_MIN(a,b) (((a) < (b)) ? (a) : (b))

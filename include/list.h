@@ -4,23 +4,21 @@
 #include <dos_def.h>
 
 
-struct task_item
-{
-  struct task_item *prev;      /**< Current node's pointer to the previous node*/
-  struct task_item *next;      /**< Current node's pointer to the next node*/
-  dos_uint32 dos_task_value;
-  dos_void *dos_task;
-  dos_void *dos_task_list;
+struct task_item {
+    struct task_item *prev;      /**< Current node's pointer to the previous node*/
+    struct task_item *next;      /**< Current node's pointer to the next node*/
+    dos_uint32 dos_task_value;
+    dos_void *dos_task;
+    dos_void *dos_task_list;
 };
 typedef struct task_item dos_task_item_t;
 
 typedef struct dos_task_end_item dos_task_end_item_t;
 
-struct dos_task_list
-{
-  dos_task_item_t *task_item;
-  dos_uint32 Task_ItemValue;
-  dos_task_item_t task_end_item;
+struct dos_task_list {
+    dos_task_item_t *task_item;
+    dos_uint32 Task_ItemValue;
+    dos_task_item_t task_end_item;
 };
 typedef struct dos_task_list dos_task_list_t;
 

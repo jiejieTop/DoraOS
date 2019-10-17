@@ -2,46 +2,46 @@
 #define _ARM_CMSIS_H_
 
 #ifndef   __ASM
-  #define __ASM                     __asm
+#define __ASM                     __asm
 #endif
 #ifndef   __INLINE
-  #define __INLINE                  __inline
+#define __INLINE                  __inline
 #endif
 #ifndef   __STATIC_INLINE
-  #define __STATIC_INLINE           static __inline
+#define __STATIC_INLINE           static __inline
 #endif
 #ifndef   __NO_RETURN
-  #define __NO_RETURN               __declspec(noreturn)
+#define __NO_RETURN               __declspec(noreturn)
 #endif
 #ifndef   __USED
-  #define __USED                    __attribute__((used))
+#define __USED                    __attribute__((used))
 #endif
 #ifndef   __WEAK
-  #define __WEAK                    __attribute__((weak))
+#define __WEAK                    __attribute__((weak))
 #endif
 #ifndef   __UNALIGNED_UINT32
-  #define __UNALIGNED_UINT32(x)     (*((__packed uint32_t *)(x)))
+#define __UNALIGNED_UINT32(x)     (*((__packed uint32_t *)(x)))
 #endif
 #ifndef   __ALIGNED
-  #define __ALIGNED(x)              __attribute__((aligned(x)))
+#define __ALIGNED(x)              __attribute__((aligned(x)))
 #endif
 #ifndef   __PACKED
-  #define __PACKED                  __attribute__((packed))
+#define __PACKED                  __attribute__((packed))
 #endif
 #ifndef   __PACKED_STRUCT
-  #define __PACKED_STRUCT           __packed struct
+#define __PACKED_STRUCT           __packed struct
 #endif
 
 
 /**
- * Get IPSR Register 
+ * Get IPSR Register
  * Returns the content of the IPSR Register.
  * return IPSR Register value
  */
 __STATIC_INLINE dos_uint32 __get_IPSR(void)
 {
-  register dos_uint32 __regIPSR          __ASM("ipsr");
-  return(__regIPSR);
+    register dos_uint32 __regIPSR          __ASM("ipsr");
+    return (__regIPSR);
 }
 
 
@@ -52,8 +52,8 @@ __STATIC_INLINE dos_uint32 __get_IPSR(void)
  */
 __STATIC_INLINE dos_uint32 __get_APSR(void)
 {
-  register dos_uint32 __regAPSR          __ASM("apsr");
-  return(__regAPSR);
+    register dos_uint32 __regAPSR          __ASM("apsr");
+    return (__regAPSR);
 }
 
 
@@ -64,8 +64,8 @@ __STATIC_INLINE dos_uint32 __get_APSR(void)
  */
 __STATIC_INLINE dos_uint32 __get_xPSR(void)
 {
-  register dos_uint32 __regXPSR          __ASM("xpsr");
-  return(__regXPSR);
+    register dos_uint32 __regXPSR          __ASM("xpsr");
+    return (__regXPSR);
 }
 
 
@@ -76,8 +76,8 @@ __STATIC_INLINE dos_uint32 __get_xPSR(void)
  */
 __STATIC_INLINE dos_uint32 __get_PSP(void)
 {
-  register dos_uint32 __regProcessStackPointer  __ASM("psp");
-  return(__regProcessStackPointer);
+    register dos_uint32 __regProcessStackPointer  __ASM("psp");
+    return (__regProcessStackPointer);
 }
 
 
@@ -88,8 +88,8 @@ __STATIC_INLINE dos_uint32 __get_PSP(void)
  */
 __STATIC_INLINE void __set_PSP(dos_uint32 topOfProcStack)
 {
-  register dos_uint32 __regProcessStackPointer  __ASM("psp");
-  __regProcessStackPointer = topOfProcStack;
+    register dos_uint32 __regProcessStackPointer  __ASM("psp");
+    __regProcessStackPointer = topOfProcStack;
 }
 
 
@@ -100,8 +100,8 @@ __STATIC_INLINE void __set_PSP(dos_uint32 topOfProcStack)
  */
 __STATIC_INLINE dos_uint32 __get_MSP(void)
 {
-  register dos_uint32 __regMainStackPointer     __ASM("msp");
-  return(__regMainStackPointer);
+    register dos_uint32 __regMainStackPointer     __ASM("msp");
+    return (__regMainStackPointer);
 }
 
 
@@ -112,8 +112,8 @@ __STATIC_INLINE dos_uint32 __get_MSP(void)
  */
 __STATIC_INLINE void __set_MSP(dos_uint32 topOfMainStack)
 {
-  register dos_uint32 __regMainStackPointer     __ASM("msp");
-  __regMainStackPointer = topOfMainStack;
+    register dos_uint32 __regMainStackPointer     __ASM("msp");
+    __regMainStackPointer = topOfMainStack;
 }
 
 

@@ -2,17 +2,17 @@
  * format: printf("\033[background color; font color m string \033[0m" );
  * E.g:
  *  printf("\033[47;31mThis is a color test.\033[0m");
- * 
+ *
  * Partial color code:
  * background color: 40--49
  *      40: Black
- *      41: Red                   
- *      42: Green                 
- *      43: Yellow                
- *      44: Blue                  
- *      45: Purple                
- *      46: Dark Green            
- *      47: White                 
+ *      41: Red
+ *      42: Green
+ *      43: Yellow
+ *      44: Blue
+ *      45: Purple
+ *      46: Dark Green
+ *      47: White
  * font color: 30--39
  *      30: Black
  *      31: Red
@@ -42,7 +42,7 @@
 #endif
 
 #ifndef PRINT_LOG
-    #error "If the DOS_USE_LOG macro definition is turned on, you must define PRINT_LOG as the LOG output, such as #definePRINT_LOG printf"
+#error "If the DOS_USE_LOG macro definition is turned on, you must define PRINT_LOG as the LOG output, such as #definePRINT_LOG printf"
 #endif
 #endif
 
@@ -62,25 +62,25 @@
 
 
 #ifndef DOS_LOG_COLOR
-    #define DOS_LOG_COLOR  (0U)
-#endif 
+#define DOS_LOG_COLOR  (0U)
+#endif
 
 #if DOS_LOG_COLOR
 #define DOS_LOG_S(l, c) PRINT_LOG("\033\n["#c"m["#l"] >> ")
-#define DOS_LOG_E   PRINT_LOG("\033[0m")  
+#define DOS_LOG_E   PRINT_LOG("\033[0m")
 #else
 #define DOS_LOG_S(l, c) Dos_Salof("\n["#l"] >> ")
-#define DOS_LOG_E       
+#define DOS_LOG_E
 #endif
 
 #if DOS_LOG_TS && DOS_LOG_TAR
-    #define DOS_LOG_T   PRINT_LOG("[TS: %ld] [TAR: %s] ",dos_get_tick(), dos_get_task_name())
+#define DOS_LOG_T   PRINT_LOG("[TS: %ld] [TAR: %s] ",dos_get_tick(), dos_get_task_name())
 #elif DOS_LOG_TS
-    #define DOS_LOG_T   PRINT_LOG("[TS: %ld] ", dos_get_tick())
+#define DOS_LOG_T   PRINT_LOG("[TS: %ld] ", dos_get_tick())
 #elif DOS_LOG_TAR
-    #define DOS_LOG_T   PRINT_LOG("[TAR: %s] ", dos_get_task_name())
+#define DOS_LOG_T   PRINT_LOG("[TAR: %s] ", dos_get_task_name())
 #else
-    #define DOS_LOG_T
+#define DOS_LOG_T
 #endif
 
 
@@ -96,9 +96,9 @@
 
 
 #define DOS_BASE_LEVEL  (0)
-    
+
 #define DOS_ASSERT_LEVEL  (DOS_BASE_LEVEL + 1)
-    
+
 #define DOS_ERR_LEVEL     (DOS_ASSERT_LEVEL + 1)
 
 #define DOS_WARN_LEVEL    (DOS_ERR_LEVEL + 1)
@@ -108,8 +108,8 @@
 #define DOS_DEBUG_LEVEL   (DOS_INFO_LEVEL + 1)
 
 #ifndef DOS_LOG_LEVEL
-    #define DOS_LOG_LEVEL   DOS_WARN_LEVEL
-#endif 
+#define DOS_LOG_LEVEL   DOS_WARN_LEVEL
+#endif
 
 #if DOS_LOG_LEVEL < DOS_DEBUG_LEVEL
 #define DOS_LOG_DEBUG(fmt, ...)

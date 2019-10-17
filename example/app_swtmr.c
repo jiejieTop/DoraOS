@@ -4,7 +4,7 @@
   * @version V1.0
   * @date    2019
   * @brief   this is an event api example
-  */ 
+  */
 #include "include.h"
 #include <task.h>
 #include <swtmr.h>
@@ -51,8 +51,7 @@ void swtmr_stop_task1(void *parameter)
     DOS_LOG_WARN("stop swtmr 1\n");
     dos_swtmr_stop(swtmr1);
 
-    while(1)
-    {
+    while (1) {
         DOS_LOG_INFO("task1 running\n");
 
         dos_task_sleep(5000);
@@ -65,11 +64,10 @@ void swtmr_stop_task2(void *parameter)
     dos_task_sleep(20000);
     DOS_LOG_WARN("stop swtmr 2 \n");
     dos_swtmr_stop(swtmr2);
-    
+
     DOS_LOG_WARN("start swtmr 3\n");
     dos_swtmr_start(swtmr3);
-    while(1)
-    {
+    while (1) {
         DOS_LOG_INFO("task2 running\n");
 
         dos_task_sleep(5000);
@@ -89,31 +87,31 @@ int main(void)
     swtmr3 = dos_swtmr_create(10000, dos_swtmr_mode_one, Swtmr_CallBacke3, DOS_NULL);
 
     task1 = dos_task_create( "swtmr_stop_task1",
-                            &swtmr_stop_task1,
-                            DOS_NULL,
-                            1024,
-                            2,
-                            20);
+                             &swtmr_stop_task1,
+                             DOS_NULL,
+                             1024,
+                             2,
+                             20);
 
     task2 = dos_task_create( "swtmr_stop_task2",
-                            &swtmr_stop_task2,
-                            DOS_NULL,
-                            1024,
-                            3,
-                            0);
-                
+                             &swtmr_stop_task2,
+                             DOS_NULL,
+                             1024,
+                             3,
+                             0);
+
     dos_system_start_run();
-  
+
 }
 
 
 
 /**
  * This function is used to initialize all onboard hardware
- */ 
+ */
 static void BSP_Init(void)
 {
-	USART_Config();
+    USART_Config();
 }
 
 

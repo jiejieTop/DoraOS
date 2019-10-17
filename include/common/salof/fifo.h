@@ -3,16 +3,15 @@
 #include <dos_def.h>
 #include <mutex.h>
 
-#define			FIFO_READ		0
-#define			FIFO_WRITE		1
+#define     FIFO_READ   0
+#define     FIFO_WRITE    1
 
-struct Dos_Fifo
-{
-	dos_uint32      Size;       /* fifo size */
-	dos_uint32      In;         /* Data input pointer (in % size) */
-	dos_uint32      Out;        /* Data output pointer (out % size) */
-	dos_mutex_t     Mutex[2];   /* Mutex */       
-	dos_void        *Buffer;    /* data area */
+struct Dos_Fifo {
+    dos_uint32      Size;       /* fifo size */
+    dos_uint32      In;         /* Data input pointer (in % size) */
+    dos_uint32      Out;        /* Data output pointer (out % size) */
+    dos_mutex_t     Mutex[2];   /* Mutex */
+    dos_void        *Buffer;    /* data area */
 };
 typedef struct Dos_Fifo * Dos_Fifo_t;
 

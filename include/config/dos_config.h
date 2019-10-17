@@ -10,7 +10,7 @@
 #include "stm32f10x.h"
 
 #if defined(__ICCARM__) || defined(__CC_ARM) || defined(__GNUC__)
-    extern uint32_t SystemCoreClock;
+extern uint32_t SystemCoreClock;
 #endif
 
 #define         DOS_MAX_PRIORITY_NUM            (32U)

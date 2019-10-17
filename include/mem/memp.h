@@ -1,4 +1,3 @@
-
 #ifndef _MEMP_H_
 #define _MEMP_H_
 
@@ -36,7 +35,7 @@ typedef struct dos_memp * dos_memp_t;
 dos_memp_t dos_memp_create(
 #if (DOS_HEAP_TO_MEMP == 0U)
     dos_void *base,
-#endif 
+#endif
     dos_uint32 memp_size,
     dos_uint32 blk_size);
 dos_void *dos_memp_alloc(dos_memp_t memp);

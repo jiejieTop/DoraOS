@@ -11,8 +11,7 @@
 #define     WAIT_ALL_EVENT      0x02        /** waiting all event */
 #define     NO_CLR_EVENT        0x04        /** do not clear events */
 
-struct dos_event
-{
+struct dos_event {
     dos_uint32      event_flag;       /** Event Set */
     dos_task_list_t  event_pend_list;      /** task pend list, 28 byte */
 };

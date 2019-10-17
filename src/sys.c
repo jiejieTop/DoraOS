@@ -47,7 +47,7 @@ static dos_char _DoraOS_Logo[] = "\r\n \
 #ifdef DOS_LOGO
 static void _Dos_PrintfLogo(void)
 {
-	Dos_SalofOut(_DoraOS_Logo, sizeof(_DoraOS_Logo));
+    Dos_SalofOut(_DoraOS_Logo, sizeof(_DoraOS_Logo));
 }
 #endif
 
@@ -57,18 +57,17 @@ static void _Dos_PrintfLogo(void)
  * system variable
  */
 static dos_uint8 _dos_system_is_run = DOS_NO; /** system run flag */
-static dos_uint8 _dos_scheduler_lock = 0;	/** scheduler lock number of times*/
-static dos_uint8 _dos_interrupt_count = 0;	/** system entry interrupt number of times*/
+static dos_uint8 _dos_scheduler_lock = 0; /** scheduler lock number of times*/
+static dos_uint8 _dos_interrupt_count = 0;  /** system entry interrupt number of times*/
 /**
  * task scheduler(Internally used function)
  */
 static dos_bool _dos_scheduler(dos_void)
 {
-	if ((dos_system_is_running()) && (dos_check_task_priority() != DOS_FALSE))
-	{
-		return DOS_TRUE;
-	}
-	return DOS_FALSE;
+    if ((dos_system_is_running()) && (dos_check_task_priority() != DOS_FALSE)) {
+        return DOS_TRUE;
+    }
+    return DOS_FALSE;
 }
 
 
@@ -76,19 +75,19 @@ static dos_bool _dos_scheduler(dos_void)
 void dos_system_init(void)
 {
 #if DOS_LOGO_PRINT
-	/** printf DoraOS logo */
-	_Dos_PrintfLogo();
+    /** printf DoraOS logo */
+    _Dos_PrintfLogo();
 #endif
 
-	/* system memheap init */
-	dos_mem_heap_init();
+    /* system memheap init */
+    dos_mem_heap_init();
 
-	Dos_SalofInit();
+    Dos_SalofInit();
 
-	dos_task_init();
+    dos_task_init();
 
 #if DOS_SWTMR
-	dos_swtmr_init();
+    dos_swtmr_init();
 #endif
 }
 
@@ -97,29 +96,28 @@ void dos_system_init(void)
  */
 dos_void dos_system_start_run(dos_void)
 {
-	dos_check_task_priority();
+    dos_check_task_priority();
 
-	dos_choose_highest_priority_task();
+    dos_choose_highest_priority_task();
 
-	/** Update dos_tick_count and dos_is_run to indicate that the system starts to boot */
-	dos_reset_tick();
+    /** Update dos_tick_count and dos_is_run to indicate that the system starts to boot */
+    dos_reset_tick();
 
-	dos_set_system_status(DOS_YES);
+    dos_set_system_status(DOS_YES);
 
-	if (dos_port_start() != 0)
-	{
-		/* Will not be executed here after the task is started */
-	}
+    if (dos_port_start() != 0) {
+        /* Will not be executed here after the task is started */
+    }
 }
 
 void dos_set_system_status(dos_uint8 status)
 {
-	_dos_system_is_run = status;
+    _dos_system_is_run = status;
 }
 
 dos_bool dos_system_is_running(void)
 {
-	return (_dos_system_is_run == DOS_YES);
+    return (_dos_system_is_run == DOS_YES);
 }
 
 /**
@@ -127,13 +125,12 @@ dos_bool dos_system_is_running(void)
  */
 dos_void dos_scheduler(dos_void)
 {
-	if(dos_is_in_interrupt())
-		return;
-	
-	if ((!dos_scheduler_is_lock()) && (_dos_scheduler() == DOS_TRUE))
-	{
-		DOS_TASK_YIELD();
-	}
+    if (dos_is_in_interrupt())
+        return;
+
+    if ((!dos_scheduler_is_lock()) && (_dos_scheduler() == DOS_TRUE)) {
+        DOS_TASK_YIELD();
+    }
 }
 
 /**
@@ -141,13 +138,13 @@ dos_void dos_scheduler(dos_void)
  */
 dos_void dos_scheduler_lock(dos_void)
 {
-	dos_uint32 pri;
+    dos_uint32 pri;
 
-	pri = dos_interrupt_disable();
+    pri = dos_interrupt_disable();
 
-	_dos_scheduler_lock++;
+    _dos_scheduler_lock++;
 
-	dos_interrupt_enable(pri);
+    dos_interrupt_enable(pri);
 }
 
 /**
@@ -155,25 +152,23 @@ dos_void dos_scheduler_lock(dos_void)
  */
 dos_void dos_scheduler_unlock(dos_void)
 {
-	dos_uint32 pri;
+    dos_uint32 pri;
 
-	pri = dos_interrupt_disable();
+    pri = dos_interrupt_disable();
 
-	if (_dos_scheduler_lock > 0)
-	{
-		_dos_scheduler_lock--;
+    if (_dos_scheduler_lock > 0) {
+        _dos_scheduler_lock--;
 
-		/** When the scheduler is completely unlocked */
-		if (0 == _dos_scheduler_lock)
-		{
-			dos_interrupt_enable(pri);
-			/** Perform a task scheduling */
-			dos_scheduler();
-			return;
-		}
-	}
+        /** When the scheduler is completely unlocked */
+        if (0 == _dos_scheduler_lock) {
+            dos_interrupt_enable(pri);
+            /** Perform a task scheduling */
+            dos_scheduler();
+            return;
+        }
+    }
 
-	dos_interrupt_enable(pri);
+    dos_interrupt_enable(pri);
 }
 
 
@@ -182,57 +177,54 @@ dos_void dos_scheduler_unlock(dos_void)
  */
 dos_bool dos_scheduler_is_lock(dos_void)
 {
-	return (0 != _dos_scheduler_lock);
+    return (0 != _dos_scheduler_lock);
 }
 
 
 dos_bool dos_is_in_interrupt(dos_void)
 {
-	return (0 != _dos_interrupt_count);
+    return (0 != _dos_interrupt_count);
 }
 
 
 void dos_interrupt_enter(void)
 {
-	dos_uint32 pri;
+    dos_uint32 pri;
 
-	pri = dos_interrupt_disable();
+    pri = dos_interrupt_disable();
 
-    if((!dos_system_is_running()) || (!dos_context_is_interrupt()))
-	{
-		dos_interrupt_enable(pri);
-		return;
-	}
+    if ((!dos_system_is_running()) || (!dos_context_is_interrupt())) {
+        dos_interrupt_enable(pri);
+        return;
+    }
 
     ++_dos_interrupt_count;
-	
-	dos_interrupt_enable(pri);
+
+    dos_interrupt_enable(pri);
 }
 
 
 void dos_interrupt_leave(void)
 {
-	dos_uint32 pri;
+    dos_uint32 pri;
 
-	pri = dos_interrupt_disable();
+    pri = dos_interrupt_disable();
 
-    if((!dos_system_is_running()) || (!dos_context_is_interrupt()))
-	{
-		dos_interrupt_enable(pri);
-		return;
-	}
+    if ((!dos_system_is_running()) || (!dos_context_is_interrupt())) {
+        dos_interrupt_enable(pri);
+        return;
+    }
 
-	--_dos_interrupt_count;
+    --_dos_interrupt_count;
 
-	if(dos_is_in_interrupt())
-	{
-		dos_interrupt_enable(pri);
-		return;
-	}
+    if (dos_is_in_interrupt()) {
+        dos_interrupt_enable(pri);
+        return;
+    }
 
-	dos_interrupt_enable(pri);
+    dos_interrupt_enable(pri);
 
-	dos_scheduler();
+    dos_scheduler();
 }
 
 
