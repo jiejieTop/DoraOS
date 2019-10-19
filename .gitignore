@@ -81,3 +81,4 @@ settings
 *.ld
 
 /.vscode
+/DoraOS.code-workspace
