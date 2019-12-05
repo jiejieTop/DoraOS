@@ -109,7 +109,7 @@ int fgetc(FILE *f)
 	return (ch);
 }
 
-int SendBuff(char *buf, int len)
+int send_buff(char *buf, int len)
 {
   Usart_SendString((uint8_t*)buf);
   return len;

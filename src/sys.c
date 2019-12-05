@@ -1,3 +1,10 @@
+/*
+ * @Author: jiejie
+ * @Github: https://github.com/jiejieTop
+ * @Date: 2019-07-15 23:56:23
+ * @LastEditTime: 2019-12-05 23:03:57
+ * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
+ */
 #include <sys.h>
 #include <task.h>
 #include <swtmr.h>
@@ -47,7 +54,7 @@ static dos_char _DoraOS_Logo[] = "\r\n \
 #ifdef DOS_LOGO
 static void _Dos_PrintfLogo(void)
 {
-    Dos_SalofOut(_DoraOS_Logo, sizeof(_DoraOS_Logo));
+    dos_salof_out(_DoraOS_Logo, sizeof(_DoraOS_Logo));
 }
 #endif
 
@@ -82,7 +89,7 @@ void dos_system_init(void)
     /* system memheap init */
     dos_mem_heap_init();
 
-    Dos_SalofInit();
+    dos_salof_init();
 
     dos_task_init();
 

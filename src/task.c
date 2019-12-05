@@ -1,3 +1,10 @@
+/*
+ * @Author: jiejie
+ * @Github: https://github.com/jiejieTop
+ * @Date: 2019-07-15 23:56:23
+ * @LastEditTime: 2019-12-05 23:04:06
+ * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
+ */
 #include <task.h>
 #include <log.h>
 
@@ -208,15 +215,15 @@ static dos_void _dos_idle_task(dos_void *parameter)
 #include <fifo.h>
 #include <format.h>
 #include <string.h>
-    extern Dos_Fifo_t Dos_Salof_Fifo;
+    extern dos_fifo_t Dos_Salof_Fifo;
     dos_int32 len;
     dos_uint8 buff[256];
 #endif
     while (1) {
 #if DOS_USE_SALOF
-        len = Dos_FifoRead(Dos_Salof_Fifo, buff, sizeof(buff), 0);
+        len = dos_fifo_read(Dos_Salof_Fifo, buff, sizeof(buff), 0);
         if (len > 0) {
-            Dos_SalofOut((dos_char *)buff, len);
+            dos_salof_out((dos_char *)buff, len);
             memset(buff, 0, len);
         }
 #endif

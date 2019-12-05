@@ -1,16 +1,12 @@
+/*
+ * @Author: jiejie
+ * @Github: https://github.com/jiejieTop
+ * @Date: 2019-07-15 23:56:23
+ * @LastEditTime: 2019-12-05 23:05:59
+ * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
+ */
 #ifndef __DOS_DEF_H
 #define __DOS_DEF_H
-
-/************************************************************
-  * @brief   dos_def.h
-  * @author  jiejie
-  * @github  https://github.com/jiejieTop
-  * @date    2018-xx-xx
-  * @version v1.0
-  * @note
-  ***********************************************************/
-
-//#include "include.h"
 
 /* exact-width unsigned integer types */
 typedef unsigned char                   dos_uint8;

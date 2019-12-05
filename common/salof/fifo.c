@@ -1,7 +1,14 @@
+/*
+ * @Author: jiejie
+ * @Github: https://github.com/jiejieTop
+ * @Date: 2019-08-07 23:38:28
+ * @LastEditTime: 2019-12-05 23:01:35
+ * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
+ */
 #include <fifo.h>
 #include <string.h>
 
-static dos_uint32 _Dos_Find_Last_BitSet(dos_uint32 x)
+static dos_uint32 _dos_find_last_bit_set(dos_uint32 x)
 {
     dos_uint32 r = 32;
 
@@ -35,14 +42,14 @@ static dos_uint32 _Dos_Find_Last_BitSet(dos_uint32 x)
     return r;
 }
 
-static dos_uint32 _Dos_FifoAlign(dos_uint32 x)
+static dos_uint32 _dos_fifo_align(dos_uint32 x)
 {
-	return (1 << (_Dos_Find_Last_BitSet(x-1)-1));	    //Memory down alignment
+	return (1 << (_dos_find_last_bit_set(x-1)-1));	    //Memory down alignment
 }
 
-Dos_Fifo_t Dos_FifoCreate(dos_size size)
+dos_fifo_t dos_fifo_create(dos_size size)
 {
-    Dos_Fifo_t fifo;
+    dos_fifo_t fifo;
 
     if(0 == size)
     {
@@ -51,32 +58,32 @@ Dos_Fifo_t Dos_FifoCreate(dos_size size)
 
 	if(size&(size - 1))
 	{
-		size = _Dos_FifoAlign(size);
+		size = _dos_fifo_align(size);
 	}
 
-    fifo = (Dos_Fifo_t)dos_mem_alloc((sizeof(struct Dos_Fifo) + size));
+    fifo = (dos_fifo_t)dos_mem_alloc((sizeof(struct dos_fifo) + size));
     if(DOS_NULL != fifo)
     {
-        fifo->Buffer = (dos_uint8 *)fifo + sizeof(struct Dos_Fifo);
+        fifo->buffer = (dos_uint8 *)fifo + sizeof(struct dos_fifo);
 
-        fifo->Mutex[FIFO_READ] = dos_mutex_create();
-        if(DOS_NULL == fifo->Mutex[FIFO_READ])
+        fifo->mutex[FIFO_READ] = dos_mutex_create();
+        if(DOS_NULL == fifo->mutex[FIFO_READ])
         {
             dos_mem_free(fifo);  
             return DOS_NULL;
         }
 
-        fifo->Mutex[FIFO_WRITE] = dos_mutex_create();
-        if(DOS_NULL == fifo->Mutex[FIFO_WRITE])
+        fifo->mutex[FIFO_WRITE] = dos_mutex_create();
+        if(DOS_NULL == fifo->mutex[FIFO_WRITE])
         {
             dos_mem_free(fifo);
-            dos_mutex_delete(fifo->Mutex[FIFO_READ]);
+            dos_mutex_delete(fifo->mutex[FIFO_READ]);
             return DOS_NULL;
         }
 
-        fifo->Size = size;
-        fifo->In = 0;
-        fifo->Out = 0;
+        fifo->size = size;
+        fifo->in = 0;
+        fifo->out = 0;
 
         return fifo;
     }
@@ -84,70 +91,70 @@ Dos_Fifo_t Dos_FifoCreate(dos_size size)
     return DOS_NULL;
 }
 
-dos_uint32 Dos_FifoWrite(Dos_Fifo_t fifo, dos_void *buff, dos_uint32 len, dos_uint32 timeout)
+dos_uint32 dos_fifo_write(dos_fifo_t fifo, dos_void *buff, dos_uint32 len, dos_uint32 timeout)
 {
     dos_err err, l;
 
     if((!fifo) || (!buff) || (!len))
         return 0;
 
-    err = dos_mutex_pend(fifo->Mutex[FIFO_WRITE], timeout);
+    err = dos_mutex_pend(fifo->mutex[FIFO_WRITE], timeout);
     if(err == DOS_NOK)
         return 0;
 
-    len = DOS_MIN(len, (fifo->Size - fifo->In + fifo->Out));
+    len = DOS_MIN(len, (fifo->size - fifo->in + fifo->out));
 
-    l = DOS_MIN(len, (fifo->Size - (fifo->In & (fifo->Size -1))));
-    memcpy(((dos_uint8 *)fifo->Buffer + (fifo->In & (fifo->Size -1))), buff, l);
-    memcpy(fifo->Buffer, (dos_uint8 *)buff + l, len - l);
+    l = DOS_MIN(len, (fifo->size - (fifo->in & (fifo->size -1))));
+    memcpy(((dos_uint8 *)fifo->buffer + (fifo->in & (fifo->size -1))), buff, l);
+    memcpy(fifo->buffer, (dos_uint8 *)buff + l, len - l);
 
-    fifo->In += len;
+    fifo->in += len;
 
-    dos_mutex_post(fifo->Mutex[FIFO_WRITE]);
+    dos_mutex_post(fifo->mutex[FIFO_WRITE]);
 
     return len;
 }
 
-dos_uint32 Dos_FifoRead(Dos_Fifo_t fifo, dos_void *buff, dos_uint32 len, dos_uint32 timeout)
+dos_uint32 dos_fifo_read(dos_fifo_t fifo, dos_void *buff, dos_uint32 len, dos_uint32 timeout)
 {
     dos_err err, l;
 
     if((!fifo) || (!buff) || (!len))
         return 0;
 
-    err = dos_mutex_pend(fifo->Mutex[FIFO_READ], timeout);
+    err = dos_mutex_pend(fifo->mutex[FIFO_READ], timeout);
     if(err == DOS_NOK)
         return 0;
 
-    len = DOS_MIN(len, fifo->In - fifo->Out);
+    len = DOS_MIN(len, fifo->in - fifo->out);
 
-    l = DOS_MIN(len, (fifo->Size - (fifo->Out & (fifo->Size -1))));
-    memcpy(buff, ((dos_uint8 *)fifo->Buffer + (fifo->Out & (fifo->Size -1))), l);
-    memcpy((dos_uint8 *)buff + l, fifo->Buffer, len - l);
+    l = DOS_MIN(len, (fifo->size - (fifo->out & (fifo->size -1))));
+    memcpy(buff, ((dos_uint8 *)fifo->buffer + (fifo->out & (fifo->size -1))), l);
+    memcpy((dos_uint8 *)buff + l, fifo->buffer, len - l);
 
-    fifo->Out += len;
+    fifo->out += len;
 
-    dos_mutex_post(fifo->Mutex[FIFO_READ]);
+    dos_mutex_post(fifo->mutex[FIFO_READ]);
 
     return len;
 }
 
-dos_uint32 Dos_Fifo_ReadAble(Dos_Fifo_t fifo)
+dos_uint32 dos_fifo_read_able(dos_fifo_t fifo)
 {
     if(DOS_NULL == fifo)
         return 0;
 
-    else if(fifo->In == fifo->Out)
+    else if(fifo->in == fifo->out)
         return 0;
 
-    else if(fifo->In > fifo->Out)
-        return (fifo->In - fifo->Out);
+    else if(fifo->in > fifo->out)
+        return (fifo->in - fifo->out);
     
-    return (fifo->Size - (fifo->Out - fifo->In));
+    return (fifo->size - (fifo->out - fifo->in));
 }
 
-dos_uint32 Dos_Fifo_WriteAble(Dos_Fifo_t fifo)
+dos_uint32 dos_fifo_write_able(dos_fifo_t fifo)
 {
-    return (fifo->Size - Dos_Fifo_ReadAble(fifo));
+    return (fifo->size - dos_fifo_read_able(fifo));
 }
 

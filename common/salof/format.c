@@ -1,3 +1,10 @@
+/*
+ * @Author: jiejie
+ * @Github: https://github.com/jiejieTop
+ * @Date: 2019-08-07 23:38:28
+ * @LastEditTime: 2019-12-05 23:09:04
+ * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
+ */
 #include <format.h>
 
 
@@ -151,7 +158,7 @@ static dos_void _Dos_Format_Str(dos_char *buf, dos_size *pos, dos_size max, dos_
  * Shrinked down, vsnprintf implementation.
  *  This will not handle floating numbers (yet).
  */
-dos_int32 Dos_FormatNStr(dos_char *buf, dos_size size, const dos_char *fmt, va_list ap)
+dos_int32 dos_format_nstr(dos_char *buf, dos_size size, const dos_char *fmt, va_list ap)
 {
     dos_size n = 0;
     dos_char c, *s;

@@ -1,3 +1,10 @@
+/*
+ * @Author: jiejie
+ * @Github: https://github.com/jiejieTop
+ * @Date: 2019-08-07 23:38:28
+ * @LastEditTime: 2019-12-05 23:06:43
+ * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
+ */
 #ifndef _FORMAT_H_
 #define _FORMAT_H_
 
@@ -31,7 +38,7 @@
 
 #define is_digit(c) (c >= '0' && c <= '9')
 
-dos_int32 Dos_FormatNStr(dos_char *buf, dos_size size, const dos_char *fmt, va_list ap);
+dos_int32 dos_format_nstr(dos_char *buf, dos_size size, const dos_char *fmt, va_list ap);
 
 
 #endif // !_FORMAT_H_

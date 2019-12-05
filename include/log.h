@@ -1,3 +1,10 @@
+/*
+ * @Author: jiejie
+ * @Github: https://github.com/jiejieTop
+ * @Date: 2019-07-18 23:02:09
+ * @LastEditTime: 2019-12-05 23:03:10
+ * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
+ */
 /**
  * format: printf("\033[background color; font color m string \033[0m" );
  * E.g:
@@ -34,11 +41,11 @@
 #if DOS_USE_SALOF
 #include <salof.h>
 
-#define     PRINT_LOG       Dos_Salof
+#define     PRINT_LOG       dos_salof
 #else
 
 #if ((!DOS_USE_SALOF)&&(!PRINT_LOG))
-#define         PRINT_LOG                       printf
+#define         PRINT_LOG                       (void)printf
 #endif
 
 #ifndef PRINT_LOG
@@ -69,14 +76,14 @@
 #define DOS_LOG_S(l, c) PRINT_LOG("\033\n["#c"m["#l"] >> ")
 #define DOS_LOG_E   PRINT_LOG("\033[0m")
 #else
-#define DOS_LOG_S(l, c) Dos_Salof("\n["#l"] >> ")
+#define DOS_LOG_S(l, c) PRINT_LOG("\n["#l"] >> ")
 #define DOS_LOG_E
 #endif
 
 #if DOS_LOG_TS && DOS_LOG_TAR
-#define DOS_LOG_T   PRINT_LOG("[TS: %ld] [TAR: %s] ",dos_get_tick(), dos_get_task_name())
+#define DOS_LOG_T   PRINT_LOG("[TS: %d] [TAR: %s] ",dos_get_tick(), dos_get_task_name())
 #elif DOS_LOG_TS
-#define DOS_LOG_T   PRINT_LOG("[TS: %ld] ", dos_get_tick())
+#define DOS_LOG_T   PRINT_LOG("[TS: %d] ", dos_get_tick())
 #elif DOS_LOG_TAR
 #define DOS_LOG_T   PRINT_LOG("[TAR: %s] ", dos_get_task_name())
 #else
