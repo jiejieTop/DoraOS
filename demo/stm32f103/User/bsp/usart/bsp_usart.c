@@ -309,7 +309,7 @@ int fgetc(FILE *f)
 }
 
 
-int SendBuff(char *buf, int len)
+int send_buff(char *buf, int len)
 {
   Usart_SendString(DEBUG_USARTx,buf);
   return len;
