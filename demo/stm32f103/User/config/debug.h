@@ -1,17 +1,13 @@
+/*
+ * @Author: jiejie
+ * @Github: https://github.com/jiejieTop
+ * @Date: 2019-08-07 23:38:28
+ * @LastEditTime: 2019-12-05 23:25:05
+ * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
+ */
 #ifndef _DEBUG_H_
 #define _DEBUG_H_
-/************************************************************
-  * @brief   debug.h
-  * @author  jiejie
-  * @github  https://github.com/jiejieTop
-  * @date    2018-xx-xx
-  * @version v1.0
-  * @note    printf debug/err/information
-  ***********************************************************/
-/**
-* @name Debug print 
-* @{
-*/
+
 #include <stdio.h>
 #include <salof.h>
 
@@ -21,19 +17,19 @@
 
 
 #if DOS_PRINT_DEBUG_ENABLE
-#define DOS_PRINT_DEBUG(fmt, args...)   do{(Dos_Salof("\n[DEBUG] >> "), Dos_Salof(fmt, ##args));}while(0)
+#define DOS_PRINT_DEBUG(fmt, args...)   do{(dos_salof("\n[DEBUG] >> "), dos_salof(fmt, ##args));}while(0)
 #else
 #define DOS_PRINT_DEBUG(fmt, ...)	     
 #endif
 
 #if DOS_PRINT_ERR_ENABLE
-#define DOS_PRINT_ERR(fmt, ...)     do{(Dos_Salof("\n[ERR] >> "), Dos_Salof(fmt, ##args));}while(0)     
+#define DOS_PRINT_ERR(fmt, ...)     do{(dos_salof("\n[ERR] >> "), dos_salof(fmt, ##args));}while(0)     
 #else
 #define DOS_PRINT_ERR(fmt, ...)	       
 #endif
 
 #if DOS_PRINT_INFO_ENABLE
-#define DOS_PRINT_INFO(fmt, ...)    do{(Dos_Salof("\n[INFO] >> "), Dos_Salof(fmt, ##args));}while(0)  
+#define DOS_PRINT_INFO(fmt, ...)    do{(dos_salof("\n[INFO] >> "), dos_salof(fmt, ##args));}while(0)  
 #else
 #define DOS_PRINT_INFO(fmt, ...)	       
 #endif

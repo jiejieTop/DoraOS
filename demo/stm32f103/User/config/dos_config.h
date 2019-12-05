@@ -1,3 +1,10 @@
+/*
+ * @Author: jiejie
+ * @Github: https://github.com/jiejieTop
+ * @Date: 2019-08-07 23:38:28
+ * @LastEditTime: 2019-12-05 23:25:14
+ * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
+ */
 #ifndef _DOS_CONFIG_H_
 #define _DOS_CONFIG_H_
 
