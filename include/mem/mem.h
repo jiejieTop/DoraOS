@@ -1,3 +1,10 @@
+/*
+ * @Author: jiejie
+ * @Github: https://github.com/jiejieTop
+ * @Date: 2019-07-15 23:56:23
+ * @LastEditTime: 2019-12-05 23:05:36
+ * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
+ */
 #ifndef __MEM_H_
 #define __MEM_H_
 #include <dos_def.h>

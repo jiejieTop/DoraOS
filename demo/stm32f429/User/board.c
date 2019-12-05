@@ -1,19 +1,10 @@
-/**
-  ******************************************************************************
-  * @file    main.c
-  * @author  fire
-  * @version V1.0
-  * @date    2017-xx-xx
-  * @brief   GPIO输出--使用固件库点亮LED灯
-  ******************************************************************************
-  * @attention
-  *
-  * 实验平台:野火 STM32 F429 开发板 
-  * 论坛    :http://www.firebbs.cn
-  * 淘宝    :http://firestm32.taobao.com
-  *
-  ******************************************************************************
-  */
+/*
+ * @Author: jiejie
+ * @Github: https://github.com/jiejieTop
+ * @Date: 2019-08-07 23:38:28
+ * @LastEditTime: 2019-12-05 23:02:35
+ * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
+ */
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx.h"

@@ -1,11 +1,11 @@
-/**
-  * @file    app_event.c
-  * @author  jiejie
-  * @version V1.0
-  * @date    2019
-  * @brief   this is an event api example
-  */
-//#include "include.h"
+/*
+ * @Author: jiejie
+ * @Github: https://github.com/jiejieTop
+ * @Date: 2019-07-18 23:05:51
+ * @LastEditTime: 2019-12-05 23:08:07
+ * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
+ */
+
 #include <task.h>
 #include <event.h>
 #include <log.h>

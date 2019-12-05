@@ -1,3 +1,10 @@
+/*
+ * @Author: jiejie
+ * @Github: https://github.com/jiejieTop
+ * @Date: 2019-07-15 23:56:23
+ * @LastEditTime: 2019-12-05 23:04:40
+ * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
+ */
 #ifndef _EVENT_H_
 #define _EVENT_H_
 #include <dos_def.h>
