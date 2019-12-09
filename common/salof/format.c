@@ -2,13 +2,13 @@
  * @Author: jiejie
  * @Github: https://github.com/jiejieTop
  * @Date: 2019-08-07 23:38:28
- * @LastEditTime: 2019-12-05 23:09:04
+ * @LastEditTime: 2019-12-08 23:24:01
  * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
  */
 #include <format.h>
 
 
-static dos_int32 _Dos_Get_AtoI(const dos_char **str)
+static dos_int32 _dos_get_atoi(const dos_char **str)
 {
     dos_int32 n;
     for (n = 0; is_digit(**str); (*str)++)
@@ -16,7 +16,7 @@ static dos_int32 _Dos_Get_AtoI(const dos_char **str)
     return n;
 }
 
-static dos_void _Dos_Buff_Put_Char(dos_char *buf, dos_size *pos, dos_size max, dos_char c)
+static dos_void _dos_buff_put_char(dos_char *buf, dos_size *pos, dos_size max, dos_char c)
 {
     if (*pos < max)
         buf[(*pos)] = c;
@@ -34,7 +34,7 @@ static dos_void _Dos_Buff_Put_Char(dos_char *buf, dos_size *pos, dos_size max, d
  *  width - how many spaces this should have; padding
  *  flags - above F flags
  */
-static dos_void _Dos_Format_Int(dos_char *buf, dos_size *len, dos_size maxlen,
+static dos_void _dos_format_int(dos_char *buf, dos_size *len, dos_size maxlen,
         dos_int64 num, dos_int32 base, dos_int32 width, dos_int32 flags)
 {
     dos_char nbuf[64], sign = 0;
@@ -84,24 +84,24 @@ static dos_void _Dos_Format_Int(dos_char *buf, dos_size *len, dos_size maxlen,
     if (npad > 0 && ((flags & F_LEFT) == 0)) {
         if (flags & F_ZEROPAD) {
             for (j = 0; altb[j]; j++)
-                _Dos_Buff_Put_Char(buf, len, maxlen, altb[j]);
+                _dos_buff_put_char(buf, len, maxlen, altb[j]);
             altb[0] = 0;
         }
         while (npad-- > 0)
-            _Dos_Buff_Put_Char(buf, len, maxlen, (flags & F_ZEROPAD) ? '0' : ' ');
+            _dos_buff_put_char(buf, len, maxlen, (flags & F_ZEROPAD) ? '0' : ' ');
     }
     for (j = 0; altb[j]; j++)
-        _Dos_Buff_Put_Char(buf, len, maxlen, altb[j]);
+        _dos_buff_put_char(buf, len, maxlen, altb[j]);
 
     while (i-- > 0)
-        _Dos_Buff_Put_Char(buf, len, maxlen, nbuf[i]);
+        _dos_buff_put_char(buf, len, maxlen, nbuf[i]);
 
     if (npad > 0 && (flags & F_LEFT))
         while(npad-- > 0)
-            _Dos_Buff_Put_Char(buf, len, maxlen, pchar);
+            _dos_buff_put_char(buf, len, maxlen, pchar);
 }
 
-static dos_void _Dos_Format_Char(dos_char *buf, dos_size *pos, dos_size max, dos_char c,
+static dos_void _dos_format_char(dos_char *buf, dos_size *pos, dos_size max, dos_char c,
         dos_int32 width, dos_int32 flags)
 {
     dos_int32 npad = 0;
@@ -110,19 +110,19 @@ static dos_void _Dos_Format_Char(dos_char *buf, dos_size *pos, dos_size max, dos
 
     if (npad && ((flags & F_LEFT) == 0))
         while (npad-- > 0)
-            _Dos_Buff_Put_Char(buf, pos, max, ' ');
+            _dos_buff_put_char(buf, pos, max, ' ');
 
-    _Dos_Buff_Put_Char(buf, pos, max, c);
+    _dos_buff_put_char(buf, pos, max, c);
 
     if (npad && (flags & F_LEFT))
         while (npad-- > 0)
-            _Dos_Buff_Put_Char(buf, pos, max, ' ');
+            _dos_buff_put_char(buf, pos, max, ' ');
 }
 
 /**
  * strlen()
  */
-static dos_size _Dos_StrLen(dos_char *s)
+static dos_size _dos_strlen(dos_char *s)
 {
     dos_size i;
     for (i = 0; *s; i++, s++)
@@ -130,23 +130,23 @@ static dos_size _Dos_StrLen(dos_char *s)
     return i;
 }
 
-static dos_void _Dos_Format_Str(dos_char *buf, dos_size *pos, dos_size max, dos_char *s,
+static dos_void _dos_format_str(dos_char *buf, dos_size *pos, dos_size max, dos_char *s,
         dos_int32 width, dos_int32 flags)
 {
     dos_int32 npad = 0;
-    if (width > 0) npad = width - _Dos_StrLen(s);
+    if (width > 0) npad = width - _dos_strlen(s);
     if (npad < 0) npad = 0;
 
     if (npad && ((flags & F_LEFT) == 0))
         while (npad-- > 0)
-            _Dos_Buff_Put_Char(buf, pos, max, ' ');
+            _dos_buff_put_char(buf, pos, max, ' ');
 
     while (*s)
-        _Dos_Buff_Put_Char(buf, pos, max, *s++);
+        _dos_buff_put_char(buf, pos, max, *s++);
 
     if (npad && (flags & F_LEFT))
         while (npad-- > 0)
-            _Dos_Buff_Put_Char(buf, pos, max, ' ');
+            _dos_buff_put_char(buf, pos, max, ' ');
 }
 
 
@@ -176,7 +176,7 @@ dos_int32 dos_format_nstr(dos_char *buf, dos_size size, const dos_char *fmt, va_
                 state = S_FLAGS;
                 flags = 0;
             } else {
-                _Dos_Buff_Put_Char(buf, &n, size, c);
+                _dos_buff_put_char(buf, &n, size, c);
             }
         } else if (state == S_FLAGS) {
             switch (c) {
@@ -198,7 +198,7 @@ dos_int32 dos_format_nstr(dos_char *buf, dos_size size, const dos_char *fmt, va_
                 }
             } else if (is_digit(c) && c > '0') {
                 fmt--;
-                width = _Dos_Get_AtoI(&fmt);
+                width = _dos_get_atoi(&fmt);
             } else {
                 fmt--;
                 precision = -1;
@@ -208,7 +208,7 @@ dos_int32 dos_format_nstr(dos_char *buf, dos_size size, const dos_char *fmt, va_
             // Ignored for now, but skip it
             if (c == '.') {
                 if (is_digit(*fmt))
-                    precision = _Dos_Get_AtoI(&fmt);
+                    precision = _dos_get_atoi(&fmt);
                 else if (*fmt == '*')
                     precision = va_arg(ap, dos_int32);
                 precision = precision < 0 ? 0 : precision;
@@ -246,25 +246,25 @@ dos_int32 dos_format_nstr(dos_char *buf, dos_size size, const dos_char *fmt, va_
                 } else if (c == 'b') {
                     base = 2;
                 }
-                _Dos_Format_Int(buf, &n, size, num, base, width, flags);
+                _dos_format_int(buf, &n, size, num, base, width, flags);
             } else if (c == 'p') {
                 num = (dos_int32) va_arg(ap, dos_void *);
                 base = 16;
                 flags |= F_SMALL | F_ALTERNATE;
-                _Dos_Format_Int(buf, &n, size, num, base, width, flags);
+                _dos_format_int(buf, &n, size, num, base, width, flags);
             } else if (c == 's') {
                 s = va_arg(ap, dos_char *);
                 if (!s)
                     s = "(null)";
-                _Dos_Format_Str(buf, &n, size, s, width, flags);
+                _dos_format_str(buf, &n, size, s, width, flags);
             } else if (c == 'c') {
                 c = va_arg(ap, dos_int32);
-                _Dos_Format_Char(buf, &n, size, c, width, flags);
+                _dos_format_char(buf, &n, size, c, width, flags);
             } else if (c == '%') {
-                _Dos_Buff_Put_Char(buf, &n, size, c);
+                _dos_buff_put_char(buf, &n, size, c);
             } else {
-                _Dos_Buff_Put_Char(buf, &n, size, '%');
-                _Dos_Buff_Put_Char(buf, &n, size, c);
+                _dos_buff_put_char(buf, &n, size, '%');
+                _dos_buff_put_char(buf, &n, size, c);
             }
             state = S_DEFAULT;
         }
