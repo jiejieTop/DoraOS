@@ -10,6 +10,8 @@
 #include <task.h>
 #include <log.h>
 #include <memp.h>
+#include "cmd.h"
+
 /** Variable declaration */
 dos_task_t task1 = DOS_NULL;
 dos_task_t task2 = DOS_NULL;
@@ -20,12 +22,20 @@ dos_task_t task2 = DOS_NULL;
 /** Function declaration */
 static void BSP_Init(void);
 
+void test_cmd(void)
+{
+    DOS_LOG_INFO("test_cmd\n");
+}
+
+REGISTER_CMD(test,test_cmd);
+
 
 void test_task1(void *Parameter)
 {
     while(1)
     {
         DOS_LOG_INFO("task1 running\n");
+        cmd_parsing("test");
         dos_task_sleep(1000);
     }
 }
@@ -45,7 +55,7 @@ void test_task2(void *Parameter)
 int main(void)
 {
     BSP_Init();
-
+    cmd_init();
     dos_system_init();
     
     task1 = dos_task_create( "test_task1",
