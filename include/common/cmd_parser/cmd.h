@@ -2,7 +2,7 @@
  * @Author: jiejie
  * @Github: https://github.com/jiejieTop
  * @Date: 2019-12-13 10:48:52
- * @LastEditTime: 2019-12-13 11:52:23
+ * @LastEditTime: 2019-12-13 12:44:51
  * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
  */
 #ifndef _CMD_H_
@@ -17,10 +17,6 @@
     #include <stdarg.h>
     #define SECTION(x)                  @ x
     #define CMD_USED                    __root
-
-#elif defined (__GNUC__)                /* GNU GCC Compiler */
-    #define SECTION(x)                  __attribute__((section(x)))
-    #define CMD_USED                    __attribute__((used))
 #else
     #error "not supported tool chain..."
 #endif
@@ -33,7 +29,7 @@ typedef struct cmd {
 	cmd_handler     handler;
 } cmd_t;
 
-#define REGISTER_CMD(cmd, handler)                             \
+#define REGISTER_CMD(cmd, handler)                              \
     const char _register_##cmd##_handler[] = #cmd;              \
     CMD_USED const cmd_t _register_##cmd SECTION("CMDS")=       \
     {                                                           \

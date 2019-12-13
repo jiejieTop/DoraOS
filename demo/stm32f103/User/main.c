@@ -27,8 +27,19 @@ void test_cmd(void)
     DOS_LOG_INFO("test_cmd\n");
 }
 
-REGISTER_CMD(test,test_cmd);
+void test1_cmd(void)
+{
+    DOS_LOG_INFO("test1_cmd\n");
+}
 
+void test2_cmd(void)
+{
+    DOS_LOG_INFO("test2_cmd\n");
+}
+
+REGISTER_CMD(test,test_cmd);
+REGISTER_CMD(test1,test1_cmd);
+REGISTER_CMD(test2,test2_cmd);
 
 void test_task1(void *Parameter)
 {
@@ -36,6 +47,8 @@ void test_task1(void *Parameter)
     {
         DOS_LOG_INFO("task1 running\n");
         cmd_parsing("test");
+        cmd_parsing("test1");
+        cmd_parsing("test2");
         dos_task_sleep(1000);
     }
 }
