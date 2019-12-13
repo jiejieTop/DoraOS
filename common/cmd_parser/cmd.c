@@ -2,7 +2,7 @@
  * @Author: jiejie
  * @Github: https://github.com/jiejieTop
  * @Date: 2019-12-13 10:47:30
- * @LastEditTime: 2019-12-13 12:49:57
+ * @LastEditTime: 2019-12-13 13:39:35
  * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
  */
 #include "cmd.h"
@@ -35,9 +35,6 @@ static int _cmd_match(const char *str, const char *cmd)
     return *str - *cmd;
 }
 
-
-
-
 void cmd_init(void)
 {
 
@@ -57,7 +54,8 @@ void cmd_parsing(char *str)
 
     for (index = _cmd_begin; index < _cmd_end; index = _get_next_cmd(index)) {
         if (_cmd_match(str, index->cmd) == 0) {
-            index->handler();
+            if (index->handler != NULL)
+                index->handler();
         }
     }
 }

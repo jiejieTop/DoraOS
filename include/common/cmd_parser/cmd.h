@@ -2,7 +2,7 @@
  * @Author: jiejie
  * @Github: https://github.com/jiejieTop
  * @Date: 2019-12-13 10:48:52
- * @LastEditTime: 2019-12-13 12:44:51
+ * @LastEditTime: 2019-12-13 13:44:42
  * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
  */
 #ifndef _CMD_H_
@@ -30,10 +30,10 @@ typedef struct cmd {
 } cmd_t;
 
 #define REGISTER_CMD(cmd, handler)                              \
-    const char _register_##cmd##_handler[] = #cmd;              \
+    const char _register_##cmd##_name[] = #cmd;                 \
     CMD_USED const cmd_t _register_##cmd SECTION("CMDS")=       \
     {                                                           \
-        _register_##cmd##_handler,                              \
+        _register_##cmd##_name,                                 \
         (cmd_handler)&handler                                   \
     };
 
