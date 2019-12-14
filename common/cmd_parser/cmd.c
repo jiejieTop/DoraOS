@@ -6,13 +6,14 @@
  * @Description: the code belongs to jiejie, please keep the author information and source code according to the license.
  */
 #include "cmd.h"
+#include <stdio.h>
 
 static cmd_t *_cmd_begin, *_cmd_end;
 
 static void _cmd_init(const void *begin, const void *end)
 {
-    _cmd_begin = (struct cmd *) begin;
-    _cmd_end = (struct cmd *) end;
+    _cmd_begin = (cmd_t*) begin;
+    _cmd_end = (cmd_t*) end;
 }
 
 static cmd_t* _get_next_cmd(cmd_t *cmd)
@@ -22,7 +23,7 @@ static cmd_t* _get_next_cmd(cmd_t *cmd)
     while ((*ptr == 0) && ((unsigned int*)ptr < (unsigned int*) _cmd_end))
         ptr ++;
 
-    return (cmd_t*)ptr;
+    return (cmd_t*) ptr;
 }
 
 static int _cmd_match(const char *str, const char *cmd)
@@ -34,6 +35,15 @@ static int _cmd_match(const char *str, const char *cmd)
     
     return *str - *cmd;
 }
+
+static void _list(void)
+{
+    cmd_t *index;
+    for (index = _cmd_begin; index < _cmd_end; index = _get_next_cmd(index)) {
+        printf("%s\n",index->cmd);
+    }
+}
+REGISTER_CMD(_list, _list);
 
 void cmd_init(void)
 {
@@ -54,8 +64,7 @@ void cmd_parsing(char *str)
 
     for (index = _cmd_begin; index < _cmd_end; index = _get_next_cmd(index)) {
         if (_cmd_match(str, index->cmd) == 0) {
-            if (index->handler != NULL)
-                index->handler();
+            index->handler();
         }
     }
 }

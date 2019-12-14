@@ -49,6 +49,7 @@ void test_task1(void *Parameter)
         cmd_parsing("test");
         cmd_parsing("test1");
         cmd_parsing("test2");
+        cmd_parsing("_list");
         dos_task_sleep(1000);
     }
 }
